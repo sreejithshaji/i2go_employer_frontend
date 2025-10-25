@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import TeamCard from "../../components/TeamCard/TeamCard";
-import { supabase } from "../../services/supabase";
 import { candidatesService } from "../../services/candidates";
 
 
