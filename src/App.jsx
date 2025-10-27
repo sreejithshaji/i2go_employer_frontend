@@ -1,16 +1,34 @@
-
 import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
-import TeamCard from "./components/TeamCard/TeamCard";
 import Sidebar from "./components/Sidebar/Sidebar";
 import People from "./body/people/people";
+import Login from "./pages/Login";
+import ProtectedRoute from "./pages/ProtectedRoute";
+import Header from "./components/Header/Header";
 
 function App() {
   return (
-    <div className="dashboard-layout">
-      <Sidebar />
-      <People />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <div className="dashboard-layout"  >
+                <Sidebar />
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', paddingLeft: 32, paddingRight: 32, paddingTop: 48 }}>
+                  <Header />
+                  <People />
+                </div>
+              </div>
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
 

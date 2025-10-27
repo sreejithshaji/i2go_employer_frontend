@@ -440,10 +440,10 @@ body {
 }
 
 .design-team-header {
+  height: 50px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  /* margin-bottom: 32px; */
 }
 
 .design-team-header h2 {
@@ -465,15 +465,17 @@ body {
   background: #fff;
   font-size: 1rem;
   color: #677399;
+  min-width: 250px;
 }
 
-.grade-select {
+.subcategory-select {
   padding: 8px 12px;
   border-radius: 8px;
   border: 1px solid #ECF1FD;
   background: #fff;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #677399;
+  min-width: 180px;
 }
 
 .filter-btn {
@@ -484,6 +486,11 @@ body {
   padding: 8px 12px;
   font-size: 1.2rem;
   cursor: pointer;
+}
+
+.no-results {
+  color: #9CA3AF;
+  font-style: italic;
 }
 
 body {
@@ -498,6 +505,7 @@ body {
   background: #ECF1FD;
   height: 100vh;
   width: 100vw;
+
 }
 
 .sidebar {
@@ -554,7 +562,7 @@ body {
   flex: 1 1 0;
   display: flex;
   flex-direction: column;
-  padding: 48px 48px 48px 48px;
+  padding: 0px 48px 48px 18px;
   background: #ECF1FD;
   overflow: hidden;
   min-height: 100vh;

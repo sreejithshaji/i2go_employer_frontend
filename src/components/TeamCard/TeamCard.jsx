@@ -74,7 +74,6 @@ function TeamCard({
                                 onClick={() => tagGroup.type === 'education' ? navigateEducation('prev') : navigateSkills('prev')}
                                 disabled={tagGroup.type === 'education' ? educationIndex === 0 : skillsIndex === 0}
                             >
-                                ‹
                             </button>
                             <div className="tag-display">
                                 <span

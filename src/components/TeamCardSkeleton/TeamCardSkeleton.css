@@ -1,0 +1,72 @@
+/* Skeleton Loading Styles */
+.skeleton-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 24px rgba(59, 130, 237, 0.08);
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    margin-bottom: 16px;
+}
+
+.skeleton-name {
+    width: 120px;
+    height: 18px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.skeleton-role {
+    width: 80px;
+    height: 14px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    margin-bottom: 16px;
+}
+
+.skeleton-stats {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.skeleton-stat {
+    width: 60px;
+    height: 14px;
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+.skeleton-tags {
+    display: flex;
+    gap: 8px;
+}
+
+.skeleton-tag {
+    width: 70px;
+    height: 20px;
+    background: #f0f0f0;
+    border-radius: 10px;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}

@@ -3,10 +3,16 @@ import { supabase, supabaseMasters } from './supabase';
 
 export const candidatesService = {
     // Fetch candidates with job subcategory, work experience, education, and technical skills
-    async getCandidates() {
+    async getCandidates(options = {}) {
+        const {
+            page = 1,
+            limit = 12,
+            searchQuery = '',
+            subCategoryId = null
+        } = options;
+
         try {
-            // Use inner joins to fetch all related data in a single query where possible
-            const { data, error } = await supabase
+            let query = supabase
                 .from('candidates')
                 .select(`
           *,
@@ -41,8 +47,26 @@ export const candidatesService = {
               skill_category
             )
           )
-        `)
-                .order('created_at', { ascending: false });
+        `, { count: 'exact' });
+
+            // Apply search filters
+            if (searchQuery.trim()) {
+                query = query.or(`full_name.ilike.%${searchQuery}%,register_number.ilike.%${searchQuery}%`);
+            }
+
+            // Apply sub category filter
+            if (subCategoryId) {
+                query = query.eq('job_sub_category_id', subCategoryId);
+            }
+
+            // Apply pagination
+            const offset = (page - 1) * limit;
+            query = query.range(offset, offset + limit - 1);
+
+            // Order by creation date
+            query = query.order('created_at', { ascending: false });
+
+            const { data, error, count } = await query;
 
             if (error) {
                 console.error('Error fetching candidates with joins:', error);
@@ -65,9 +89,35 @@ export const candidatesService = {
                 };
             }) || [];
 
-            return processedData;
+            return {
+                data: processedData,
+                count: count,
+                hasMore: processedData.length === limit,
+                page: page,
+                limit: limit
+            };
         } catch (error) {
             console.error('Error in getCandidates:', error);
+            throw error;
+        }
+    },
+
+    // Fetch subcategories for filtering
+    async getSubCategories() {
+        try {
+            const { data, error } = await supabaseMasters
+                .from('sub_categories')
+                .select('id, name, main_category_id')
+                .order('name', { ascending: true });
+
+            if (error) {
+                console.error('Error fetching subcategories:', error);
+                throw error;
+            }
+
+            return data || [];
+        } catch (error) {
+            console.error('Error in getSubCategories:', error);
             throw error;
         }
     },    // Fetch a single candidate with all details
