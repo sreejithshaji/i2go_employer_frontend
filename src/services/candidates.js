@@ -105,9 +105,9 @@ export const candidatesService = {
     // Fetch subcategories for filtering
     async getSubCategories() {
         try {
-            const { data, error } = await supabaseMasters
-                .from('sub_categories')
-                .select('id, name, main_category_id')
+            const { data, error } = await supabase
+                .from('sub_categories_view')
+                .select('id, name')
                 .order('name', { ascending: true });
 
             if (error) {
