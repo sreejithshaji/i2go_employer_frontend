@@ -15,6 +15,12 @@ body {
   overflow: hidden;
 }
 
+.dashboard-layout {
+  display: flex;
+  height: 100vh;
+  position: relative;
+}
+
 
 
 @media (max-width: 900px) {
@@ -179,7 +185,7 @@ body {
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(59, 130, 237, 0.04);
   overflow-y: auto;
-  max-height: calc(100vh - 220px);
+  max-height: calc(100vh - 200px);
   -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
   width: 100%;
@@ -452,6 +458,7 @@ body {
   font-weight: 700;
 }
 
+
 .search-filter {
   display: flex;
   align-items: center;
@@ -509,7 +516,7 @@ body {
 }
 
 .sidebar {
-  width: 220px;
+  width: 160px;
   background: #fff;
   box-shadow: 2px 0 16px rgba(59, 130, 237, 0.05);
   padding: 32px 0 32px 32px;
@@ -521,10 +528,25 @@ body {
   font-size: 1.7rem;
   font-weight: 700;
   margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-image {
+  height: 70px;
+  width: auto;
+  max-width: 180px;
+  object-fit: contain;
 }
 
 .logo .blue {
   color: #3B82ED;
+}
+
+.sidebar.collapsed .logo {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .sidebar nav ul {
@@ -547,7 +569,7 @@ body {
   background: #ECF1FD;
   color: #3B82ED;
   font-weight: 600;
-  border-radius: 15px;
+  border-radius: 10px;
   padding: 6px 14px 6px 14px;
   font-size: 1.05rem;
   width: 160px;
@@ -565,7 +587,4 @@ body {
   padding: 0px 48px 48px 18px;
   background: #ECF1FD;
   overflow: hidden;
-  min-height: 100vh;
-  height: 100%;
-  box-sizing: border-box;
 }

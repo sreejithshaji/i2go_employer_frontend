@@ -8,7 +8,7 @@ export const candidatesService = {
             page = 1,
             limit = 12,
             searchQuery = '',
-            subCategoryId = null
+            subCategoryIds = null
         } = options;
 
         try {
@@ -55,8 +55,8 @@ export const candidatesService = {
             }
 
             // Apply sub category filter
-            if (subCategoryId) {
-                query = query.eq('job_sub_category_id', subCategoryId);
+            if (subCategoryIds && subCategoryIds.length > 0) {
+                query = query.in('job_sub_category_id', subCategoryIds);
             }
 
             // Apply pagination

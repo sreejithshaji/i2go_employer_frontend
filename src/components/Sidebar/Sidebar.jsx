@@ -1,11 +1,16 @@
 import React from "react";
 import { FiHome, FiUsers, FiBarChart2, FiCalendar, FiBriefcase, FiSettings } from "react-icons/fi";
+import logo from '../../assets/logo/i2go_logo.png';
 import "../../App.css";
 
 function Sidebar() {
     return (
         <aside className="sidebar">
-            <div className="logo">Emplo<span className="blue">Yee</span></div>
+            <div className="sidebar-header">
+                <div className="logo">
+                    <img src={logo} alt="i2Go Logo" className="logo-image" />
+                </div>
+            </div>
             <nav>
                 <ul>
                     <li><FiHome className="menu-icon" /> Dashboard</li>

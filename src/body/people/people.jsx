@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
+import Select from 'react-select';
 import TeamCard from "../../components/TeamCard/TeamCard";
 import TeamCardSkeleton from "../../components/TeamCardSkeleton/TeamCardSkeleton";
 import { candidatesService } from "../../services/candidates";
@@ -12,7 +13,7 @@ const People = () => {
 
     // Search and filter states
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedSubCategory, setSelectedSubCategory] = useState('');
+    const [selectedSubCategories, setSelectedSubCategories] = useState([]);
 
     // Pagination states
     const [currentPage, setCurrentPage] = useState(1);
@@ -63,7 +64,7 @@ const People = () => {
                 page: page,
                 limit: pageSize,
                 searchQuery: debouncedSearchQuery,
-                subCategoryId: selectedSubCategory || null
+                subCategoryIds: selectedSubCategories.length > 0 ? selectedSubCategories : null
             };
 
             const result = await candidatesService.getCandidates(options);
@@ -86,7 +87,7 @@ const People = () => {
             setLoading(false);
             setIsLoadingMore(false);
         }
-    }, [debouncedSearchQuery, selectedSubCategory]);
+    }, [debouncedSearchQuery, selectedSubCategories]);
 
     // Initial load and when filters change
     useEffect(() => {
@@ -99,15 +100,16 @@ const People = () => {
     };
 
     // Handle subcategory filter change
-    const handleSubCategoryChange = (e) => {
-        setSelectedSubCategory(e.target.value);
+    const handleSubCategoryChange = (selectedOptions) => {
+        const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
+        setSelectedSubCategories(selectedIds);
     };
 
     // Reset to first page when filters change
     useEffect(() => {
         setCurrentPage(1);
         setCandidates([]);
-    }, [debouncedSearchQuery, selectedSubCategory]);
+    }, [debouncedSearchQuery, selectedSubCategories]);
 
     // Infinite scroll handler
     const handleScroll = useCallback(() => {
@@ -141,27 +143,57 @@ const People = () => {
         <main className="main-content">
             <div className="design-team-header">
                 <h2>Candidates</h2>
-                <div className="search-filter">
-                    <input
-                        type="text"
-                        placeholder="Search by name or register number"
-                        className="search-input"
-                        value={searchQuery}
-                        onChange={handleSearchChange}
-                    />
-                    <select
-                        className="subcategory-select"
-                        value={selectedSubCategory}
-                        onChange={handleSubCategoryChange}
-                    >
-                        <option value="">All Categories</option>
-                        {subCategories.map(subCategory => (
-                            <option key={subCategory.id} value={subCategory.id}>
-                                {subCategory.name}
-                            </option>
-                        ))}
-                    </select>
-                    <button className="filter-btn">☰</button>
+                <div >
+                    <div className="search-filter">
+                        <input
+                            type="text"
+                            placeholder="Search by name or register number"
+                            className="search-input"
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                        />
+                        <Select
+                            isMulti
+                            options={subCategories.map(subCategory => ({
+                                value: subCategory.id,
+                                label: subCategory.name
+                            }))}
+                            value={subCategories
+                                .filter(subCategory => selectedSubCategories.includes(subCategory.id))
+                                .map(subCategory => ({
+                                    value: subCategory.id,
+                                    label: subCategory.name
+                                }))}
+                            onChange={handleSubCategoryChange}
+                            placeholder="Select categories..."
+                            className="subcategory-select"
+                            classNamePrefix="select"
+                            styles={{
+                                control: (provided) => ({
+                                    ...provided,
+                                    minWidth: 200,
+                                    fontSize: '14px'
+                                }),
+                                multiValue: (provided) => ({
+                                    ...provided,
+                                    backgroundColor: '#e3f2fd'
+                                }),
+                                multiValueLabel: (provided) => ({
+                                    ...provided,
+                                    color: '#1565c0'
+                                }),
+                                multiValueRemove: (provided) => ({
+                                    ...provided,
+                                    color: '#1565c0',
+                                    ':hover': {
+                                        backgroundColor: '#bbdefb',
+                                        color: '#0d47a1'
+                                    }
+                                })
+                            }}
+                        />
+                        <button className="filter-btn">☰</button>
+                    </div>
                 </div>
             </div>
             <div className="content-row">

@@ -10,34 +10,44 @@ if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Supabase configuration is required');
 }
 
-// Create and export the Supabase client with public schema as default
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-    },
-    db: {
-        schema: 'public'
+// Singleton pattern to prevent multiple client instances
+let supabaseInstance: any = null;
+
+export const supabase = (() => {
+    if (!supabaseInstance) {
+        supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
+            auth: {
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: true
+            },
+            db: {
+                schema: 'public'
+            },
+            global: {
+                headers: {
+                    'X-Client-Info': 'supabase-js-web'
+                }
+            }
+        });
+
+        // Suppress the multiple instances warning in development
+        if (import.meta.env.DEV) {
+            const originalWarn = console.warn;
+            console.warn = (...args) => {
+                if (args[0]?.includes?.('Multiple GoTrueClient instances detected')) {
+                    return; // Suppress this specific warning
+                }
+                originalWarn.apply(console, args);
+            };
+        }
     }
-});
+    return supabaseInstance;
+})();
 
 // Create a client specifically for masters schema
 export const supabaseMasters = createClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true
-    },
     db: {
         schema: 'masters'
     }
 });
-
-// Export the client as default for backward compatibility (public schema)
-export const getSupabaseClient = () => supabase;
-
-// Export masters schema client
-export const getMastersClient = () => supabaseMasters;
-
-export default getSupabaseClient;
