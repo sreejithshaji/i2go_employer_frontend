@@ -46,13 +46,13 @@ function TeamCard({
         if (isCandidate) {
             return [
                 { label: "Education", tags: education_tags, type: "education" },
-                { label: "Skills", tags: skill_tags, type: "skill" }
+                // { label: "Skills", tags: skill_tags, type: "skill" }
             ];
         } else {
             // For team members, show empty sections
             return [
                 { label: "Education", tags: [], type: "education" },
-                { label: "Skills", tags: [], type: "skill" }
+                // { label: "Skills", tags: [], type: "skill" }
             ];
         }
     };
@@ -150,11 +150,24 @@ function TeamCard({
                 </div>
             )}
 
-            {/* Open button for candidates */}
+            {/* Open and Schedule buttons for candidates */}
             {isCandidate && (
-                <button className="open-profile-btn" onClick={onClick} style={{ marginTop: 12, padding: '6px 18px', borderRadius: 6, background: '#1976d2', color: '#fff', border: 'none', fontWeight: 500, cursor: 'pointer' }}>
-                    Open
-                </button>
+                <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+                    <button
+                        className="open-profile-btn"
+                        onClick={onClick}
+                        style={{ padding: '6px 18px', borderRadius: 6, background: '#1976d2', color: '#fff', border: 'none', fontWeight: 500, cursor: 'pointer' }}
+                    >
+                        Open
+                    </button>
+                    <button
+                        className="schedule-profile-btn"
+                        // TODO: Add onClick handler for scheduling
+                        style={{ padding: '6px 5px', borderRadius: 6, background: '#43a047', color: '#fff', border: 'none', fontWeight: 500, cursor: 'pointer' }}
+                    >
+                        Schedule
+                    </button>
+                </div>
             )}
         </div>
     );
