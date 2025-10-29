@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import "./App.css";
 import Sidebar from "./components/Sidebar/Sidebar";
 import People from "./body/people/people";
+import MeetingsBody from "./body/meetings/MeetingsBody";
 import Login from "./pages/Login";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import Header from "./components/Header/Header";
@@ -37,7 +38,11 @@ function App() {
                     flexDirection: 'column',
                     overflow: 'auto'
                   }}>
-                    <People />
+                    <Routes>
+                      <Route path="/people" element={<People />} />
+                      <Route path="/meetings" element={<MeetingsBody />} />
+                      <Route path="/" element={<People />} />
+                    </Routes>
                   </div>
                   <Footer />
                 </div>
