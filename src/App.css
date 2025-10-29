@@ -13,6 +13,9 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  background: #f7f9fb;
+  color: #222;
 }
 
 .dashboard-layout {

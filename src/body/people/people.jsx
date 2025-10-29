@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Select from 'react-select';
 import TeamCard from "../../components/TeamCard/TeamCard";
+import ProfilePopup from "../../components/ProfilePopup/ProfilePopup";
 import TeamCardSkeleton from "../../components/TeamCardSkeleton/TeamCardSkeleton";
 import { candidatesService } from "../../services/candidates";
 import '../../components/TeamCardSkeleton/TeamCardSkeleton.css';
@@ -26,8 +27,44 @@ const People = () => {
 
     const pageSize = 12;
 
+
     // Debounced search
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+
+    // Popup state
+    const [popupOpen, setPopupOpen] = useState(false);
+    const [currentProfileIndex, setCurrentProfileIndex] = useState(null);
+    const [profileData, setProfileData] = useState(null);
+    const [profileLoading, setProfileLoading] = useState(false);
+    const [profileError, setProfileError] = useState(null);
+
+    // Handle card click to open popup and fetch profile
+    const handleCardClick = async (candidateId) => {
+        const idx = candidates.findIndex(c => c.id === candidateId);
+        if (idx === -1) return;
+        setCurrentProfileIndex(idx);
+        setPopupOpen(true);
+        setProfileLoading(true);
+        setProfileError(null);
+        setProfileData(null);
+        try {
+            const data = await candidatesService.getCandidateById(candidateId);
+            setProfileData(data);
+        } catch (err) {
+            setProfileError(err.message || 'Failed to load profile');
+        } finally {
+            setProfileLoading(false);
+        }
+    };
+
+    // Close popup
+    const handleClosePopup = () => {
+        setPopupOpen(false);
+        setCurrentProfileIndex(null);
+        setProfileData(null);
+        setProfileError(null);
+    };
 
     // Debounce search query
     useEffect(() => {
@@ -216,8 +253,26 @@ const People = () => {
                         </div>
                     )}
                     {!loading && !error && candidates.map((candidate, idx) => (
-                        <TeamCard key={`${candidate.id}-${currentPage}-${idx}`} {...candidate} />
+                        <TeamCard
+                            key={`${candidate.id}-${currentPage}-${idx}`}
+                            {...candidate}
+                            onClick={() => handleCardClick(candidate.id)}
+                        />
                     ))}
+                    {/* Profile Popup */}
+                    <ProfilePopup
+                        open={popupOpen}
+                        onClose={handleClosePopup}
+                        profileData={profileData}
+                        loading={profileLoading}
+                        error={profileError}
+                        candidates={candidates}
+                        currentIndex={currentProfileIndex}
+                        setCurrentIndex={setCurrentProfileIndex}
+                        setProfileData={setProfileData}
+                        setProfileLoading={setProfileLoading}
+                        setProfileError={setProfileError}
+                    />
                     {isLoadingMore && (
                         <>
                             {Array.from({ length: 3 }, (_, index) => (

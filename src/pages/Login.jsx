@@ -82,7 +82,7 @@ const Login = ({ onLogin }) => {
             <div className="login-split-right">
                 <div className="login-image-bg">
                     <img
-                        src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80"
+                        src="https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg"
                         alt="Office background"
                         className="login-main-img"
                     />

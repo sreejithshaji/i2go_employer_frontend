@@ -1,7 +1,41 @@
-// src/services/candidates.js
 import { supabase, supabaseMasters } from './supabase';
 
 export const candidatesService = {
+    // Fetch the full data of a candidate/employee by ID, joining all related tables.
+    async fetchFullCandidateData(id) {
+        try {
+            const { data, error } = await supabase
+                .from('candidates')
+                .select(`
+                    *,
+                    candidate_addresses (*),
+                    candidate_education (*),
+                    candidate_work_experience (*),
+                    candidate_technical_skills (*, technical_skills (*)),
+                    candidate_languages (*, languages (*)),
+                    candidate_documents (*),
+                    sub_categories_view!job_sub_category_id (
+                        id,
+                        name,
+                        main_category_id,
+                        main_category_name
+                    )
+                `)
+                .eq('id', id)
+                .single();
+
+
+
+            if (error) {
+                console.error('Error fetching full candidate data:', error);
+                throw error;
+            }
+            return data;
+        } catch (error) {
+            console.error('Error in fetchFullCandidateData:', error);
+            throw error;
+        }
+    },
     // Fetch candidates with job subcategory, work experience, education, and technical skills
     async getCandidates(options = {}) {
         const {
@@ -149,6 +183,8 @@ export const candidatesService = {
                 .eq('id', id)
                 .single();
 
+            console.log('Fetched full candidate data:', data);
+
             if (error) {
                 console.error('Error fetching candidate:', error);
                 throw error;
@@ -157,6 +193,44 @@ export const candidatesService = {
             return data;
         } catch (error) {
             console.error('Error in getCandidateById:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Fetch the full data of a candidate/employee by ID, joining all related tables.
+     * @param {string} id - The candidate's UUID
+     * @returns {Promise<object>} The full candidate data with all joins
+     */
+    async fetchFullCandidateData(id) {
+        try {
+            const { data, error } = await supabase
+                .from('candidates')
+                .select(`
+                    *,
+                    candidate_addresses (*),
+                    candidate_education (*),
+                    candidate_work_experience (*),
+                    candidate_technical_skills (*, technical_skills (*)),
+                    candidate_languages (*, languages (*)),
+                    candidate_documents (*),
+                    sub_categories_view!job_sub_category_id (
+                        id,
+                        name,
+                        main_category_id,
+                        main_category_name
+                    )
+                `)
+                .eq('id', id)
+                .single();
+
+            if (error) {
+                console.error('Error fetching full candidate data:', error);
+                throw error;
+            }
+            return data;
+        } catch (error) {
+            console.error('Error in fetchFullCandidateData:', error);
             throw error;
         }
     }

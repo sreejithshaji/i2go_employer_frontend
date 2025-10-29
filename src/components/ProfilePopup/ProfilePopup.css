@@ -1,0 +1,661 @@
+.next-btn-inline {
+    margin-left: 1rem;
+    vertical-align: middle;
+    height: 1.5rem;
+}
+
+.profile-popup-header-name {
+    color: #333;
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    letter-spacing: 0.5px;
+}
+
+.profile-linkedin-avatar-col {
+    flex: 0 0 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+.profile-linkedin-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e3e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    background: #f4f6fa;
+}
+
+.profile-linkedin-main-col {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    justify-content: center;
+    min-width: 0;
+}
+
+.profile-linkedin-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 0.1rem;
+    line-height: 1.1;
+    word-break: break-word;
+}
+
+.profile-linkedin-title {
+    font-size: 1.18rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.1rem;
+    line-height: 1.2;
+}
+
+.profile-linkedin-meta {
+    font-size: 1.05rem;
+    color: #555;
+    margin-bottom: 0.08rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+
+.profile-linkedin-contact {
+    font-size: 1.05rem;
+    color: #1976d2;
+    margin-bottom: 0.08rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+}
+
+.profile-linkedin-address {
+    font-size: 1.05rem;
+    color: #444;
+    margin-bottom: 0.08rem;
+    word-break: break-word;
+}
+
+.profile-linkedin-date {
+    font-size: 1.01rem;
+    color: #888;
+    margin-top: 0.18rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    word-break: break-word;
+}
+
+.profile-linkedin-divider {
+    height: 1px;
+    background: #e3e8f0;
+    margin: 0 2.5rem 1.5rem 2.5rem;
+}
+
+.profile-section {
+    margin: 2.2rem 0 0 0;
+    padding-bottom: 0.5rem;
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+}
+
+.profile-section-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1a237e;
+    margin-bottom: 0.7rem;
+    letter-spacing: 0.01em;
+}
+
+.profile-section-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.profile-section-item {
+    background: #f7f9fb;
+    border-radius: 8px;
+    padding: 0.7rem 1.1rem;
+    font-size: 1.04rem;
+    color: #222;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    min-width: 0;
+}
+
+.profile-section-sub {
+    color: #666;
+    font-size: 0.98em;
+    margin-left: 0.3em;
+}
+
+.profile-section-detail {
+    color: #444;
+    font-size: 0.97em;
+    margin-top: 0.1em;
+}
+
+.profile-section-link {
+    color: #1976d2;
+    font-size: 0.97em;
+    margin-left: 0.7em;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.profile-popup-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 2.5rem 2.5rem 1.7rem 2.5rem;
+    background: #fff;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    margin-top: 2.2rem;
+}
+
+.profile-popup-cancel-btn {
+    background: #f4f6fa;
+    color: #222;
+    border: 1px solid #e3e8f0;
+    border-radius: 8px;
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border 0.15s;
+}
+
+.profile-popup-cancel-btn:hover {
+    background: #e3e8f0;
+}
+
+.close-btn {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+.close-btn:hover {
+    color: #222;
+}
+
+/* LinkedIn-style top section */
+.profile-linkedin-top {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 2.5rem;
+    padding: 2.5rem 2.5rem 1.5rem 2.5rem;
+}
+
+.profile-linkedin-avatar-col {
+    flex: 0 0 120px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.profile-linkedin-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e3e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.profile-linkedin-main-col {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.profile-linkedin-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin-bottom: 0.2rem;
+}
+
+.profile-linkedin-title {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.2rem;
+}
+
+.profile-linkedin-meta {
+    font-size: 1.05rem;
+    color: #555;
+    margin-bottom: 0.1rem;
+}
+
+.profile-linkedin-contact {
+    font-size: 1.05rem;
+    color: #1976d2;
+    margin-bottom: 0.1rem;
+}
+
+.profile-linkedin-address {
+    font-size: 1.05rem;
+    color: #444;
+    margin-bottom: 0.1rem;
+}
+
+.profile-linkedin-date {
+    font-size: 1.01rem;
+    color: #888;
+    margin-top: 0.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.profile-linkedin-divider {
+    height: 1px;
+    background: #e3e8f0;
+    margin: 0 2.5rem 1.5rem 2.5rem;
+}
+
+/* Profile sections for joined data */
+.profile-section {
+    margin: 2.2rem 0 0 0;
+    padding-bottom: 0.5rem;
+}
+
+.profile-section-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #1a237e;
+    margin-bottom: 0.7rem;
+    letter-spacing: 0.01em;
+}
+
+.profile-section-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.profile-section-item {
+    background: #f7f9fb;
+    border-radius: 8px;
+    padding: 0.7rem 1.1rem;
+    font-size: 1.04rem;
+    color: #222;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.profile-section-sub {
+    color: #666;
+    font-size: 0.98em;
+    margin-left: 0.3em;
+}
+
+.profile-section-detail {
+    color: #444;
+    font-size: 0.97em;
+    margin-top: 0.1em;
+}
+
+.profile-section-link {
+    color: #1976d2;
+    font-size: 0.97em;
+    margin-left: 0.7em;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.profile-popup-value {
+    font-size: 1.07rem;
+    color: #222;
+    background: none;
+    padding: 0.6rem 0 0.6rem 0;
+    border-radius: 7px;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    word-break: break-word;
+}
+
+.profile-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+
+
+
+    .profile-popup {
+        background: #fff;
+        border-radius: 20px;
+        padding: 0;
+        min-width: 1000px;
+        max-width: 1200px;
+        min-height: 80vh;
+        max-height: 92vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+        font-family: 'Inter', Arial, Helvetica, sans-serif;
+        color: #222;
+        animation: popup-fade-in 0.2s;
+    }
+
+    .profile-popup-form {
+        padding: 0;
+    }
+
+    .profile-popup-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 2.5rem 2.5rem 0.5rem 2.5rem;
+    }
+
+    .profile-popup-title {
+        font-size: 1.15rem;
+        font-weight: 600;
+        color: #222;
+    }
+
+    .profile-popup-edit-btn {
+        background: #f4f6fa;
+        border: 1px solid #e3e8f0;
+        border-radius: 8px;
+        padding: 0.3rem 0.8rem;
+        font-size: 1rem;
+        color: #555;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: background 0.15s, border 0.15s;
+    }
+
+    .profile-popup-edit-btn:hover {
+        background: #e3e8f0;
+    }
+
+    .icon-edit {
+        width: 1.1em;
+        height: 1.1em;
+        display: inline-block;
+        background: url('data:image/svg+xml;utf8,<svg fill="none" stroke="%23555" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a4 4 0 01-1.414.828l-4.243 1.414 1.414-4.243a4 4 0 01.828-1.414z"/></svg>') center/contain no-repeat;
+    }
+
+    .profile-popup-divider {
+        height: 1px;
+        background: #f0f1f3;
+        margin: 0 2.5rem 1.5rem 2.5rem;
+    }
+
+    .profile-popup-avatar-row {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-avatar-lg {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #e3e8f0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    }
+
+    .profile-popup-name {
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.2rem;
+        color: #1a237e;
+    }
+
+    .profile-popup-form-fields {
+        padding: 0 2.5rem 0 2.5rem;
+    }
+
+    .profile-popup-fields-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.2rem 2.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-popup-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .profile-popup-field label {
+        font-size: 1rem;
+        color: #666;
+        font-weight: 500;
+        margin-bottom: 0.18rem;
+        letter-spacing: 0.01em;
+    }
+
+    .profile-popup-field input {
+        font-size: 1.05rem;
+        padding: 0.6rem 1rem;
+        border: 1px solid #e3e8f0;
+        border-radius: 7px;
+        background: #f7f9fb;
+        color: #222;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .profile-popup-field input[readonly] {
+        background: #f7f9fb;
+        color: #222;
+        cursor: default;
+    }
+
+    .profile-popup-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.5rem;
+        padding: 2.5rem 2.5rem 0.5rem 2.5rem;
+        position: relative;
+    }
+
+    flex-wrap: wrap;
+
+    .center-name {
+        flex: 1 1 0;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+}
+
+.profile-popup-nav-btn {
+    background: #fff;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    padding: 0.15rem 0.7rem;
+    font-size: 1rem;
+    color: #333;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background 0.15s, border 0.15s;
+    display: flex;
+    align-items: center;
+    height: 2.1rem;
+}
+
+.profile-popup-date-field {
+    /* removed nested .next-btn-inline for valid CSS */
+
+    color: #222;
+
+    /* Skeleton alignment improvements */
+    .profile-popup-loading .profile-linkedin-top {
+        align-items: center;
+    }
+
+    .profile-popup-loading .profile-linkedin-main-col {
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    background: #f7f9fb;
+    border-radius: 7px;
+    padding: 0.6rem 1rem;
+    border: 1px solid #e3e8f0;
+    margin-top: 0.1rem;
+}
+
+.icon-calendar {
+    width: 1.1em;
+    height: 1.1em;
+    display: inline-block;
+    background: url('data:image/svg+xml;utf8,<svg fill="none" stroke="%231a237e" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 9h18"/></svg>') center/contain no-repeat;
+}
+
+.profile-popup-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 2.5rem 2.5rem 1.7rem 2.5rem;
+    background: #fff;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    margin-top: 2.2rem;
+}
+
+.profile-popup-cancel-btn {
+    background: #f4f6fa;
+    color: #222;
+    border: 1px solid #e3e8f0;
+    border-radius: 8px;
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border 0.15s;
+}
+
+.profile-popup-cancel-btn:hover {
+    background: #e3e8f0;
+}
+
+.profile-popup-save-btn {
+    background: #222;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.profile-popup-save-btn:hover {
+    background: #1a237e;
+}
+
+.profile-popup-loading {
+    padding: 2rem;
+    text-align: center;
+    color: #888;
+}
+
+.profile-popup-error {
+    padding: 2rem;
+    text-align: center;
+    color: #c00;
+}
+
+@keyframes popup-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+.close-btn {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.15s;
+}
+
+.close-btn:hover {
+    color: #222;
+}
+
+.profile-avatar {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1.2rem;
+    border: 3px solid #e3e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.profile-content h2 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #1a237e;
+    text-align: center;
+}
+
+.profile-content p {
+    margin: 0.3rem 0 0.3rem 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.profile-content b {
+    color: #1a237e;
+    font-weight: 600;
+}

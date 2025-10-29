@@ -6,7 +6,8 @@ function TeamCard({
     avatar, name, role, projects, done, progress, productivity,
     // Candidate fields
     full_name, email_id, register_number, profile_picture_url, department, status, performance, // eslint-disable-line no-unused-vars
-    job_category, has_work_experience, education_tags = [], skill_tags = []
+    job_category, has_work_experience, education_tags = [], skill_tags = [],
+    onClick
 }) {
     // Determine if this is a candidate or team member
     const isCandidate = full_name !== undefined;
@@ -58,7 +59,7 @@ function TeamCard({
     const tagGroups = getUnifiedTags();
 
     return (
-        <div className="team-card">
+        <div className="team-card" onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
             <img src={displayAvatar || "https://via.placeholder.com/56x56?text=No+Image"} alt={displayName} className="card-avatar" />
             <div className="card-name">{displayName}</div>
             <div className="card-role">{displayRole}</div>
