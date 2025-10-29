@@ -7,7 +7,8 @@ function TeamCard({
     // Candidate fields
     full_name, email_id, register_number, profile_picture_url, department, status, performance, // eslint-disable-line no-unused-vars
     job_category, has_work_experience, education_tags = [], skill_tags = [],
-    onClick
+    onClick,
+    onSchedule
 }) {
     // Determine if this is a candidate or team member
     const isCandidate = full_name !== undefined;
@@ -162,7 +163,7 @@ function TeamCard({
                     </button>
                     <button
                         className="schedule-profile-btn"
-                        // TODO: Add onClick handler for scheduling
+                        onClick={onSchedule}
                         style={{ padding: '6px 5px', borderRadius: 6, background: '#43a047', color: '#fff', border: 'none', fontWeight: 500, cursor: 'pointer' }}
                     >
                         Schedule

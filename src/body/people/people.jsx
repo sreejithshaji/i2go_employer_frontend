@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import Select from 'react-select';
 import TeamCard from "../../components/TeamCard/TeamCard";
 import ProfilePopup from "../../components/ProfilePopup/ProfilePopup";
+import SchedulePopup from "../../components/SchedulePopup/SchedulePopup";
+import { supabase } from "../../services/supabase";
 import TeamCardSkeleton from "../../components/TeamCardSkeleton/TeamCardSkeleton";
 import { candidatesService } from "../../services/candidates";
 import '../../components/TeamCardSkeleton/TeamCardSkeleton.css';
@@ -38,6 +40,25 @@ const People = () => {
     const [profileData, setProfileData] = useState(null);
     const [profileLoading, setProfileLoading] = useState(false);
     const [profileError, setProfileError] = useState(null);
+
+    // Schedule popup state
+    const [schedulePopupOpen, setSchedulePopupOpen] = useState(false);
+    const [scheduleCandidateId, setScheduleCandidateId] = useState(null);
+
+    // Get user id from Supabase auth
+    const userId = supabase.auth.getUser && supabase.auth.getUser().then ? undefined : supabase.auth.user()?.id;
+
+    // Open schedule popup
+    const handleOpenSchedulePopup = (candidateId) => {
+        setScheduleCandidateId(candidateId || (profileData && profileData.id));
+        setSchedulePopupOpen(true);
+    };
+
+    // Close schedule popup
+    const handleCloseSchedulePopup = () => {
+        setSchedulePopupOpen(false);
+        setScheduleCandidateId(null);
+    };
 
     // Handle card click to open popup and fetch profile
     const handleCardClick = async (candidateId) => {
@@ -260,6 +281,7 @@ const People = () => {
                             key={`${candidate.id}-${currentPage}-${idx}`}
                             {...candidate}
                             onClick={() => handleCardClick(candidate.id)}
+                            onSchedule={() => handleOpenSchedulePopup(candidate.id)}
                         />
                     ))}
                     {/* Profile Popup */}
@@ -278,12 +300,11 @@ const People = () => {
                         hasMore={hasMore}
                         fetchCandidates={() => {
                             loadingRef.current = true;
-                            fetchCandidates(currentPage + 1, true).finally(() => {
-                                loadingRef.current = false;
-                            });
                         }}
-                        currentPage={currentPage}
+                        onSchedule={() => handleOpenSchedulePopup(profileData && profileData.id)}
                     />
+                    {/* Schedule Popup */}
+                    <SchedulePopup open={schedulePopupOpen} onClose={handleCloseSchedulePopup} candidateId={scheduleCandidateId} />
                     {isLoadingMore && (
                         <>
                             {Array.from({ length: 3 }, (_, index) => (

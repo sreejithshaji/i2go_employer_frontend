@@ -15,7 +15,8 @@ const ProfilePopup = ({
     setProfileError,
     hasMore,
     fetchCandidates,
-    currentPage
+    currentPage,
+    onSchedule
 }) => {
     if (!open) return null;
 
@@ -248,7 +249,10 @@ const ProfilePopup = ({
                         </div>
                     </div>
                 ) : null}
-                <button className="close-btn" onClick={onClose}>&times;</button>
+                <div className="profile-popup-header-actions">
+                    <button style={{ margin: 80 }} className="profile-popup-schedule-btn top-btn" onClick={onSchedule}>Schedule</button>
+                    <button className="close-btn" onClick={onClose}>&times;</button>
+                </div>
             </div>
         </div >
     );

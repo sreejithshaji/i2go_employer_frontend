@@ -1,0 +1,76 @@
+.schedule-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.schedule-popup {
+    background: #fff;
+    border-radius: 10px;
+    padding: 32px 24px 24px 24px;
+    min-width: 320px;
+    max-width: 90vw;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: #888;
+    cursor: pointer;
+}
+
+.schedule-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input[type="date"],
+.form-group input[type="time"] {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.submit-btn {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+}
+
+.submit-btn:hover {
+    background: #1251a3;
+}
