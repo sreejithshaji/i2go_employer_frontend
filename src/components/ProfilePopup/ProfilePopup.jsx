@@ -1,7 +1,22 @@
 import React, { useCallback } from "react";
 import "./ProfilePopup.css";
 
-const ProfilePopup = ({ open, onClose, profileData, loading, error, candidates = [], currentIndex, setCurrentIndex, setProfileData, setProfileLoading, setProfileError }) => {
+const ProfilePopup = ({
+    open,
+    onClose,
+    profileData,
+    loading,
+    error,
+    candidates = [],
+    currentIndex,
+    setCurrentIndex,
+    setProfileData,
+    setProfileLoading,
+    setProfileError,
+    hasMore,
+    fetchCandidates,
+    currentPage
+}) => {
     if (!open) return null;
 
     // Navigation handlers
@@ -25,7 +40,31 @@ const ProfilePopup = ({ open, onClose, profileData, loading, error, candidates =
         }
     }, [currentIndex, candidates, setCurrentIndex, setProfileData, setProfileLoading, setProfileError]);
 
+    const loadNextPage = (async () => {
+        console.log('At end of candidates, hasMore:', hasMore);
+        // At end, try to load next page
+        setProfileLoading(true);
+        setProfileError(null);
+        setProfileData(null);
+        try {
+            await fetchCandidates(currentPage + 1, true);
+            setCurrentIndex(candidates.length);
+        } catch (err) {
+            setProfileError('Failed to load more candidates');
+        } finally {
+            setProfileLoading(false);
+        }
+    });
+
     const handleNext = useCallback(async () => {
+        // If not at end, just go to next
+        console.log('handleNext called, currentIndex:', currentIndex, 'candidates length:', candidates.length, 'hasMore:', hasMore);
+        console.log('fetchNext :', currentIndex + 2 >= candidates.length);
+        if (!hasMore) return;
+        if (hasMore && currentIndex + 2 >= candidates.length) {
+            setProfileLoading(true);
+            await loadNextPage();
+        }
         if (currentIndex < candidates.length - 1 && candidates.length > 0) {
             const nextIdx = currentIndex + 1;
             setCurrentIndex(nextIdx);
@@ -39,11 +78,16 @@ const ProfilePopup = ({ open, onClose, profileData, loading, error, candidates =
                 setProfileData(data);
             } catch (err) {
                 setProfileError(err.message || 'Failed to load profile');
+
             } finally {
                 setProfileLoading(false);
+
             }
+            return;
         }
-    }, [currentIndex, candidates, setCurrentIndex, setProfileData, setProfileLoading, setProfileError]);
+
+
+    }, [currentIndex, candidates, setCurrentIndex, setProfileData, setProfileLoading, setProfileError, hasMore, fetchCandidates, currentPage]);
 
     return (
         <div className="profile-popup-overlay" onClick={onClose}>
@@ -51,7 +95,9 @@ const ProfilePopup = ({ open, onClose, profileData, loading, error, candidates =
                 <div className="profile-popup-header-row">
                     <button className="profile-popup-nav-btn" title="Previous" onClick={handlePrev} disabled={currentIndex === 0}>Prev</button>
                     <div className="profile-popup-title profile-popup-header-name center-name">{profileData?.full_name || ''}
-                        <button className="profile-popup-nav-btn next-btn-inline" title="Next" onClick={handleNext} disabled={currentIndex === candidates.length - 1}>Next</button>
+                        <button className="profile-popup-nav-btn next-btn-inline" title="Next" onClick={handleNext}
+                            disabled={!hasMore}
+                        >Next</button>
                     </div>
                 </div>
                 <div className="profile-popup-divider" />

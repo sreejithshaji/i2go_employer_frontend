@@ -81,7 +81,7 @@ export const candidatesService = {
               skill_category
             )
           )
-        `, { count: 'exact' });
+        ` );
 
             // Apply search filters
             if (searchQuery.trim()) {
@@ -100,7 +100,7 @@ export const candidatesService = {
             // Order by creation date
             query = query.order('created_at', { ascending: false });
 
-            const { data, error, count } = await query;
+            const { data, error } = await query;
 
             if (error) {
                 console.error('Error fetching candidates with joins:', error);
@@ -125,8 +125,6 @@ export const candidatesService = {
 
             return {
                 data: processedData,
-                count: count,
-                hasMore: processedData.length === limit,
                 page: page,
                 limit: limit
             };

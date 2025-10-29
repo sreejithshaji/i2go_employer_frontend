@@ -105,14 +105,16 @@ const People = () => {
             };
 
             const result = await candidatesService.getCandidates(options);
-
+            console.log('Fetch candidates result:', result.data);
+            var fulllData = [...candidates, ...result.data];
+            console.log('Fetched candidates:', fulllData);
             if (append) {
                 setCandidates(prev => [...prev, ...result.data]);
             } else {
                 setCandidates(result.data);
             }
-
-            setHasMore(result.hasMore);
+            // console.log('Fetched length, pageSize:', result.data.length, pageSize);
+            setHasMore(result.data.length === pageSize);
             setCurrentPage(page);
             setError(null);
         } catch (err) {
@@ -150,6 +152,7 @@ const People = () => {
 
     // Infinite scroll handler
     const handleScroll = useCallback(() => {
+        console.log('Scroll detected ', loadingRef.current, hasMore, isLoadingMore);
         if (loadingRef.current || !hasMore || isLoadingMore) return;
 
         const grid = gridRef.current;
@@ -272,6 +275,14 @@ const People = () => {
                         setProfileData={setProfileData}
                         setProfileLoading={setProfileLoading}
                         setProfileError={setProfileError}
+                        hasMore={hasMore}
+                        fetchCandidates={() => {
+                            loadingRef.current = true;
+                            fetchCandidates(currentPage + 1, true).finally(() => {
+                                loadingRef.current = false;
+                            });
+                        }}
+                        currentPage={currentPage}
                     />
                     {isLoadingMore && (
                         <>
