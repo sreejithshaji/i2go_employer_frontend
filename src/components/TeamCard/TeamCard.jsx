@@ -13,7 +13,8 @@ function TeamCard({
     const isCandidate = full_name !== undefined;
     const displayName = isCandidate ? full_name : name;
     const displayAvatar = isCandidate ? profile_picture_url : avatar;
-    const displayRole = isCandidate ? job_category : role;
+    const displayCategory = isCandidate ? job_category : role;
+    const [showCategoryFull, setShowCategoryFull] = useState(false);
 
     // State for tag carousels
     const [educationIndex, setEducationIndex] = useState(0);
@@ -59,10 +60,33 @@ function TeamCard({
     const tagGroups = getUnifiedTags();
 
     return (
-        <div className="team-card" onClick={onClick} style={{ cursor: onClick ? 'pointer' : undefined }}>
+        <div className="team-card">
             <img src={displayAvatar || "https://via.placeholder.com/56x56?text=No+Image"} alt={displayName} className="card-avatar" />
             <div className="card-name">{displayName}</div>
-            <div className="card-role">{displayRole}</div>
+            <div
+                className="card-role"
+                onMouseEnter={() => setShowCategoryFull(true)}
+                onMouseLeave={() => setShowCategoryFull(false)}
+                style={{
+                    position: 'relative',
+                    maxWidth: 180,
+                    whiteSpace: showCategoryFull ? 'normal' : 'nowrap',
+                    overflow: showCategoryFull ? 'visible' : 'hidden',
+                    textOverflow: showCategoryFull ? 'clip' : 'ellipsis',
+                    cursor: displayCategory && displayCategory.length > 15 ? 'pointer' : 'default',
+                    zIndex: showCategoryFull ? 10 : undefined,
+                    background: showCategoryFull ? '#fff' : undefined,
+                    border: showCategoryFull ? '1px solid #bbb' : undefined,
+                    borderRadius: showCategoryFull ? 6 : undefined,
+                    padding: showCategoryFull ? '6px 12px' : undefined,
+                    boxShadow: showCategoryFull ? '0 2px 8px rgba(0,0,0,0.08)' : undefined,
+                }}
+            >
+                {displayCategory && displayCategory.length > 15 && !showCategoryFull
+                    ? displayCategory.substring(0, 15) + '...'
+                    : displayCategory}
+                {displayCategory && displayCategory.length > 15 && showCategoryFull && displayCategory}
+            </div>
 
             {/* Unified Tags Section - Carousel style */}
             {tagGroups.map((tagGroup, groupIndex) => (
@@ -124,6 +148,13 @@ function TeamCard({
                 <div className="card-productivity">
                     Productivity <span className="prod-blue">{productivity}%</span>
                 </div>
+            )}
+
+            {/* Open button for candidates */}
+            {isCandidate && (
+                <button className="open-profile-btn" onClick={onClick} style={{ marginTop: 12, padding: '6px 18px', borderRadius: 6, background: '#1976d2', color: '#fff', border: 'none', fontWeight: 500, cursor: 'pointer' }}>
+                    Open
+                </button>
             )}
         </div>
     );
