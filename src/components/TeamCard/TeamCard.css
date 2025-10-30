@@ -1,0 +1,300 @@
+/* Education Carousel Styles */
+.card-education-carousel {
+    width: 90%;
+    margin: 18px 0 0 0;
+    background: #f7f9fa;
+    border-radius: 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    padding: 14px 0 14px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.carousel-label {
+    font-size: 1.01rem;
+    color: #888;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.carousel-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.carousel-arrow {
+    background: none;
+    border: none;
+    border-radius: 4px;
+    width: 20px;
+    height: 20px;
+    font-size: 1rem;
+    color: #888;
+    box-shadow: none;
+    cursor: pointer;
+    transition: background 0.12s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.carousel-arrow:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.carousel-arrow:hover:not(:disabled) {
+    background: #f3f6fa;
+}
+
+.carousel-tag {
+    min-width: 120px;
+    max-width: 180px;
+    text-align: center;
+    font-size: 1.08rem;
+    font-weight: 500;
+    color: #1976d2;
+    background: #e3f2fd;
+    border-radius: 8px;
+    padding: 6px 12px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.carousel-tag-empty {
+    color: #aaa;
+    background: #f3f6fa;
+}
+
+.carousel-popup {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+    padding: 10px 0;
+    min-width: 180px;
+    z-index: 10;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.carousel-popup-tag {
+    padding: 8px 18px;
+    font-size: 1.05rem;
+    color: #1976d2;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+.carousel-popup-tag.active,
+.carousel-popup-tag:hover {
+    background: #e3f2fd;
+    color: #1251a3;
+}
+
+/* Modern Profile Card Styles */
+.modern-profile-card {
+    background: rgba(255, 255, 255, 0.28);
+    border-radius: 28px;
+    box-shadow: 0 6px 32px rgba(0, 0, 0, 0.10);
+    width: 270px;
+    margin: 32px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding-bottom: 32px;
+    overflow: visible;
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    /* border: 1.5px solid rgba(255, 255, 255, 0.35); */
+}
+
+.card-fab-btn {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    background: #fff;
+    border-radius: 50%;
+    border: none;
+    width: 38px;
+    height: 38px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    font-size: 1.3rem;
+    color: #888;
+    cursor: pointer;
+    z-index: 2;
+    transition: background 0.15s;
+}
+
+.card-fab-btn:hover {
+    background: #f3f6fa;
+}
+
+.card-avatar-gradient {
+    margin-top: -60px;
+    margin-bottom: 8px;
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    background: conic-gradient(#a1c4fd 0%, #c2e9fb 25%, #fbc2eb 50%, #fcb69f 75%, #a1c4fd 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.card-avatar-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #fff;
+    background: #f3f6fa;
+}
+
+.card-follow-btn {
+    position: absolute;
+    top: 32px;
+    right: 60px;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 8px 22px;
+    color: #222;
+    cursor: pointer;
+    transition: background 0.15s;
+    z-index: 2;
+}
+
+.card-follow-btn:hover {
+    background: #f3f6fa;
+}
+
+.card-name {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-top: 10px;
+    color: #222;
+    text-align: center;
+}
+
+.card-role {
+    font-size: 1rem;
+    color: #888;
+    margin-top: 2px;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.card-desc {
+    font-size: 1.01rem;
+    color: #888;
+    margin-bottom: 18px;
+    text-align: center;
+    margin-top: 2px;
+}
+
+.card-stats-box {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    margin: 18px 0 0 0;
+    background: #f7f9fa;
+    border-radius: 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    padding: 18px 0;
+    gap: 0;
+}
+
+.card-stat {
+    flex: 1;
+    text-align: center;
+}
+
+.card-stat-label {
+    font-size: 0.95rem;
+    color: #888;
+    margin-top: 2px;
+}
+
+.card-stat-value {
+    font-size: 1.18rem;
+    font-weight: 600;
+    color: #222;
+}
+
+.card-socials {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 18px;
+}
+
+.card-socials a {
+    color: #888;
+    font-size: 1.35rem;
+    transition: color 0.15s;
+}
+
+.card-socials a:hover {
+    color: #1976d2;
+}
+
+.card-actions-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 22px;
+    justify-content: center;
+}
+
+.open-profile-btn,
+.schedule-profile-btn {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+
+.open-profile-btn {
+    background: #e3f2fd;
+    color: #1769aa;
+    box-shadow: 0 2px 8px rgba(33, 147, 176, 0.08);
+    border: none;
+}
+
+.open-profile-btn:hover {
+    background: #bbdefb;
+    color: #1769aa;
+}
+
+
+.schedule-profile-btn {
+    background: #fff8e1;
+    color: #b28704;
+    box-shadow: 0 2px 8px rgba(247, 151, 30, 0.08);
+    border: none;
+}
+
+.schedule-profile-btn:hover {
+    background: #ffe082;
+    color: #b28704;
+}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import "../../App.css";
+import "./TeamCard.css";
+import { FiInstagram, FiX, FiGlobe } from "react-icons/fi";
 
 function TeamCard({
     // Team member fields
@@ -60,111 +61,86 @@ function TeamCard({
 
     const tagGroups = getUnifiedTags();
 
+    // Stats: use props if available, else fallback
+    const likes = (isCandidate && typeof status === 'number') ? status : 72900;
+    const posts = (isCandidate && typeof performance === 'number') ? performance : 828;
+    const views = (isCandidate && typeof productivity === 'number') ? productivity : 342900;
+
     return (
-        <div className="team-card">
-            <img src={displayAvatar || "https://via.placeholder.com/56x56?text=No+Image"} alt={displayName} className="card-avatar" />
-            <div className="card-name">{displayName}</div>
-            <div
-                className="card-role"
-                onMouseEnter={() => setShowCategoryFull(true)}
-                onMouseLeave={() => setShowCategoryFull(false)}
-                style={{
-                    position: 'relative',
-                    maxWidth: 180,
-                    whiteSpace: showCategoryFull ? 'normal' : 'nowrap',
-                    overflow: showCategoryFull ? 'visible' : 'hidden',
-                    textOverflow: showCategoryFull ? 'clip' : 'ellipsis',
-                    cursor: displayCategory && displayCategory.length > 15 ? 'pointer' : 'default',
-                    zIndex: showCategoryFull ? 10 : undefined,
-                    background: showCategoryFull ? '#fff' : undefined,
-                    border: showCategoryFull ? '1px solid #bbb' : undefined,
-                    borderRadius: showCategoryFull ? 6 : undefined,
-                    padding: showCategoryFull ? '6px 12px' : undefined,
-                    boxShadow: showCategoryFull ? '0 2px 8px rgba(0,0,0,0.08)' : undefined,
-                }}
-            >
-                {displayCategory && displayCategory.length > 15 && !showCategoryFull
-                    ? displayCategory.substring(0, 15) + '...'
-                    : displayCategory}
-                {displayCategory && displayCategory.length > 15 && showCategoryFull && displayCategory}
+        <div className="team-card modern-profile-card">
+            {/* Top right floating button */}
+
+            {/* Avatar with gradient border */}
+            <div className="card-avatar-gradient">
+                <img src={displayAvatar || "https://via.placeholder.com/96x96?text=No+Image"} alt={displayName} className="card-avatar-img" />
             </div>
-
-            {/* Unified Tags Section - Carousel style */}
-            {tagGroups.map((tagGroup, groupIndex) => (
-                <div key={groupIndex} className="card-tags-section">
-                    <div className="tag-label">{tagGroup.label}</div>
-                    {tagGroup.tags.length > 0 ? (
-                        <div className="tag-carousel">
-                            <button
-                                className="carousel-nav carousel-prev"
-                                onClick={() => tagGroup.type === 'education' ? navigateEducation('prev') : navigateSkills('prev')}
-                                disabled={tagGroup.type === 'education' ? educationIndex === 0 : skillsIndex === 0}
+            {/* Follow button */}
+            {/* <button className="card-follow-btn">Follow&nbsp; +</button> */}
+            {/* Name and role */}
+            <div className="card-name">{displayName}</div>
+            <div className="card-role">{isCandidate ? (department || job_category || 'Candidate') : (role || 'Team Member')}</div>
+            {/* Description */}
+            {/* Education tag carousel with expand on hover and left/right swiper */}
+            <div
+                className="card-education-carousel"
+                onMouseEnter={() => setShowEducationPopup(true)}
+                onMouseLeave={() => setShowEducationPopup(false)}
+            >
+                <div className="carousel-label">Education</div>
+                <div className="carousel-controls">
+                    <button
+                        className="carousel-arrow left"
+                        onClick={() => navigateEducation('prev')}
+                        disabled={educationIndex === 0}
+                        tabIndex={-1}
+                    >&#8592;</button>
+                    <div className="carousel-tag">
+                        {education_tags && education_tags.length > 0 ? (
+                            <span>{education_tags[educationIndex]}</span>
+                        ) : (
+                            <span className="carousel-tag-empty">No education info</span>
+                        )}
+                    </div>
+                    <button
+                        className="carousel-arrow right"
+                        onClick={() => navigateEducation('next')}
+                        disabled={educationIndex === education_tags.length - 1 || education_tags.length === 0}
+                        tabIndex={-1}
+                    >&#8594;</button>
+                </div>
+                {/* Expand popup on hover */}
+                {showEducationPopup && education_tags && education_tags.length > 0 && (
+                    <div className="carousel-popup">
+                        {education_tags.map((tag, idx) => (
+                            <div
+                                key={idx}
+                                className={`carousel-popup-tag${idx === educationIndex ? ' active' : ''}`}
+                                onMouseEnter={() => setEducationIndex(idx)}
                             >
-                            </button>
-                            <div className="tag-display">
-                                <span
-                                    className={`tag ${tagGroup.type}-tag`}
-                                    onMouseEnter={() => tagGroup.type === 'education' ? setShowEducationPopup(true) : setShowSkillsPopup(true)}
-                                    onMouseLeave={() => tagGroup.type === 'education' ? setShowEducationPopup(false) : setShowSkillsPopup(false)}
-                                >
-                                    {tagGroup.tags[tagGroup.type === 'education' ? educationIndex : skillsIndex].length > 18
-                                        ? tagGroup.tags[tagGroup.type === 'education' ? educationIndex : skillsIndex].substring(0, 18) + '...'
-                                        : tagGroup.tags[tagGroup.type === 'education' ? educationIndex : skillsIndex]}
-                                </span>
-                                {(tagGroup.type === 'education' ? showEducationPopup : showSkillsPopup) && tagGroup.tags.length > 0 && isCandidate && (
-                                    <div
-                                        className="tag-popup"
-                                        onMouseEnter={() => tagGroup.type === 'education' ? setShowEducationPopup(true) : setShowSkillsPopup(true)}
-                                        onMouseLeave={() => tagGroup.type === 'education' ? setShowEducationPopup(false) : setShowSkillsPopup(false)}
-                                    >
-                                        <div className="tag-popup-header">{tagGroup.label}</div>
-                                        <div className="tag-popup-list">
-                                            {tagGroup.tags.map((tag, index) => (
-                                                <span key={index} className={`tag-popup-item ${tagGroup.type}-tag`}>
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
+                                {tag}
                             </div>
-                            <button
-                                className="carousel-nav carousel-next"
-                                onClick={() => tagGroup.type === 'education' ? navigateEducation('next') : navigateSkills('next')}
-                                disabled={tagGroup.type === 'education' ? educationIndex === education_tags.length - 1 : skillsIndex === skill_tags.length - 1}
-                            >
-                                ›
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="tag-display">
-                            <span className="no-data-text">nothing</span>
-                        </div>
-                    )}
-                </div>
-            ))}
-
-            {/* Productivity for team members */}
-            {!isCandidate && productivity && (
-                <div className="card-productivity">
-                    Productivity <span className="prod-blue">{productivity}%</span>
-                </div>
-            )}
-
-            {/* Open and Schedule buttons for candidates */}
+                        ))}
+                    </div>
+                )}
+            </div>
+            {/* Social icons */}
+            {/* <div className="card-socials">
+                <a href="#" title="Instagram"><FiInstagram /></a>
+                <a href="#" title="X"><FiX /></a>
+                <a href="#" title="Website"><FiGlobe /></a>
+            </div> */}
+            {/* Action buttons for candidates */}
             {isCandidate && (
-                <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+                <div className="card-actions-row">
                     <button
                         className="open-profile-btn"
                         onClick={onClick}
-                        style={{ padding: '6px 18px', borderRadius: 6, background: '#1976d2', color: '#fff', border: 'none', fontWeight: 500, cursor: 'pointer' }}
                     >
                         Open
                     </button>
                     <button
                         className="schedule-profile-btn"
                         onClick={onSchedule}
-                        style={{ padding: '6px 5px', borderRadius: 6, background: '#43a047', color: '#fff', border: 'none', fontWeight: 500, cursor: 'pointer' }}
                     >
                         Schedule
                     </button>

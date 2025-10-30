@@ -233,7 +233,24 @@ const People = () => {
                                 control: (provided) => ({
                                     ...provided,
                                     minWidth: 200,
-                                    fontSize: '14px'
+                                    fontSize: '14px',
+                                    minHeight: 35,
+                                    height: 'auto',
+                                    flexWrap: 'wrap',
+                                    maxHeight: 80,
+                                    overflowY: 'auto',
+                                }),
+                                valueContainer: (provided) => ({
+                                    ...provided,
+                                    flexWrap: 'wrap',
+                                    maxHeight: 70,
+                                    overflowY: 'auto',
+                                }),
+                                menu: (provided) => ({
+                                    ...provided,
+                                    maxHeight: 180,
+                                    overflowY: 'auto',
+                                    zIndex: 9999,
                                 }),
                                 multiValue: (provided) => ({
                                     ...provided,
@@ -253,7 +270,7 @@ const People = () => {
                                 })
                             }}
                         />
-                        <button className="filter-btn">☰</button>
+                        {/* <button className="filter-btn">☰</button> */}
                     </div>
                 </div>
             </div>
