@@ -17,6 +17,7 @@
     "@mui/material-nextjs": "^7.3.10",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.76.1",
+    "blurhash": "^2.0.5",
     "next": "^16.3.8",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

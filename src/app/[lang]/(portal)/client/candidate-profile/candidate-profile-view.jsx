@@ -1,18 +1,20 @@
 'use client';
 
-import { useState, useSyncExternalStore, useTransition } from 'react';
+import { useEffect, useState, useSyncExternalStore, useTransition } from 'react';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-    Alert, Avatar, Box, Button, Card, Divider, Skeleton, Stack, Typography,
+    Alert, Avatar, Box, Button, Card, Divider, Skeleton, Stack, Tooltip, Typography,
 } from '@mui/material';
 import { FiAward, FiBookOpen, FiBriefcase, FiCheck, FiFileText, FiGlobe, FiLock, FiLogIn, FiSend } from 'react-icons/fi';
 import Badge from '@/components/badge';
 import { VerifiedBadge } from '@/app/[lang]/(portal)/client/components/candidate-card';
+import LockedPhoto, { showsLockedPhoto } from '@/app/[lang]/(portal)/client/components/locked-photo';
 import SkillBar from '@/app/[lang]/(portal)/client/components/skill-bar';
 import EmptyState from '@/components/empty-state';
 import { wasEnquiredRecently } from './enquiry-storage';
+import { recordView } from './recently-viewed-storage';
 import WishlistButton from '@/app/[lang]/(portal)/client/components/wishlist-button';
 import { loginHref, useAuth } from '@/features/auth';
 import { useI18n } from '@/features/i18n';
@@ -20,6 +22,7 @@ import { format, localName } from '@/lib/i18n/config';
 import { initials, languageLevelLabel, monthLabel, yearsLabel } from '@/lib/portal/format';
 import { tokens } from '@/app/theme';
 import { CandidateDetailSkeleton } from '../components/page-skeletons';
+import { startNavigation } from '@/components/navigation-progress/progress-store';
 
 // Loaded after the page, not in its first bundle (PLAN.md 11.14.3): only signed-in employers open it.
 const EnquiryDialog = dynamic(() => import('./enquiry-modal'), { ssr: false });
@@ -83,6 +86,13 @@ export default function CandidateProfileView({ candidate, error }) {
     );
     const enquired = sentNow || sentBefore;
 
+    // "Recently viewed" (6.20): guests and employers only. Waits for the session,
+    // so a signed-in candidate or admin account is never recorded.
+    const candidateId = candidate?.id;
+    useEffect(() => {
+        if (candidateId && ready && !isOtherAccount) recordView(candidateId);
+    }, [candidateId, ready, isOtherAccount]);
+
     if (retrying) {
         return <CandidateDetailSkeleton />;
     }
@@ -116,11 +126,11 @@ export default function CandidateProfileView({ candidate, error }) {
     const enquiry = enquired
         ? { label: t.profile.enquirySent, icon: <FiCheck />, disabled: true }
         : !user
-            ? { label: t.profile.signInToEnquire, icon: <FiLogIn />, onClick: () => router.push(loginLink) }
+            ? { label: t.profile.signInToEnquire, icon: <FiLogIn />, onClick: () => { startNavigation(loginLink); router.push(loginLink); } }
             : !ready
                 ? { label: t.profile.sendEnquiry, icon: <FiSend />, disabled: true }
                 : needsTerms
-                    ? { label: t.profile.acceptTermsToEnquire, icon: <FiFileText />, onClick: () => router.push(p.terms) }
+                    ? { label: t.profile.acceptTermsToEnquire, icon: <FiFileText />, onClick: () => { startNavigation(p.terms); router.push(p.terms); } }
                     : isEmployer
                         ? { label: t.profile.sendEnquiry, icon: <FiSend />, onClick: () => setEnquiryOpen(true) }
                         : null;
@@ -139,6 +149,7 @@ export default function CandidateProfileView({ candidate, error }) {
     );
 
     const firstName = c.name.split(' ')[0];
+    const lockedPhoto = showsLockedPhoto(c);
     const linkSx = { color: 'primary.main', fontWeight: 600, textDecoration: 'none', '&:hover': { textDecoration: 'underline' } };
 
     return (
@@ -146,14 +157,26 @@ export default function CandidateProfileView({ candidate, error }) {
             <Card sx={{ p: { xs: 2.5, md: 4 }, mb: 3 }}>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 2, sm: 3 }} sx={{ alignItems: { xs: 'flex-start', sm: 'center' } }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-                        <Avatar
-                            src={c.photo_url || undefined}
-                            alt={c.name}
-                            sx={{ width: 112, height: 112, fontSize: 36, bgcolor: tokens.primarySoft, color: 'primary.main', fontWeight: 600, boxShadow: `0 0 0 4px #fff, ${tokens.shadowCard}` }}
+                        <Tooltip
+                            title={lockedPhoto ? (user ? t.card.photoEmployersOnly : t.card.photoHover) : ''}
+                            arrow
+                            placement="top"
+                            disableInteractive
                         >
-                            {initials(c.name)}
-                        </Avatar>
+                            <Avatar
+                                src={c.photo_url || undefined}
+                                alt={c.name}
+                                sx={{ width: 112, height: 112, fontSize: 36, bgcolor: tokens.primarySoft, color: 'primary.main', fontWeight: 600, boxShadow: `0 0 0 4px #fff, ${tokens.shadowCard}` }}
+                            >
+                                {lockedPhoto ? <LockedPhoto hash={c.photo_blurhash} iconSize={20} /> : initials(c.name)}
+                            </Avatar>
+                        </Tooltip>
                         {c.is_verified && <Box sx={{ mt: -1.5, position: 'relative' }}><VerifiedBadge /></Box>}
+                        {lockedPhoto && !user && (
+                            <Typography variant="caption" sx={{ mt: 1, textAlign: 'center' }}>
+                                <Box component={NextLink} href={loginLink} sx={linkSx}>{t.card.photoSignIn}</Box>
+                            </Typography>
+                        )}
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                         <Typography variant="h4" component="h2" sx={{ wordBreak: 'break-word', fontSize: { xs: 22, md: 26 } }}>{c.name}</Typography>

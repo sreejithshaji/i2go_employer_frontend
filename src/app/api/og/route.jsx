@@ -21,6 +21,6 @@ export async function GET(request) {
     return renderOgImage({
         eyebrow: t.common.brandTag,
         title: category ? localName(category, lang) : t.meta.homeTitle,
-        footer: category ? t.meta.homeTitle : t.home.heroTitle,
+        footer: category ? t.meta.homeTitle : t.landing.hero.eyebrow,
     });
 }

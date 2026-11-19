@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { internalLinkTarget } from '@/components/navigation-progress/progress-store';
 
 // A navigation that hasn't arrived after this long is treated as abandoned.
 const GIVE_UP_MS = 15000;
@@ -19,7 +20,8 @@ const SKELETON_AFTER_MS = 120;
  * skeleton with the real content hidden (ARCHITECTURE.md, Part 2).
  *
  * Only plain left-clicks on same-origin links to another path count. Query-only
- * changes (filters) are left to the views, which dim their lists instead.
+ * changes (filters) are left to the views, which dim their lists instead. The top
+ * progress bar (components/navigation-progress) answers every navigation as well.
  */
 export function usePendingPath() {
     const pathname = usePathname();
@@ -36,11 +38,8 @@ export function usePendingPath() {
 
     useEffect(() => {
         const onClick = (event) => {
-            if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-            const link = event.target.closest?.('a[href]');
-            if (!link || link.target && link.target !== '_self' || link.hasAttribute('download')) return;
-            const url = new URL(link.href, window.location.href);
-            if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
+            const url = internalLinkTarget(event);
+            if (!url || url.pathname === window.location.pathname) return;
             setPending(url.pathname);
             setSlow(false);
         };

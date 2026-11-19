@@ -1,7 +1,6 @@
 'use client';
 
 import { Box, Card, Skeleton, Stack } from '@mui/material';
-import { tokens } from '@/app/theme';
 import CandidateGrid, { GridSkeleton } from './candidate-grid';
 
 // Shown by the shell while a clicked link's page renders on the server
@@ -36,28 +35,6 @@ export function CandidateListSkeleton() {
                 <Skeleton width={240} />
             </Box>
             <CandidateGrid><GridSkeleton count={8} /></CandidateGrid>
-        </Box>
-    );
-}
-
-/** The home page: hero, three steps and the latest candidates. */
-export function HomeSkeleton() {
-    return (
-        <Box>
-            <Skeleton variant="rounded" height={320} sx={{ borderRadius: `${tokens.radiusXl}px` }} />
-            <Skeleton width={180} height={32} sx={{ mt: { xs: 4, md: 5 }, mb: 2 }} />
-            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' } }}>
-                {[0, 1, 2].map((i) => (
-                    <Card key={i} sx={{ p: 3 }}>
-                        <Skeleton variant="rounded" width={44} height={44} sx={{ mb: 2, borderRadius: `${tokens.radiusMd}px` }} />
-                        <Skeleton width="60%" height={26} />
-                        <Skeleton />
-                        <Skeleton width="75%" />
-                    </Card>
-                ))}
-            </Box>
-            <Skeleton width={200} height={32} sx={{ mt: { xs: 4, md: 5 }, mb: 2 }} />
-            <CandidateGrid><GridSkeleton count={3} /></CandidateGrid>
         </Box>
     );
 }

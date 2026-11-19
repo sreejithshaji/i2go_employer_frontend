@@ -54,9 +54,87 @@ export const tokens = {
 
     ease: 'cubic-bezier(0.2, 0, 0, 1)',
     sidebarWidth: 220,
+    sidebarCollapsedWidth: 88,
+};
+
+// Marketing pages (the homepage) only: the visual language of the reference
+// site in homepage-redesign-plan.md §1. Portal pages keep `tokens` above.
+// UI_UX.md → "Marketing pages (homepage)" documents each value.
+export const brand = {
+    fontFamily: "var(--font-jakarta), system-ui, -apple-system, 'Segoe UI', sans-serif",
+
+    // Light surfaces
+    ink: '#0A0F16',
+    ink2: '#2C3641',
+    muted: '#5D6873',
+    faint: '#98A1AB', // icons and decoration only (2.6:1 on white)
+    line: '#E2E7EC',
+    line2: '#CED6DE',
+    lineHover: '#9AA7B3',
+    bg1: '#F7F8FA',
+    bg2: '#EFF1F3',
+    surface: '#FFFFFF',
+    surface2: '#FDFDFE',
+    surface3: '#F3F5F7',
+
+    // Accent. `accent` (3.6:1 on white) is for borders, ticks, nodes and
+    // large text; small text uses `accentText` (6.0:1, from the CTA gradient).
+    accent: '#0F8FC7',
+    accentText: '#0B6A94',
+    accentInk: '#06364B',
+    accentSoft: '#F1F7FA',
+    accentLine: '#D3E5EE',
+    ok: '#12996B',
+    okSoft: '#E4F8EF',
+    danger: '#D92D20',
+
+    // Dark surfaces. Cyan appears only on these.
+    navy: '#03070C',
+    navy2: '#060D15',
+    graphite: '#0B1420',
+    cyan: '#1FC8FF',
+    gold: '#FFC94D', // EU-flag gold, softened; "European Employers" in the hero H1
+    onDark: {
+        text: '#FFFFFF',
+        body: 'rgba(255,255,255,0.64)', // body text (≥ 4.5:1 on navy)
+        bodyStrong: 'rgba(255,255,255,0.78)', // small text that can sit over the hero photo (≥ 4.5:1 there)
+        subtle: 'rgba(255,255,255,0.50)', // small meta text, the lowest for text
+        line: 'rgba(255,255,255,0.07)', // hairlines, timeline track
+        border: 'rgba(255,255,255,0.10)',
+        ring: 'rgba(255,255,255,0.16)', // timeline node ring
+        hover: 'rgba(255,255,255,0.045)',
+    },
+    darkSection: 'radial-gradient(380px 240px at 18% -6%, rgba(31,200,255,0.043), transparent 70%), linear-gradient(180deg, #03070C 0%, #060D15 100%)',
+    darkPanel: 'radial-gradient(520px 280px at 88% -20%, rgba(31,200,255,0.12), transparent 66%), linear-gradient(135deg, #04090F, #0B1420)',
+    darkPanelBorder: 'rgba(31,200,255,0.12)',
+    glow: 'radial-gradient(closest-side, rgba(31,200,255,0.2), transparent 72%)',
+
+    // Primary call to action: the only gradient on a control.
+    ctaGradient: 'linear-gradient(135deg, #0E7FAE 0%, #0B6A94 55%, #084F70 100%)',
+    ctaShadow: '0 6px 14px rgba(6,54,75,0.26), inset 0 1px rgba(255,255,255,0.2)',
+
+    radiusSm: 10,
+    radiusMd: 16,
+    radiusPanel: 18,
+    radiusLg: 20,
+    radiusXl: 26,
+    radiusButton: 14,
+
+    shadow1: '0 1px 2px rgba(13,26,43,0.04)',
+    shadow2: '0 8px 20px rgba(13,26,43,0.07)',
+    shadow3: '0 18px 44px rgba(13,26,43,0.12)',
+    shadowDarkPanel: '0 12px 32px rgba(6,14,26,0.14)',
+
+    ease: 'cubic-bezier(0.16, 1, 0.3, 1)',
+    navHeight: 78,
+    navHeightMobile: 64,
+    contentMax: 1080,
+    wideMax: 1440, // nav and hero column, so the hero text sits further left
+    readingMax: 820,
 };
 
 const t = tokens;
+const b = brand;
 
 // The same tokens as CSS custom properties (see UI_UX.md → Color Tokens).
 const cssVars = {
@@ -162,6 +240,62 @@ const theme = createTheme({
                         '&:active': { transform: 'scale(0.98)' },
                         '&.Mui-disabled': { color: t.textMuted, backgroundColor: t.surfaceMuted },
                     },
+                },
+                // Marketing pages: gradient call to action. The end icon becomes the round arrow chip.
+                {
+                    props: { variant: 'cta' },
+                    style: {
+                        fontFamily: b.fontFamily,
+                        fontSize: 15,
+                        fontWeight: 800,
+                        letterSpacing: '-0.2px',
+                        color: '#fff',
+                        background: b.ctaGradient,
+                        boxShadow: b.ctaShadow,
+                        borderRadius: b.radiusButton,
+                        minHeight: 50,
+                        paddingInlineStart: 24,
+                        paddingInlineEnd: 18,
+                        transition: `transform 280ms ${b.ease}, box-shadow 280ms ${b.ease}, filter 280ms ${b.ease}`,
+                        '& .MuiButton-endIcon': {
+                            width: 28, height: 28, marginLeft: 13, marginRight: 0, borderRadius: 999,
+                            display: 'grid', placeItems: 'center', backgroundColor: 'rgba(255,255,255,0.18)',
+                            transition: `transform 300ms ${b.ease}, background-color 300ms ${b.ease}`,
+                        },
+                        '& .MuiButton-endIcon > *:nth-of-type(1)': { fontSize: 15 },
+                        '&:hover': { transform: 'translateY(-2px)', filter: 'saturate(1.05)', boxShadow: b.ctaShadow },
+                        '&:hover .MuiButton-endIcon': { transform: 'translateX(2px)', backgroundColor: 'rgba(255,255,255,0.3)' },
+                        '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: 3, boxShadow: b.ctaShadow },
+                        '&.Mui-disabled': { color: '#fff', opacity: 0.6, filter: 'saturate(0.3)' },
+                    },
+                },
+                {
+                    props: { variant: 'cta', size: 'small' },
+                    style: {
+                        fontSize: 14, minHeight: 40, paddingInlineStart: 16, paddingInlineEnd: 10, borderRadius: 12,
+                        '& .MuiButton-endIcon': { width: 24, height: 24, marginLeft: 10 },
+                        '& .MuiButton-endIcon > *:nth-of-type(1)': { fontSize: 13 },
+                    },
+                },
+                // Marketing pages: quiet secondary action next to a cta.
+                {
+                    props: { variant: 'ghost' },
+                    style: {
+                        fontFamily: b.fontFamily,
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: b.ink2,
+                        borderRadius: 13,
+                        minHeight: 48,
+                        paddingInline: 18,
+                        transition: `background-color 250ms ${b.ease}, color 250ms ${b.ease}`,
+                        '&:hover': { backgroundColor: 'rgba(13,42,66,0.05)', color: b.ink },
+                        '&:focus-visible': { outline: `2px solid ${b.accent}`, outlineOffset: 2, boxShadow: 'none' },
+                    },
+                },
+                {
+                    props: { variant: 'ghost', size: 'small' },
+                    style: { fontSize: 14, minHeight: 40, paddingInline: 14, borderRadius: 12 },
                 },
             ],
         },
@@ -273,3 +407,14 @@ const theme = createTheme({
 });
 
 export default theme;
+
+// The portal theme with the marketing font (Plus Jakarta Sans) on every text
+// style. Used by the marketing layout's ThemeProvider, so menus and drawers,
+// which render in portals outside the layout element, get the font too.
+const TEXT_VARIANTS = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'subtitle1', 'subtitle2', 'body1', 'body2', 'caption', 'overline', 'button'];
+export const marketingTheme = createTheme(theme, {
+    typography: {
+        fontFamily: brand.fontFamily,
+        ...Object.fromEntries(TEXT_VARIANTS.map((variant) => [variant, { fontFamily: brand.fontFamily }])),
+    },
+});

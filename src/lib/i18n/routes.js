@@ -42,6 +42,7 @@ export function paths(lang) {
         login: `${base}/login`,
         signup: `${base}/signup`,
         wishlist: `${base}/wishlist`,
+        recentlyViewed: `${base}/recently-viewed`,
         enquiries: `${base}/enquiries`,
         privacy: `${base}/privacy`,
         terms: `${base}/terms`,

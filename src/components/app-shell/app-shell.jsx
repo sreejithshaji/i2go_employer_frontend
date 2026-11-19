@@ -10,27 +10,33 @@ import {
 } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import { keyframes } from '@emotion/react';
-import { FiArrowLeft, FiBookOpen, FiChevronDown, FiHeart, FiHome, FiInbox, FiLogOut, FiMenu, FiUsers } from 'react-icons/fi';
+import { FiArrowLeft, FiBookOpen, FiChevronDown, FiClock, FiHeart, FiHome, FiInbox, FiLogOut, FiMenu, FiSidebar, FiUsers } from 'react-icons/fi';
 import Breadcrumbs from '@/components/breadcrumbs';
 import { SignInButton, useAuth } from '@/features/auth';
 import { LanguageSwitcher, useI18n } from '@/features/i18n';
 import { format, isLocale } from '@/lib/i18n/config';
 import { guidesSegment, hubSegment, parseCandidateSegment } from '@/lib/i18n/routes';
-import { CandidateDetailSkeleton, CandidateListSkeleton, HomeSkeleton } from '@/app/[lang]/(portal)/client/components/page-skeletons';
+import { CandidateDetailSkeleton, CandidateListSkeleton } from '@/app/[lang]/(portal)/client/components/page-skeletons';
 import { HeaderSlotContext } from './header-slot';
 import { usePendingPath } from './use-pending-path';
+import { startNavigation } from '@/components/navigation-progress/progress-store';
+import { useSidebarCollapsed } from './use-sidebar-collapsed';
 import { initials } from '@/lib/portal/format';
-import { legalLinks } from '@/lib/portal/legal';
+import { COMPANY, legalLinks } from '@/lib/portal/legal';
 import { tokens } from '@/app/theme';
 
 // Wishlist is shown to guests too (it leads to sign in); candidate accounts can't keep one.
+// Recently viewed (6.20) lives in the browser, so guests and employers both have it.
 function navItems({ user, isEmployer, wishlistCount, t, p }) {
     return [
         { to: p.home, label: t.nav.home, icon: <FiHome size={20} />, end: true },
         { to: p.hub, label: t.nav.candidates, icon: <FiUsers size={20} /> },
         { to: p.guides, label: t.nav.guides, icon: <FiBookOpen size={20} /> },
         ...(!user || isEmployer
-            ? [{ to: p.wishlist, label: t.nav.wishlist, icon: <FiHeart size={20} />, badge: isEmployer && wishlistCount > 0 ? wishlistCount : null }]
+            ? [
+                { to: p.wishlist, label: t.nav.wishlist, icon: <FiHeart size={20} />, badge: isEmployer && wishlistCount > 0 ? wishlistCount : null },
+                { to: p.recentlyViewed, label: t.nav.recentlyViewed, icon: <FiClock size={20} /> },
+            ]
             : []),
         ...(isEmployer ? [{ to: p.enquiries, label: t.nav.enquiries, icon: <FiInbox size={20} /> }] : []),
     ];
@@ -46,7 +52,6 @@ function routeMeta(pathname, lang, t, p) {
     const segments = pathname.split('/').filter(Boolean).slice(1);
     const [first] = segments;
     const home = { label: t.nav.home, to: p.home };
-    if (segments.length === 0) return { title: t.shell.homeTitle };
     if (first === hubSegment(lang)) {
         if (segments.length === 1) {
             // No visible title or breadcrumb (the h1 stays for screen readers). On desktop the
@@ -64,6 +69,7 @@ function routeMeta(pathname, lang, t, p) {
             : { title: t.nav.guides, titleAs: 'p' };
     }
     if (first === 'wishlist') return { title: t.nav.wishlist, crumbs: [home, { label: t.nav.wishlist }] };
+    if (first === 'recently-viewed') return { title: t.nav.recentlyViewed, crumbs: [home, { label: t.nav.recentlyViewed }] };
     if (first === 'enquiries') return { title: t.nav.enquiries, crumbs: [home, { label: t.nav.enquiries }] };
     if (['impressum', 'privacy', 'terms'].includes(first) && segments.length === 1) {
         return { title: t.legal[first], crumbs: [home, { label: t.legal[first] }] };
@@ -114,6 +120,13 @@ const navItemSx = {
     },
 };
 
+// Labels fade out when the sidebar is collapsed to icons; a count badge moves onto the icon.
+const fadeSx = { whiteSpace: 'nowrap', transition: `opacity 150ms ${tokens.ease}` };
+const collapsedSx = {
+    '& .fade': { opacity: 0 },
+    '& .nav-badge': { position: 'absolute', top: 6, left: 30, ml: 0, mr: 0, minWidth: 18, height: 18, px: 0.5, fontSize: 11 },
+};
+
 function Brand() {
     const { t, p } = useI18n();
     return (
@@ -121,7 +134,7 @@ function Brand() {
             <Box sx={{ width: 44, height: 44, borderRadius: `${tokens.radiusMd}px`, bgcolor: '#fff', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
                 <Image src="/images/i2go_mark.png" alt="" width={38} height={22} style={{ objectFit: 'contain' }} />
             </Box>
-            <Box>
+            <Box className="fade" sx={fadeSx}>
                 <Typography sx={{ color: '#fff', fontSize: 20, fontWeight: 700, lineHeight: '24px' }}>I2Go</Typography>
                 <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>{t.common.brandTag}</Typography>
             </Box>
@@ -135,7 +148,7 @@ function PageFooter() {
     const linkSx = { color: 'text.secondary', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } };
     const parts = [
         <Box key="name" component="span" sx={{ color: 'text.secondary', fontWeight: 600 }}>{t.common.footerName}</Box>,
-        `© ${new Date().getFullYear()} I2Go Europe`,
+        `© ${new Date().getFullYear()} ${COMPANY.name}`,
         t.common.footerCandidates,
         ...legalLinks(lang).map((link) => (
             <Box key={link.href} component={NextLink} href={link.href} sx={linkSx}>
@@ -168,49 +181,52 @@ function isActive(pathname, item) {
 }
 
 /**
- * The skeleton for a page the server renders per request (home and the
- * candidate tree), shown while a click on a link to it is under way. Other
- * pages are static or load their own data, and appear at once.
+ * The skeleton for a page in this shell that the server renders per request
+ * (the candidate tree), shown while a click on a link to it is under way. Other
+ * pages are static or load their own data, and appear at once. Home has its own
+ * layout ((marketing)) and no skeleton here.
  */
 function pendingSkeleton(path) {
     const [lang, first, ...rest] = path.split('/').filter(Boolean);
-    if (!isLocale(lang)) return null;
-    if (!first) return <HomeSkeleton />;
-    if (first !== hubSegment(lang)) return null;
+    if (!isLocale(lang) || first !== hubSegment(lang)) return null;
     return parseCandidateSegment(rest[rest.length - 1]) != null ? <CandidateDetailSkeleton /> : <CandidateListSkeleton />;
 }
 
-/** Sidebar contents; the drawer version also carries the account controls. `pathname` may be a page still loading. */
-function SidebarContent({ items, pathname, onNavigate, account }) {
+/**
+ * Sidebar contents; the drawer version also carries the account controls. `pathname` may be a page still loading.
+ * `collapsed` (desktop only) shows the icons alone, with the labels as tooltips.
+ */
+function SidebarContent({ items, pathname, onNavigate, account, collapsed = false }) {
     const { lang, t } = useI18n();
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: tokens.sidebarBg, color: '#fff', pt: 4, pb: 3, overflowY: 'auto', overflowX: 'hidden' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: tokens.sidebarBg, color: '#fff', pt: 4, pb: 3, overflowY: 'auto', overflowX: 'hidden', ...(collapsed && collapsedSx) }}>
             <Brand />
             <Box component="nav" aria-label={t.common.mainNav} sx={{ mt: 5, display: 'flex', flexDirection: 'column', gap: 1, py: 2.5 }}>
                 {items.map((item) => (
-                    <Box
-                        key={item.to}
-                        component={NextLink}
-                        href={item.to}
-                        className={isActive(pathname, item) ? 'active' : undefined}
-                        aria-current={isActive(pathname, item) ? 'page' : undefined}
-                        onClick={onNavigate}
-                        sx={navItemSx}
-                    >
-                        {item.icon}
-                        {item.label}
-                        {item.badge != null && (
-                            <Box component="span" className="nav-badge" aria-label={format(t.nav.wishlistBadge, { count: item.badge })}>
-                                {item.badge}
-                            </Box>
-                        )}
-                    </Box>
+                    <Tooltip key={item.to} title={collapsed ? item.label : ''} placement="right">
+                        <Box
+                            component={NextLink}
+                            href={item.to}
+                            className={isActive(pathname, item) ? 'active' : undefined}
+                            aria-current={isActive(pathname, item) ? 'page' : undefined}
+                            onClick={onNavigate}
+                            sx={navItemSx}
+                        >
+                            {item.icon}
+                            <Box component="span" className="fade" sx={fadeSx}>{item.label}</Box>
+                            {item.badge != null && (
+                                <Box component="span" className="nav-badge" aria-label={format(t.nav.wishlistBadge, { count: item.badge })}>
+                                    {item.badge}
+                                </Box>
+                            )}
+                        </Box>
+                    </Tooltip>
                 ))}
             </Box>
             {/* The site footer lives under the page content (PageFooter); the drawer adds the account card here */}
             {account && <Box sx={{ mt: 'auto', px: 2.5, pt: 4 }}>{account}</Box>}
-            {/* Legal links, one click from every page (Impressum: §5 DDG) */}
-            <Box component="nav" aria-label={t.common.legalNav} sx={{ mt: account ? 2 : 'auto', px: 2.5, pt: account ? 0 : 4, display: 'flex', flexWrap: 'wrap', columnGap: 1.5, rowGap: 0.5 }}>
+            {/* Legal links, one click from every page (Impressum: §5 DDG); collapsed, the page footer still has them */}
+            <Box component="nav" aria-label={t.common.legalNav} sx={{ mt: account ? 2 : 'auto', px: 2.5, pt: account ? 0 : 4, display: collapsed ? 'none' : 'flex', flexWrap: 'wrap', columnGap: 1.5, rowGap: 0.5 }}>
                 {legalLinks(lang).map((link) => (
                     <Box
                         key={link.href}
@@ -229,7 +245,7 @@ function SidebarContent({ items, pathname, onNavigate, account }) {
 
 /** Sidebar, header, breadcrumbs and footer around every page except login and signup, in the page language. */
 export default function AppShell({ children }) {
-    const { user, profile, isEmployer, isOtherAccount, needsTerms, savedIds, signOut } = useAuth();
+    const { user, profile, isEmployer, isOtherAccount, needsTerms, savedIds, signOutAndGo } = useAuth();
     const { lang, t, p } = useI18n();
     const router = useRouter();
     const pathname = usePathname();
@@ -238,6 +254,7 @@ export default function AppShell({ children }) {
     const shownPath = pendingPath ?? pathname;
     const skeleton = pendingPath && slow ? pendingSkeleton(pendingPath) : null;
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const [collapsed, toggleCollapsed, animateCollapse] = useSidebarCollapsed();
     const [menuAnchor, setMenuAnchor] = useState(null);
     // Element in the header row that a page can portal content into (Candidates' search bar, via HeaderSlotContext).
     const [headerSlot, setHeaderSlot] = useState(null);
@@ -246,25 +263,11 @@ export default function AppShell({ children }) {
     const meta = routeMeta(shownPath, lang, t, p);
     const displayName = profile?.full_name || user?.email || '';
 
-    // Go home first and end the session once we're there. Signing out on a page that
-    // needs an employer (Wishlist, My enquiries) would otherwise redirect to login.
-    const signOutOnHome = useRef(false);
-    useEffect(() => {
-        if (signOutOnHome.current && pathname === p.home) {
-            signOutOnHome.current = false;
-            signOut();
-        }
-    }, [pathname, signOut, p.home]);
-
+    // Home first, then the session ends (AuthProvider: home is outside this shell).
     const handleSignOut = () => {
         setMenuAnchor(null);
         setDrawerOpen(false);
-        if (pathname === p.home) {
-            signOut();
-        } else {
-            signOutOnHome.current = true;
-            router.push(p.home);
-        }
+        signOutAndGo(p.home);
     };
 
     // Whether the user has moved to another page since the shell loaded, so Back has a page of ours
@@ -276,7 +279,15 @@ export default function AppShell({ children }) {
     }, [pathname]);
 
     // Back to the list the user came from (keeping its filters), or to all candidates.
-    const goBack = () => (navigated.current ? router.back() : router.push(p.hub));
+    const goBack = () => {
+        if (navigated.current) {
+            startNavigation();
+            router.back();
+        } else {
+            startNavigation(p.hub);
+            router.push(p.hub);
+        }
+    };
 
     const drawerAccount = (
         <Box sx={{ p: 2, borderRadius: `${tokens.radiusLg}px`, bgcolor: 'rgba(255,255,255,0.10)' }}>
@@ -313,9 +324,13 @@ export default function AppShell({ children }) {
         <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: { xs: bg, md: tokens.sidebarBg } }}>
             <Box
                 component="aside"
-                sx={{ display: { xs: 'none', md: 'block' }, width: tokens.sidebarWidth, flexShrink: 0, position: 'sticky', top: 0, height: '100vh' }}
+                sx={{
+                    display: { xs: 'none', md: 'block' }, flexShrink: 0, position: 'sticky', top: 0, height: '100vh',
+                    width: collapsed ? tokens.sidebarCollapsedWidth : tokens.sidebarWidth,
+                    transition: animateCollapse ? `width 200ms ${tokens.ease}` : 'none',
+                }}
             >
-                <SidebarContent items={items} pathname={shownPath} />
+                <SidebarContent items={items} pathname={shownPath} collapsed={collapsed} />
             </Box>
 
             <Drawer
@@ -344,9 +359,19 @@ export default function AppShell({ children }) {
                         borderBottom: { xs: `1px solid ${tokens.border}`, md: 'none' },
                     }}
                 >
+                    <Tooltip title={collapsed ? t.common.expandMenu : t.common.collapseMenu}>
+                        <IconButton
+                            onClick={toggleCollapsed}
+                            aria-label={collapsed ? t.common.expandMenu : t.common.collapseMenu}
+                            aria-expanded={!collapsed}
+                            sx={{ display: { xs: 'none', md: 'inline-flex' }, color: 'text.secondary', ml: -1, mt: { md: meta.headerSearch ? 0.5 : 0 } }}
+                        >
+                            <FiSidebar size={20} />
+                        </IconButton>
+                    </Tooltip>
                     {meta.back && (
                         <Tooltip title={t.common.back}>
-                            <IconButton onClick={goBack} aria-label={t.common.back} sx={{ color: 'text.primary', ml: -1 }}>
+                            <IconButton onClick={goBack} aria-label={t.common.back} sx={{ color: 'text.primary', ml: { xs: -1, md: 0 } }}>
                                 <FiArrowLeft size={22} />
                             </IconButton>
                         </Tooltip>

@@ -1,10 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { TERMS_VERSION } from '@/lib/portal/legal';
 import { hasSessionCookie, loadAuthApi, whenAuthApiLoaded } from './load-api';
 import { AuthContext } from './use-auth';
+import { startNavigation } from '@/components/navigation-progress/progress-store';
 
 const NO_IDS = [];
 
@@ -122,6 +123,31 @@ export default function AuthProvider({ children }) {
 
     const signOut = useCallback(async () => (await loadAuthApi()).signOut(), []);
 
+    // Go to `href` first and end the session once we're there. Signing out on a page that
+    // needs an employer (Wishlist, My enquiries) would otherwise redirect to login. This
+    // lives here, not in a layout, because the target (home) may use a different layout:
+    // the one that started the sign-out unmounts before the navigation finishes.
+    const pathname = usePathname();
+    const signOutAt = useRef(null);
+    useEffect(() => {
+        if (signOutAt.current && pathname === signOutAt.current) {
+            signOutAt.current = null;
+            signOut();
+        }
+    }, [pathname, signOut]);
+    const signOutAndGo = useCallback(
+        (href) => {
+            if (pathname === href) {
+                signOut();
+            } else {
+                signOutAt.current = href;
+                startNavigation(href);
+                router.push(href);
+            }
+        },
+        [pathname, signOut, router],
+    );
+
     // Records acceptance of the current terms, then reloads the server view:
     // full profiles need accepted terms (is_employer(), migration 0016).
     const acceptTerms = useCallback(async () => {
@@ -148,8 +174,9 @@ export default function AuthProvider({ children }) {
             savedIds,
             toggleSaved,
             signOut,
+            signOutAndGo,
         }),
-        [ready, session, profile, savedIds, toggleSaved, signOut, acceptTerms],
+        [ready, session, profile, savedIds, toggleSaved, signOut, signOutAndGo, acceptTerms],
     );
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

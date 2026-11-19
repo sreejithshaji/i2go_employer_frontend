@@ -18,6 +18,7 @@ import { format, localName, plural } from '@/lib/i18n/config';
 import { PAGE_SIZE } from '@/lib/portal/constants';
 import { parseFilters } from '@/lib/portal/filters';
 import { tokens } from '@/app/theme';
+import { startNavigation } from '@/components/navigation-progress/progress-store';
 
 const EXPERIENCE_YEARS = [1, 2, 5, 10];
 
@@ -63,7 +64,9 @@ export default function CandidatesView({ candidates, total, categories, language
     // Pushes a history entry like React Router did, so Back undoes a filter change.
     const setParams = (next) => {
         const query = next.toString();
-        startTransition(() => router.push(query ? `${pathname}?${query}` : pathname, { scroll: false }));
+        const href = query ? `${pathname}?${query}` : pathname;
+        startNavigation(href);
+        startTransition(() => router.push(href, { scroll: false }));
     };
     const filters = useMemo(() => parseFilters(params), [params]);
 

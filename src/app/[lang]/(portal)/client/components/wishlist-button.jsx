@@ -9,6 +9,7 @@ import { FiHeart } from 'react-icons/fi';
 import { loginHref, useAuth } from '@/features/auth';
 import { useI18n } from '@/features/i18n';
 import { tokens } from '@/app/theme';
+import { startNavigation } from '@/components/navigation-progress/progress-store';
 
 const pop = keyframes`
     0% { transform: scale(1); }
@@ -39,7 +40,9 @@ export default function WishlistButton({ candidateId, size = 'medium', variant =
         event.stopPropagation();
         if (!user) {
             // Read at click time so the current filters come back after sign-in.
-            router.push(loginHref(window.location.pathname + window.location.search));
+            const href = loginHref(window.location.pathname + window.location.search);
+            startNavigation(href);
+            router.push(href);
             return;
         }
         try {

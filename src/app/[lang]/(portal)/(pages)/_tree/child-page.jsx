@@ -45,27 +45,35 @@ const loadSkillPage = cache(async (lang, categorySlug, skillSlug) => {
 
 const candidatePaths = (candidate) => ({ de: candidateHref('de', candidate), en: candidateHref('en', candidate) });
 
+/**
+ * Metadata of a candidate profile. Also used by category-page.jsx for the
+ * short URL (k-1042) of a candidate without a category, which is that
+ * candidate's canonical URL (e.g. an incomplete profile an admin shows anyway).
+ */
+export async function candidateMetadata(lang, publicNo) {
+    const t = getDictionary(lang);
+    const { candidate } = await loadCandidate(publicNo);
+    if (!candidate) return { title: t.shell.profileTitle, robots: { index: false, follow: true } };
+    const category = primaryCategory(candidate);
+    return pageMetadata({
+        lang,
+        title: candidate.name,
+        description: format(t.meta.candidateDescription, { name: candidate.name, category: localName(category, lang) }),
+        pathsByLang: candidatePaths(candidate),
+        // Candidate pages are never indexed but pass link equity (11.7.1).
+        noindex: true,
+        // Share image of the category, never the candidate's photo (11.9.2).
+        imageCategory: category?.[`slug_${lang}`],
+    });
+}
+
 export async function childMetadata({ params, searchParams }, only) {
     const { lang, category: categorySlug, slug } = await params;
     if (lang !== only) return {};
     const t = getDictionary(lang);
 
     const publicNo = parseCandidateSegment(slug);
-    if (publicNo != null) {
-        const { candidate } = await loadCandidate(publicNo);
-        if (!candidate) return { title: t.shell.profileTitle, robots: { index: false, follow: true } };
-        const category = primaryCategory(candidate);
-        return pageMetadata({
-            lang,
-            title: candidate.name,
-            description: format(t.meta.candidateDescription, { name: candidate.name, category: localName(category, lang) }),
-            pathsByLang: candidatePaths(candidate),
-            // Candidate pages are never indexed but pass link equity (11.7.1).
-            noindex: true,
-            // Share image of the category, never the candidate's photo (11.9.2).
-            imageCategory: category?.[`slug_${lang}`],
-        });
-    }
+    if (publicNo != null) return candidateMetadata(lang, publicNo);
 
     const page = await loadSkillPage(lang, categorySlug, slug).catch(() => null);
     if (!page?.category) return {};
@@ -86,7 +94,8 @@ export async function childMetadata({ params, searchParams }, only) {
     });
 }
 
-async function CandidatePage({ lang, categorySlug, slug, publicNo }) {
+/** A candidate profile. categorySlug is null on the short URL (/candidates/k-1042). */
+export async function CandidatePage({ lang, categorySlug, slug, publicNo }) {
     const { candidate, error } = await loadCandidate(publicNo);
     const t = getDictionary(lang);
     const p = paths(lang);
@@ -95,7 +104,8 @@ async function CandidatePage({ lang, categorySlug, slug, publicNo }) {
     if (!candidate) notFound();
 
     const canonical = candidateHref(lang, candidate);
-    if (`${p.hub}/${categorySlug}/${slug}` !== canonical) permanentRedirect(canonical);
+    const current = categorySlug ? `${p.hub}/${categorySlug}/${slug}` : `${p.hub}/${slug}`;
+    if (current !== canonical) permanentRedirect(canonical);
 
     const category = primaryCategory(candidate);
     const crumbs = [

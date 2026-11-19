@@ -48,5 +48,5 @@ export async function proxy(request) {
 export const config = {
     // Pages and server actions only; not static files, images, /api (share images), the app icons
     // (app/favicon.ico, icon.png, apple-icon.png), robots.txt or the sitemap.
-    matcher: ['/((?!_next/static|_next/image|api/|images/|favicon.ico|icon.png|apple-icon.png|robots.txt|sitemap.xml).*)'],
+    matcher: ['/((?!_next/static|_next/image|api/|images/|videos/|favicon.ico|icon.png|apple-icon.png|robots.txt|sitemap.xml).*)'],
 };

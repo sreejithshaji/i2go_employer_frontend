@@ -2,7 +2,7 @@ import NextLink from 'next/link';
 import { COMPANY } from '@/lib/portal/legal';
 import { LegalSection } from './legal-document';
 
-// Employer terms of use, version 2 (PLAN.md 10.7, 10.17). Based on
+// Employer terms of use, version 3 (PLAN.md 10.7, 10.17). Based on
 // documents/4 Nutzungsbedingungen Arbeitgeber.docx. Where the document
 // describes something the portal doesn't do, the text follows the portal and
 // the difference is listed in legal/LAWYER_BRIEF.md:
@@ -13,6 +13,13 @@ import { LegalSection } from './legal-document';
 //   §7     the document covers job ads; the portal has enquiries instead;
 //   §5, §10 the portal's own rules (limits, logging, new versions) are added.
 // The German text is binding (TermsDe); TermsEn is a translation.
+//
+// Version 3 (2026-11-18): the contracting party is the Dubai FZCO
+// (lib/portal/legal.js). § 12's governing law and jurisdiction are open until
+// the lawyer decides (LEGAL_COMPLIANCE_MIGRATION_PLAN.md, Q-DE-6); the rest of
+// the text is unchanged from version 2 and still needs the legal review.
+
+const party = (l) => `${COMPANY.name}, ${COMPANY.addressLines[l].join(', ')}`;
 
 export const TERMS_INTRO = {
     de: 'Nutzungsbedingungen für Arbeitgeber – i2go Jobportal',
@@ -24,9 +31,9 @@ export function TermsDe({ lang }) {
         <>
             <LegalSection id="scope" title="§ 1 Geltungsbereich">
                 <p>
-                    (1) Diese Bedingungen gelten für die Nutzung des Jobportals auf {COMPANY.website} („Portal“) durch Unternehmen
-                    („Arbeitgeber“) gegenüber {COMPANY.name}, {COMPANY.street}, {COMPANY.city}, vertreten durch den Geschäftsführer
-                    {' '}{COMPANY.managingDirectors} („i2go“).
+                    (1) Diese Bedingungen gelten für die Nutzung des Jobportals auf {COMPANY.portalDomain} („Portal“) durch Unternehmen
+                    („Arbeitgeber“) gegenüber {party('de')}, einer Free Zone Company (FZCO) mit Handelslizenz Nr. {COMPANY.licence.number}
+                    {' '}der {COMPANY.licence.issuer.de}, vertreten durch den Geschäftsführer (Manager) {COMPANY.manager} („i2go“).
                 </p>
                 <p>(2) Das Portal richtet sich ausschließlich an Unternehmer im Sinne des § 14 BGB.</p>
                 <p>(3) Für die Vermittlungsleistung und deren Vergütung gilt der gesonderte Vermittlungsvertrag zwischen i2go und dem Arbeitgeber.</p>
@@ -133,8 +140,7 @@ export function TermsDe({ lang }) {
             </LegalSection>
 
             <LegalSection id="law" title="§ 12 Schlussbestimmungen">
-                <p>(1) Es gilt das Recht der Bundesrepublik Deutschland.</p>
-                <p>(2) Gerichtsstand ist {COMPANY.jurisdiction}.</p>
+                <p>(1) und (2) {COMPANY.governingLaw.de}</p>
                 <p>(3) Sollte eine Bestimmung unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
             </LegalSection>
         </>
@@ -146,8 +152,9 @@ export function TermsEn({ lang }) {
         <>
             <LegalSection id="scope" title="§ 1 Scope">
                 <p>
-                    (1) These terms apply to the use of the job portal on {COMPANY.website} (“portal”) by companies (“employers”) towards
-                    {' '}{COMPANY.name}, {COMPANY.street}, {COMPANY.city}, represented by its managing director {COMPANY.managingDirectors} (“i2go”).
+                    (1) These terms apply to the use of the job portal on {COMPANY.portalDomain} (“portal”) by companies (“employers”) towards
+                    {' '}{party('en')}, a Free Zone Company (FZCO) holding trade licence no. {COMPANY.licence.number} issued by the
+                    {' '}{COMPANY.licence.issuer.en}, represented by its manager {COMPANY.manager} (“i2go”).
                 </p>
                 <p>(2) The portal is only for businesses within the meaning of § 14 BGB (German Civil Code).</p>
                 <p>(3) The placement service and its fee are governed by the separate placement agreement between i2go and the employer.</p>
@@ -253,8 +260,7 @@ export function TermsEn({ lang }) {
             </LegalSection>
 
             <LegalSection id="law" title="§ 12 Final provisions">
-                <p>(1) The law of the Federal Republic of Germany applies.</p>
-                <p>(2) The place of jurisdiction is {COMPANY.jurisdiction}.</p>
+                <p>(1) and (2) {COMPANY.governingLaw.en}</p>
                 <p>(3) If any provision is invalid, the validity of the remaining provisions is not affected.</p>
             </LegalSection>
         </>

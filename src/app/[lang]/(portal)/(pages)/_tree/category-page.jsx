@@ -10,7 +10,8 @@ import JsonLd from '@/components/json-ld';
 import { getGuides } from '@/app/modules/guides/_1-domain/guide_service';
 import { format, localName, plural } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/dictionaries';
-import { candidateHref, parseCandidateSegment, paths } from '@/lib/i18n/routes';
+import { candidateHref, parseCandidateSegment, paths, primaryCategory } from '@/lib/i18n/routes';
+import { CandidatePage, candidateMetadata } from './child-page';
 import { breadcrumbLd } from '@/lib/seo/json-ld';
 import { pageMetadata, shortDescription } from '@/lib/seo/metadata';
 import CandidatesView from '../../client/candidates/candidates-view';
@@ -26,7 +27,10 @@ async function resolve(lang, slug) {
     const publicNo = parseCandidateSegment(slug);
     if (publicNo != null) {
         const ref = await getCandidateRefByPublicNo(publicNo);
-        return ref ? { redirect: candidateHref(lang, ref) } : null;
+        if (!ref) return null;
+        // Without a category the short URL is the canonical one, so the
+        // profile is shown here instead of redirecting to itself.
+        return primaryCategory(ref) ? { redirect: candidateHref(lang, ref) } : { candidatePublicNo: publicNo };
     }
     if (isCandidateUuid(slug)) {
         const ref = await getCandidateRefById(slug);
@@ -42,6 +46,7 @@ export async function categoryMetadata({ params, searchParams }, only) {
     const { lang, category: slug } = await params;
     if (lang !== only) return {};
     const resolved = await resolve(lang, slug).catch(() => null);
+    if (resolved?.candidatePublicNo) return candidateMetadata(lang, resolved.candidatePublicNo);
     if (!resolved?.category) return {};
     const t = getDictionary(lang);
     const { category } = resolved;
@@ -72,6 +77,9 @@ export default async function CategoryPage({ params, searchParams, only }) {
     const resolved = await resolve(lang, slug);
     if (!resolved) notFound();
     if (resolved.redirect) permanentRedirect(resolved.redirect + (resolved.keepQuery ? await queryString(searchParams) : ''));
+    if (resolved.candidatePublicNo) {
+        return <CandidatePage lang={lang} categorySlug={null} slug={slug} publicNo={resolved.candidatePublicNo} />;
+    }
 
     const { category } = resolved;
     const t = getDictionary(lang);
