@@ -79,6 +79,22 @@ async function languageFilters({ germanLevel, germanCertified, languageId, langu
     return result;
 }
 
+/** The filters (lib/portal/filters.js) as the repo's `where`. */
+async function toWhere(filters) {
+    const { q, categoryIds = [], skillIds = [], minExperience } = filters;
+    return { search: q?.trim() || null, categoryIds, skillIds, minExperience, languages: await languageFilters(filters) };
+}
+
+/**
+ * Number of live candidates matching the filters (same shape as
+ * getCandidates), e.g. { germanLevel: 'B1' } for German B1 or higher.
+ * Reads one teaser row only: the total comes with every row.
+ */
+export async function countCandidates(filters = {}) {
+    const { count } = await findLiveCandidates(await toWhere(filters), { offset: 0, limit: 1 }, { full: false });
+    return Number(count ?? 0);
+}
+
 /**
  * One page of live candidates.
  * filters: { q, categoryIds: number[], skillIds: number[], minExperience, germanLevel, germanCertified,
@@ -86,9 +102,8 @@ async function languageFilters({ germanLevel, germanCertified, languageId, langu
  * Returns { candidates, total }.
  */
 export async function getCandidates(filters = {}) {
-    const { q, categoryIds = [], skillIds = [], minExperience } = filters;
     const page = Number.isInteger(filters.page) && filters.page > 0 ? filters.page : 1;
-    const where = { search: q?.trim() || null, categoryIds, skillIds, minExperience, languages: await languageFilters(filters) };
+    const where = await toWhere(filters);
     const full = await viewerIsEmployer();
 
     let { rows, count } = await findLiveCandidates(where, { offset: (page - 1) * PAGE_SIZE, limit: PAGE_SIZE }, { full });

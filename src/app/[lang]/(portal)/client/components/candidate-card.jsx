@@ -1,14 +1,17 @@
 'use client';
 
 import NextLink from 'next/link';
-import { Avatar, Box, Card, CardActionArea, Stack, Typography } from '@mui/material';
+import { Avatar, Box, Card, CardActionArea, Stack, Tooltip, Typography } from '@mui/material';
 import { FiCheck } from 'react-icons/fi';
+import { useAuth } from '@/features/auth';
 import { useI18n } from '@/features/i18n';
 import { localName, plural } from '@/lib/i18n/config';
 import { candidateHref } from '@/lib/i18n/routes';
 import { germanLevel, initials, shortYearsLabel } from '@/lib/portal/format';
 import { tokens } from '@/app/theme';
 import Badge from '@/components/badge';
+import LinkPendingOverlay from '@/components/link-pending-overlay';
+import LockedPhoto, { showsLockedPhoto } from './locked-photo';
 import WishlistButton from './wishlist-button';
 import { SkillMeter } from './skill-bar';
 
@@ -42,14 +45,17 @@ function Stat({ label, value }) {
 }
 
 /**
- * One candidate in a grid. Guests get the teaser (name "Arjun N.", no photo),
- * so the avatar falls back to initials; employers see the photo.
+ * One candidate in a grid. Guests get the teaser (name "Arjun N.", no photo):
+ * the avatar shows the blurred photo with a lock, or initials when there is no
+ * blurhash; employers see the photo.
  */
 export default function CandidateCard({ candidate }) {
     const { lang, t } = useI18n();
     const skills = candidate.skills || [];
     const german = germanLevel(candidate.languages, lang);
     const categories = candidate.categories || [];
+    const { user } = useAuth();
+    const locked = showsLockedPhoto(candidate);
 
     return (
         <Card
@@ -90,6 +96,12 @@ export default function CandidateCard({ candidate }) {
 
                 <Box sx={{ px: { xs: 2.5, sm: 3 }, pb: 2.5, mt: '-36px', display: 'flex', flexDirection: 'column', flex: 1 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <Tooltip
+                            title={locked ? (user ? t.card.photoEmployersOnly : t.card.photoHover) : ''}
+                            arrow
+                            placement="top"
+                            disableInteractive
+                        >
                         <Avatar
                             className="card-avatar"
                             src={candidate.photo_url || undefined}
@@ -101,8 +113,9 @@ export default function CandidateCard({ candidate }) {
                                 transition: `transform 200ms ${tokens.ease}`,
                             }}
                         >
-                            {initials(candidate.name)}
+                            {locked ? <LockedPhoto hash={candidate.photo_blurhash} iconSize={14} /> : initials(candidate.name)}
                         </Avatar>
+                        </Tooltip>
                     </Box>
 
                     <Typography variant="subtitle1" component="h3" noWrap sx={{ mt: 1.25, fontSize: 17 }}>{candidate.name}</Typography>
@@ -152,6 +165,7 @@ export default function CandidateCard({ candidate }) {
                         </Box>
                     )}
                 </Box>
+                <LinkPendingOverlay />
             </CardActionArea>
         </Card>
     );

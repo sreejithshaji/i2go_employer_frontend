@@ -193,7 +193,7 @@ Desktop (≥ 900px)
 - Max content width 1440px, left-aligned (not centred) on very wide screens.
 - **Page footer** (`PageFooter` in `app-shell.jsx`), after every page's content (so under the
   pagination on Candidates): one centred line, 12/18 text-muted, items separated by "·" —
-  "**I2Go Employer Portal**" (600, text-secondary) · "© {year} I2Go Europe" · "Candidates:
+  "**I2Go Employer Portal**" (600, text-secondary) · "© {year} ITOOGO ALQWA HR CONSULTANCY - FZCO" (`COMPANY.name`) · "Candidates:
   build your profile in the I2Go Portal app." Plain: 24px above it, no border, no padding;
   the page's bottom padding is 24px. Wraps on narrow screens.
 - Pages that read as a document (candidate profile) use a two-column grid
@@ -208,6 +208,11 @@ Desktop (≥ 900px)
 - Nav list starts 32px below the logo. Items: height 52, 16px left inset, 20px left padding,
   icon 20px + 12px gap + label 15px/500. Logo block and footer use 20px horizontal padding.
 - No footer text in the sidebar (it's the page footer now, see AppShell).
+- Collapsible (`md`+): a `FiSidebar` `IconButton` at the left of the header toggles an 88px
+  icon-only rail (width slides 200ms). Labels and the wordmark fade out, nav items show their
+  label as a right-hand tooltip, a count badge shrinks onto the icon's top-right, and the
+  legal links hide (the page footer has them). The choice is kept in `localStorage`
+  (`useSidebarCollapsed`); the server always renders it expanded. The drawer never collapses.
 - Drawer version only (below `md`, where the header has no account controls): an account
   card pinned to the bottom (white 10% bg, `--radius-lg`, 16px padding) — guests get
   Create account (white) + Sign in (white 12%); signed-in users get avatar, name, Sign out.
@@ -578,3 +583,101 @@ Respect `prefers-reduced-motion: reduce` — disable transforms and page fade.
    text/status heavy, table only for ≥ 4 comparable columns.
 4. Check at 1440, 1024, 768 and 390 widths before calling it done.
 5. Run `npm run lint` and `npm run build`.
+
+---
+
+## Marketing pages (homepage)
+
+_Added 2026-11-18 (homepage-redesign-plan.md, Task 1)._ The homepage (`/de`, `/en`) has its own
+visual language, taken from the reference site partners.primework360.com (plan §1). It applies
+**only** inside the marketing layout. Every portal page keeps the system above. Values live in
+`brand` in [`src/app/theme.js`](src/app/theme.js); components never use raw hex.
+
+The rules above that this section overrides for marketing pages: Poppins (→ Plus Jakarta Sans),
+"no gradients on content" (→ the dark section, the dark panel and the CTA have gradients),
+"cards have no border" (→ 1px hairline borders), the portal blue (→ ink + `accent`).
+
+### Philosophy
+- Almost monochrome: ink and greys on near-white, one blue accent, cyan only on navy.
+- Hairlines and whitespace separate content, not heavy shadows.
+- Extra-bold headlines with tight negative tracking; small labels uppercase with wide tracking.
+- Two-digit numbering (01, 02…) and connecting lines carry the story.
+- No illustrations, stock photos or decorative shapes. Visuals come from real data and real UI.
+
+### Colours (`brand.*`)
+| Token | Value | Use |
+|---|---|---|
+| `ink` / `ink2` | `#0A0F16` / `#2C3641` | headings / card titles, strong body |
+| `muted` | `#5D6873` | body text (5.4:1 on `bg1`) |
+| `faint` | `#98A1AB` | icons and decoration only, never text |
+| `line` / `line2` / `lineHover` | `#E2E7EC` / `#CED6DE` / `#9AA7B3` | hairlines, card borders / chips, stronger borders / card hover border |
+| `bg1` / `bg2` | `#F7F8FA` / `#EFF1F3` | page canvas / alternate band |
+| `surface` / `surface2` / `surface3` | `#FFF` / `#FDFDFE` / `#F3F5F7` | cards / resting cards / inset areas, chips |
+| `accent` | `#0F8FC7` | borders, ticks, active nodes, large text. **Not small text** (3.6:1) |
+| `accentText` | `#0B6A94` | eyebrows, links and other small accent text (6.0:1) |
+| `accentInk` / `accentSoft` / `accentLine` | `#06364B` / `#F1F7FA` / `#D3E5EE` | deep accent / soft fill / soft border |
+| `ok` / `okSoft`, `danger` | `#12996B` / `#E4F8EF`, `#D92D20` | success, errors |
+| `navy` → `navy2` | `#03070C` → `#060D15` | dark section (`darkSection` gradient) |
+| `graphite` | `#0B1420` | number badges, selected chips, icon tiles on dark |
+| `cyan` | `#1FC8FF` | **on dark only**: numbers, progress line, glow, focus outline of the CTA |
+| `onDark.text` / `.body` / `.subtle` | white / 64% / 50% | headings / body / small meta. Nothing below 50% is text |
+| `onDark.bodyStrong` | white 78% | small text that can pass over the hero photo (the category slider's counts); 64% drops below 4.5:1 there |
+| `onDark.line` / `.border` / `.ring` | white 7% / 10% / 16% | hairlines and timeline track / panel borders / node rings |
+
+Backgrounds: `darkSection` (navy gradient + faint cyan radial), `darkPanel` (the dark CTA panel,
+radius 18px, border `darkPanelBorder`), `glow` (drifting cyan radial on dark sections, decorative).
+
+### Typography
+Font: **Plus Jakarta Sans** (variable, 500–800, self-hosted via `next/font`: `jakarta` in
+`src/app/fonts.js`, CSS variable `--font-jakarta`, set on the marketing layout root).
+`brand.fontFamily` refers to it.
+
+| Role | Size / line height | Weight | Tracking |
+|---|---|---|---|
+| Hero H1, chapter H2 | 48 / 1.08 (32 below 900px) | 800 | -1.8px (-0.8px below 900px) |
+| Step title | 28 / 1.2 (22 below 900px) | 800 | -0.8px |
+| Stat figure | 23 / 1.2 | 800 | -0.7px |
+| Lead | 16.5 / 1.65 | 500 | 0 |
+| Body | 15 / 1.65 | 500 | 0 |
+| Small, captions | 12.5 / 1.55 | 600 | 0 |
+| Eyebrow | 11 / 1, uppercase | 800 | 0.14em |
+| Step number | 13 (rail 11) | 800 | 0.17em |
+| Button | 15 (14 small) | 800 (ghost 700) | -0.2px |
+
+### Radii and shadows
+| Token | Value | Use |
+|---|---|---|
+| `radiusSm` | 10 | small tiles, rail items |
+| `radiusMd` | 16 | cards, stat blocks |
+| `radiusPanel` | 18 | dark CTA panel, mini steps |
+| `radiusLg` / `radiusXl` | 20 / 26 | door panels / large panels |
+| `radiusButton` | 14 | CTA (12 small), pills 999 |
+| `shadow1` / `shadow2` / `shadow3` | `0 1px 2px` / `0 8px 20px` / `0 18px 44px`, navy tint | resting card / hover / popovers |
+
+### Buttons (MUI variants in `theme.js`)
+- `variant="cta"`: gradient `ctaGradient`, white 15/800 text, radius 14, min-height 50. Pass
+  `endIcon={<FiArrowRight />}`: the end icon becomes a 28px round chip (white 18%). Hover:
+  lift 2px, chip moves 2px right and gets lighter (white 30%). Focus: 2px cyan outline,
+  3px offset. `size="small"` for the nav (40px). One `cta` per view area.
+- `variant="ghost"`: transparent, ink2 14/700 text, hover tint `rgba(13,42,66,.05)`. The
+  secondary action next to a `cta`.
+
+### Layout
+- Content max 1080px, reading column 820px, centred. Gutter 40px (16px below 900px).
+- Top nav 78px (64px below 900px), sticky, translucent white with blur, 1px bottom hairline.
+- One main breakpoint: **900px** (MUI `md`).
+
+### Motion
+Easing `brand.ease` = `cubic-bezier(0.16, 1, 0.3, 1)`.
+
+| What | Duration | Effect |
+|---|---|---|
+| Entrance (section, step) | 500ms | fade in from `translateY(22px)`, once, 60ms stagger |
+| Card hover | 280ms | `translateY(-1px)`, border `lineHover`, `shadow2` |
+| CTA hover | 280–300ms | lift 2px, arrow chip moves 2px |
+| Rail node / timeline node | 250ms | ring and fill colour |
+| Timeline line | follows scroll | `scaleY` fill, transform only |
+| Glow on dark sections | 18s alternate | slow drift, decorative |
+
+Content is visible without JavaScript: entrance animations start only after a client-side class
+is set. `prefers-reduced-motion` turns all of it off (the rule in `MuiCssBaseline`).

@@ -7,6 +7,7 @@ import { Alert, Box, Button, CircularProgress, Link, Stack, TextField, Typograph
 import { Redirect, signIn, useAuth } from '@/features/auth';
 import { useI18n } from '@/features/i18n';
 import AuthCard from '../components/auth-card';
+import { startNavigation } from '@/components/navigation-progress/progress-store';
 
 /** Sign-in form. `next` is the safe return path; `keepNext` keeps it on the link to signup. */
 export default function LoginView({ next, keepNext }) {
@@ -31,6 +32,7 @@ export default function LoginView({ next, keepNext }) {
             setError(signInError.message === 'Invalid login credentials' ? t.auth.wrongPassword : signInError.message);
             return;
         }
+        startNavigation(next);
         router.replace(next);
     };
 

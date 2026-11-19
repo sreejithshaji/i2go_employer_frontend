@@ -1,6 +1,6 @@
 import NextLink from 'next/link';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { COMPANY, PROCESSORS } from '@/lib/portal/legal';
+import { COMPANY, PROCESSORS, isPlaceholder } from '@/lib/portal/legal';
 import { tokens } from '@/app/theme';
 import { LegalSection } from './legal-document';
 
@@ -13,7 +13,8 @@ import { LegalSection } from './legal-document';
 //
 // Keep the browser storage table in step with the code: features/auth
 // (Supabase session cookies) and
-// app/(portal)/client/candidate-profile/enquiry-storage.js (PLAN.md 10.11).
+// app/(portal)/client/candidate-profile/enquiry-storage.js (PLAN.md 10.11) and
+// app/(portal)/client/candidate-profile/recently-viewed-storage.js (6.20).
 
 const STORAGE = {
     de: {
@@ -21,6 +22,7 @@ const STORAGE = {
         rows: [
             ['sb-…-auth-token (Cookie, ggf. geteilt in .0, .1)', 'Ihre Anmeldung: Zugangs- und Aktualisierungs-Token.', 'Nur nach der Anmeldung.', 'Bis zur Abmeldung oder bis die Sitzung abläuft.', 'Unbedingt erforderlich, um Sie angemeldet zu halten (§ 25 Abs. 2 Nr. 2 TDDDG).'],
             ['i2go.enquiriesSent (Local Storage)', 'Die Kandidaten, zu denen Sie aus diesem Browser eine Anfrage gesendet haben, mit Uhrzeit.', 'Nach dem Senden einer Anfrage.', '24 Stunden je Eintrag.', 'Unbedingt erforderlich, damit dieselbe Anfrage nicht doppelt gesendet wird (§ 25 Abs. 2 Nr. 2 TDDDG).'],
+            ['i2go.recentlyViewed (Local Storage)', 'Die Kandidatenprofile, die Sie in diesem Browser geöffnet haben (Kennung und Uhrzeit, höchstens 20). Die Liste verlässt Ihren Browser nicht.', 'Wenn Sie ein Kandidatenprofil öffnen (nicht mit einem Kandidaten- oder Admin-Konto).', '30 Tage je Eintrag. Sie können die Liste jederzeit unter „Zuletzt angesehen“ löschen.', 'Unbedingt erforderlich für die Funktion „Zuletzt angesehen“ (§ 25 Abs. 2 Nr. 2 TDDDG).'],
         ],
     },
     en: {
@@ -28,6 +30,7 @@ const STORAGE = {
         rows: [
             ['sb-…-auth-token (cookie, may be split into .0, .1)', 'Your sign-in session: access and refresh token.', 'Only after you sign in.', 'Until you sign out or the session expires.', 'Strictly necessary to keep you signed in (§ 25(2) no. 2 TDDDG).'],
             ['i2go.enquiriesSent (local storage)', 'The candidates you sent an enquiry about from this browser, with the time.', 'After you send an enquiry.', '24 hours per entry.', 'Strictly necessary to stop the same enquiry being sent twice (§ 25(2) no. 2 TDDDG).'],
+            ['i2go.recentlyViewed (local storage)', 'The candidate profiles you opened in this browser (id and time, at most 20). The list never leaves your browser.', 'When you open a candidate profile (not with a candidate or admin account).', '30 days per entry. You can clear the list at any time under “Recently viewed”.', 'Strictly necessary for the “Recently viewed” feature (§ 25(2) no. 2 TDDDG).'],
         ],
     },
 };
@@ -54,24 +57,36 @@ function StorageTable({ lang }) {
 }
 
 function Mail() {
+    if (isPlaceholder(COMPANY.privacyEmail)) return COMPANY.privacyEmail;
     return <a href={`mailto:${COMPANY.privacyEmail}`}>{COMPANY.privacyEmail}</a>;
 }
 
+// Since November 2026 the controller is the Dubai FZCO (lib/portal/legal.js).
+// Sections that still assume an EU-based controller (transfers, retention
+// under German commercial law) carry a [bracketed] note until the lawyer's
+// rewrite (LEGAL_COMPLIANCE_MIGRATION_PLAN.md, section 7.1).
 function Controller({ lang }) {
+    const en = lang === 'en';
+    const l = en ? 'en' : 'de';
     return (
-        <address>
-            {COMPANY.name}<br />
-            {COMPANY.street}<br />
-            {COMPANY.city}, {COMPANY.country[lang] ?? COMPANY.country.de}<br />
-            {lang === 'en' ? 'Managing director' : 'Geschäftsführer'}: {COMPANY.managingDirectors}<br />
-            {lang === 'en' ? 'Email' : 'E-Mail'}: <Mail /><br />
-            {lang === 'en' ? 'Phone' : 'Telefon'}: {COMPANY.phone}
-        </address>
+        <>
+            <address>
+                {COMPANY.name}<br />
+                {COMPANY.addressLines[l].map((line) => <span key={line}>{line}<br /></span>)}
+                {en ? 'Legal form' : 'Rechtsform'}: {COMPANY.legalForm[l]}, {en ? 'trade licence no.' : 'Handelslizenz Nr.'} {COMPANY.licence.number} ({COMPANY.licence.issuer[l]})<br />
+                {en ? 'Manager' : 'Geschäftsführer (Manager)'}: {COMPANY.manager}<br />
+                {en ? 'Email' : 'E-Mail'}: <Mail /><br />
+                {en ? 'Phone' : 'Telefon'}: {COMPANY.phone}
+            </address>
+            <p>
+                {en ? 'Representative in the EU (Art. 27 GDPR)' : 'Vertreter in der EU (Art. 27 DSGVO)'}:{' '}
+                {COMPANY.euRepresentative ?? (en ? '[EU REPRESENTATIVE: name and address once appointed]' : '[EU-VERTRETER: Name und Anschrift, sobald benannt]')}
+            </p>
+        </>
     );
 }
 
 export function PrivacyDe({ lang }) {
-    const authority = COMPANY.supervisoryAuthority;
     return (
         <>
             <LegalSection id="controller" title="1. Verantwortlicher">
@@ -87,7 +102,7 @@ export function PrivacyDe({ lang }) {
             <LegalSection id="overview" title="3. Überblick">
                 <p>
                     Über die App „I2Go Portal“ können sich Arbeitsuchende, insbesondere aus Indien, registrieren und ein Bewerberprofil
-                    anlegen („Kandidaten“). Mit ihrer Einwilligung erscheint das Profil im Arbeitgeberportal auf {COMPANY.website}
+                    anlegen („Kandidaten“). Mit ihrer Einwilligung erscheint das Profil im Arbeitgeberportal auf {COMPANY.portalDomain}
                     („Portal“). Arbeitgeber in Deutschland können dort Profile ansehen und i2go eine Anfrage senden. Wir vermitteln
                     geeignete Bewerber an Arbeitgeber und unterstützen bei Visum, Aufenthaltstitel und Anerkennung von Qualifikationen.
                     Diese Erklärung informiert gemäß Art. 13 und 14 DSGVO darüber, welche Daten wir verarbeiten.
@@ -234,6 +249,10 @@ export function PrivacyDe({ lang }) {
 
             <LegalSection id="transfers" title="14. Übermittlung in Drittländer">
                 <p>
+                    [ANWALT: Abschnitt wird neu gefasst. Der Verantwortliche hat seinen Sitz in den Vereinigten Arabischen Emiraten;
+                    Datenflüsse und Übermittlungsgrundlagen siehe LEGAL_COMPLIANCE_MIGRATION_PLAN.md, Abschnitt 6.3.]
+                </p>
+                <p>
                     Zur Betreuung von Bewerbern in Indien hat {PROCESSORS.indiaPartner} Zugriff auf Bewerberdaten. Für Indien besteht
                     kein Angemessenheitsbeschluss der EU-Kommission. Die Übermittlung erfolgt auf Grundlage von EU-Standardvertragsklauseln
                     (Art. 46 Abs. 2 lit. c DSGVO). Eine Kopie können Sie unter <Mail /> anfordern.
@@ -254,7 +273,7 @@ export function PrivacyDe({ lang }) {
                     <li>Zugriffsprotokoll der Arbeitgeber: 30 Tage.</li>
                     <li>Einwilligungsnachweise: 3 Jahre nach Ende der Einwilligung (§ 195 BGB).</li>
                     <li>Server-Logfiles: 7 Tage.</li>
-                    <li>Rechnungs- und Vertragsunterlagen: 6 bzw. 10 Jahre (§ 257 HGB, § 147 AO).</li>
+                    <li>Rechnungs- und Vertragsunterlagen: [FRIST: Aufbewahrungsfrist nach dem Recht der VAE zu bestätigen].</li>
                 </ul>
             </LegalSection>
 
@@ -270,9 +289,11 @@ export function PrivacyDe({ lang }) {
 
             <LegalSection id="complaints" title="17. Beschwerderecht">
                 <p>
-                    Sie können sich bei einer Datenschutz-Aufsichtsbehörde beschweren. Für uns zuständig ist: {authority.name},
-                    {' '}{authority.address}, <a href={authority.url}>{authority.url.replace('https://', '')}</a>.
+                    Sie können sich bei einer Datenschutz-Aufsichtsbehörde beschweren, insbesondere in dem EU-Mitgliedstaat Ihres
+                    gewöhnlichen Aufenthalts, Ihres Arbeitsplatzes oder des mutmaßlichen Verstoßes (Art. 77 DSGVO). In Deutschland ist
+                    das in der Regel die Datenschutzbehörde Ihres Bundeslandes.
                 </p>
+                <p>[VAE: zuständige Behörde nach dem Datenschutzgesetz der VAE (Federal Decree-Law No. 45 of 2021) zu bestätigen.]</p>
             </LegalSection>
 
             <LegalSection id="required" title="18. Pflicht zur Bereitstellung">
@@ -302,7 +323,6 @@ export function PrivacyDe({ lang }) {
 }
 
 export function PrivacyEn({ lang }) {
-    const authority = COMPANY.supervisoryAuthority;
     return (
         <>
             <LegalSection id="controller" title="1. Who is responsible">
@@ -318,7 +338,7 @@ export function PrivacyEn({ lang }) {
             <LegalSection id="overview" title="3. What this service does">
                 <p>
                     Job seekers, mainly from India, create a profile in the I2Go Portal app (“candidates”). With their consent, the profile
-                    appears on the employer portal at {COMPANY.website} (“portal”), where employers in Germany can view profiles and send
+                    appears on the employer portal at {COMPANY.portalDomain} (“portal”), where employers in Germany can view profiles and send
                     i2go an enquiry. We match suitable candidates with employers and help with visa, residence permit and recognition of
                     qualifications. This policy explains what data we process (Art. 13 and 14 GDPR).
                 </p>
@@ -455,6 +475,10 @@ export function PrivacyEn({ lang }) {
 
             <LegalSection id="transfers" title="14. Transfers outside the EU">
                 <p>
+                    [LAWYER: this section is being rewritten. The controller is based in the United Arab Emirates; data flows and
+                    transfer mechanisms are in LEGAL_COMPLIANCE_MIGRATION_PLAN.md, section 6.3.]
+                </p>
+                <p>
                     {PROCESSORS.indiaPartner} has access to candidate data to support candidates in India. India has no EU adequacy
                     decision; the transfer is based on EU Standard Contractual Clauses (Art. 46(2)(c) GDPR). You can request a copy at <Mail />.
                 </p>
@@ -474,7 +498,7 @@ export function PrivacyEn({ lang }) {
                     <li>Employer access log: 30 days.</li>
                     <li>Consent records: 3 years after the consent ends (§ 195 BGB).</li>
                     <li>Server logs: 7 days.</li>
-                    <li>Contracts and invoices: 6 or 10 years (§ 257 HGB, § 147 AO).</li>
+                    <li>Contracts and invoices: [PERIOD: retention period under UAE law to be confirmed].</li>
                 </ul>
             </LegalSection>
 
@@ -489,9 +513,10 @@ export function PrivacyEn({ lang }) {
 
             <LegalSection id="complaints" title="17. Complaints">
                 <p>
-                    You can complain to a data protection authority. Ours is: {authority.name}, {authority.address}, Germany,
-                    {' '}<a href={authority.url}>{authority.url.replace('https://', '')}</a>.
+                    You can complain to a data protection authority, in particular in the EU Member State where you live, work or where
+                    the alleged infringement took place (Art. 77 GDPR). In Germany this is usually the authority of your federal state.
                 </p>
+                <p>[UAE: competent authority under the UAE data protection law (Federal Decree-Law No. 45 of 2021) to be confirmed.]</p>
             </LegalSection>
 
             <LegalSection id="required" title="18. Do you have to give us your data?">

@@ -9,7 +9,7 @@ export default function robots() {
     if (!SITE_INDEXABLE) {
         return { rules: { userAgent: '*', disallow: '/' } };
     }
-    const accountPages = ['login', 'signup', 'wishlist', 'enquiries'];
+    const accountPages = ['login', 'signup', 'wishlist', 'recently-viewed', 'enquiries'];
     return {
         rules: {
             userAgent: '*',

@@ -6,6 +6,7 @@ import { Box, Stack, Typography } from '@mui/material';
 import { FiHeart, FiMessageCircle, FiSearch, FiUserCheck } from 'react-icons/fi';
 import { LanguageSwitcher, useI18n } from '@/features/i18n';
 import { tokens } from '@/app/theme';
+import { COMPANY } from '@/lib/portal/legal';
 
 const BENEFIT_ICONS = [<FiSearch key="search" size={20} />, <FiHeart key="heart" size={20} />, <FiMessageCircle key="message" size={20} />, <FiUserCheck key="check" size={20} />];
 
@@ -55,7 +56,7 @@ export default function AuthCard({ title, subtitle, children }) {
                     </Stack>
                 </Box>
                 <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', position: 'relative' }}>
-                    © {new Date().getFullYear()} I2Go Europe
+                    © {new Date().getFullYear()} {COMPANY.name}
                 </Typography>
             </Box>
 

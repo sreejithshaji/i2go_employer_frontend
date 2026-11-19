@@ -11,6 +11,7 @@ import { useI18n } from '@/features/i18n';
 import { format } from '@/lib/i18n/config';
 import { TERMS_VERSION } from '@/lib/portal/legal';
 import AuthCard from '../components/auth-card';
+import { startNavigation } from '@/components/navigation-progress/progress-store';
 
 /** Employer signup form. `next` is the safe return path; `keepNext` keeps it on the link to sign in. */
 export default function SignupView({ next, keepNext }) {
@@ -52,7 +53,10 @@ export default function SignupView({ next, keepNext }) {
             setError(signUpError.message);
             return;
         }
-        if (data.session) router.replace(next);
+        if (data.session) {
+            startNavigation(next);
+            router.replace(next);
+        }
         else setCheckEmail(true); // email confirmation is on
     };
 
