@@ -25,7 +25,6 @@ const TEXT = {
         activity: 'Lizenzierte Tätigkeit',
         tax: 'Steuer-Registrierungsnummer (TRN, VAE)',
         content: 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV',
-        contentPending: '[MSTV: ob eine verantwortliche Person zu benennen ist und wer, wird anwaltlich geprüft]',
         euRep: 'Vertreter in der EU (Art. 27 DSGVO)',
         euRepPending: '[EU-VERTRETER: Name und Anschrift, sobald benannt]',
         dpo: 'Datenschutzbeauftragter',
@@ -49,7 +48,6 @@ const TEXT = {
         activity: 'Licensed activity',
         tax: 'Tax registration number (TRN, UAE)',
         content: 'Responsible for content (§ 18(2) MStV)',
-        contentPending: '[MSTV: whether a responsible person must be named, and who, is being checked by a lawyer]',
         euRep: 'Representative in the EU (Art. 27 GDPR)',
         euRepPending: '[EU REPRESENTATIVE: name and address once appointed]',
         dpo: 'Data protection officer',
@@ -95,8 +93,8 @@ export default function ImpressumView({ lang }) {
                     {x.licenceNumber}: {COMPANY.licence.number}<br />
                     {x.issuer}: {COMPANY.licence.issuer[l]}<br />
                     {x.freeZone}: {COMPANY.licence.freeZone}<br />
-                    {x.activity}: {COMPANY.licence.activity[l]}<br />
-                    {x.tax}: {COMPANY.trn}
+                    {x.activity}: {COMPANY.licence.activity[l]}
+                    {COMPANY.trn && <><br />{x.tax}: {COMPANY.trn}</>}
                 </p>
             </LegalSection>
 
@@ -105,7 +103,10 @@ export default function ImpressumView({ lang }) {
             </LegalSection>
 
             <LegalSection id="content" title={x.content}>
-                <p>{x.contentPending}</p>
+                <address>
+                    {COMPANY.contentResponsible}<br />
+                    {COMPANY.addressLines[l].map((line, i, all) => <span key={line}>{line}{i < all.length - 1 && <br />}</span>)}
+                </address>
             </LegalSection>
 
             {COMPANY.dpo && (

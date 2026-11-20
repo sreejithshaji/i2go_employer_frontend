@@ -6,6 +6,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import { useAuth } from '@/features/auth';
 import { useI18n } from '@/features/i18n';
 import { brand as b, marketingTheme } from '@/app/theme';
+import ScrollToTop from '@/components/scroll-to-top';
 import Container from './container';
 import MarketingFooter from './marketing-footer';
 import MarketingNav, { useNavOverlay } from './marketing-nav';
@@ -62,6 +63,7 @@ export default function MarketingShell({ fontClass, children }) {
                     {children}
                 </Box>
                 <MarketingFooter />
+                <ScrollToTop />
             </Box>
         </ThemeProvider>
     );

@@ -8,9 +8,9 @@ const de = {
         description: 'Profile internationaler Fachkräfte ansehen und eine Anfrage senden. Das I2Go-Team bringt Sie mit den passenden Menschen zusammen.',
         homeTitle: 'Fachkräfte aus Indien für Arbeitgeber in Europa',
         homeDescription: 'I2Go verbindet Arbeitgeber in Europa mit Fachkräften aus Indien. Profile ansehen, vormerken, Gespräche anfragen: den Rest übernehmen wir.',
-        hubTitle: 'Fachkräfte',
+        hubTitle: 'Fachkräfte aus Indien finden',
         hubDescription: 'Profile internationaler Fachkräfte mit Kenntnissen, Berufserfahrung und Sprachen. Nach Beruf und Erfahrung filtern.',
-        hubPageTitle: 'Fachkräfte, Seite {page}',
+        hubPageTitle: 'Fachkräfte aus Indien, Seite {page}',
         categoryTitle: '{name}: Fachkräfte finden',
         categoryPageTitle: '{name}: Fachkräfte, Seite {page}',
         skillTitle: '{name} mit {skill}',
@@ -28,12 +28,14 @@ const de = {
         impressum: 'Impressum',
         privacyDescription: 'Wie i2go im Arbeitgeberportal und in der App „I2Go Portal“ personenbezogene Daten verarbeitet.',
         termsDescription: 'Nutzungsbedingungen für Arbeitgeberkonten im I2Go-Arbeitgeberportal.',
+        impressumDescription: 'Impressum des I2Go-Arbeitgeberportals: Anbieter, Kontakt und rechtliche Angaben.',
     },
     common: {
         brandTag: 'Arbeitgeberportal',
         footerName: 'I2Go Arbeitgeberportal',
         footerCandidates: 'Kandidatinnen und Kandidaten: Profil in der App „I2Go Portal“ anlegen.',
         signIn: 'Anmelden',
+        backToTop: 'Nach oben',
         createAccount: 'Konto erstellen',
         signOut: 'Abmelden',
         account: 'Konto',
@@ -57,6 +59,7 @@ const de = {
     nav: {
         home: 'Startseite',
         candidates: 'Fachkräfte',
+        findCandidate: 'Finden Sie Ihre Fachkraft',
         guides: 'Ratgeber',
         wishlist: 'Merkliste',
         recentlyViewed: 'Zuletzt angesehen',
@@ -526,6 +529,10 @@ const de = {
     notFound: {
         title: 'Seite nicht gefunden',
         text: 'Diese Seite gibt es nicht oder sie wurde verschoben.',
+    },
+    error: {
+        title: 'Etwas ist schiefgelaufen',
+        text: 'Die Seite konnte nicht geladen werden. Bitte versuchen Sie es erneut.',
     },
     seo: {
         statProfiles: { one: 'Profil online', other: 'Profile online' },

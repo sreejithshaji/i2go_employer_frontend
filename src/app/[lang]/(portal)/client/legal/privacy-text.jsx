@@ -96,7 +96,7 @@ export function PrivacyDe({ lang }) {
             <LegalSection id="dpo" title="2. Datenschutzbeauftragter">
                 {COMPANY.dpo
                     ? <p>{COMPANY.dpo}</p>
-                    : <p>[DSB: Kontaktdaten des Datenschutzbeauftragten eintragen, sobald einer benannt ist; ist keiner erforderlich, entfällt dieser Abschnitt (PLAN.md 10.12.3). Der Geschäftsführer kann diese Aufgabe nicht übernehmen.]</p>}
+                    : <p>Wir haben keinen Datenschutzbeauftragten benannt, da hierzu keine Pflicht besteht. Fragen zum Datenschutz richten Sie bitte an <Mail />.</p>}
             </LegalSection>
 
             <LegalSection id="overview" title="3. Überblick">
@@ -293,7 +293,6 @@ export function PrivacyDe({ lang }) {
                     gewöhnlichen Aufenthalts, Ihres Arbeitsplatzes oder des mutmaßlichen Verstoßes (Art. 77 DSGVO). In Deutschland ist
                     das in der Regel die Datenschutzbehörde Ihres Bundeslandes.
                 </p>
-                <p>[VAE: zuständige Behörde nach dem Datenschutzgesetz der VAE (Federal Decree-Law No. 45 of 2021) zu bestätigen.]</p>
             </LegalSection>
 
             <LegalSection id="required" title="18. Pflicht zur Bereitstellung">
@@ -332,7 +331,7 @@ export function PrivacyEn({ lang }) {
             <LegalSection id="dpo" title="2. Data protection officer">
                 {COMPANY.dpo
                     ? <p>{COMPANY.dpo}</p>
-                    : <p>[DPO: add the data protection officer’s contact details once appointed; if none is required, this section goes (PLAN.md 10.12.3). The managing director can’t take this role.]</p>}
+                    : <p>We have not appointed a data protection officer, as we are not required to. Please send data protection questions to <Mail />.</p>}
             </LegalSection>
 
             <LegalSection id="overview" title="3. What this service does">
@@ -516,7 +515,6 @@ export function PrivacyEn({ lang }) {
                     You can complain to a data protection authority, in particular in the EU Member State where you live, work or where
                     the alleged infringement took place (Art. 77 GDPR). In Germany this is usually the authority of your federal state.
                 </p>
-                <p>[UAE: competent authority under the UAE data protection law (Federal Decree-Law No. 45 of 2021) to be confirmed.]</p>
             </LegalSection>
 
             <LegalSection id="required" title="18. Do you have to give us your data?">

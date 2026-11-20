@@ -140,8 +140,7 @@ export function TermsDe({ lang }) {
             </LegalSection>
 
             <LegalSection id="law" title="§ 12 Schlussbestimmungen">
-                <p>(1) und (2) {COMPANY.governingLaw.de}</p>
-                <p>(3) Sollte eine Bestimmung unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
+                <p>Sollte eine Bestimmung unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
             </LegalSection>
         </>
     );
@@ -260,8 +259,7 @@ export function TermsEn({ lang }) {
             </LegalSection>
 
             <LegalSection id="law" title="§ 12 Final provisions">
-                <p>(1) and (2) {COMPANY.governingLaw.en}</p>
-                <p>(3) If any provision is invalid, the validity of the remaining provisions is not affected.</p>
+                <p>If any provision is invalid, the validity of the remaining provisions is not affected.</p>
             </LegalSection>
         </>
     );

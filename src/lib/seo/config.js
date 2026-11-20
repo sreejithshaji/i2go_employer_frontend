@@ -1,6 +1,6 @@
 // Site-wide SEO settings (PLAN.md 11).
 //
-// SITE_URL is the one canonical host (11.15), e.g. https://www.i2go.de. It is
+// SITE_URL is the one canonical host (11.15): https://i2go-jobportal.com. It is
 // read on the server only. Until it is set, every page is noindex and
 // robots.txt disallows everything, so preview and local deployments never end
 // up in search results.

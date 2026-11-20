@@ -8,7 +8,7 @@ export async function generateMetadata({ params }) {
     return pageMetadata({
         lang,
         title: t.meta.impressum,
-        description: undefined,
+        description: t.meta.impressumDescription,
         pathsByLang: { de: '/de/impressum', en: '/en/impressum' },
     });
 }
