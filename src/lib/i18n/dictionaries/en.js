@@ -9,9 +9,9 @@ const en = {
         description: 'Browse candidate profiles and send an enquiry. The I2Go team connects you with the right people.',
         homeTitle: 'Skilled Indian professionals for European employers',
         homeDescription: 'I2Go connects European employers with eligible, skilled Indian professionals. Explore profiles, shortlist and request interviews; we handle the rest.',
-        hubTitle: 'Candidates',
+        hubTitle: 'Find skilled candidates from India',
         hubDescription: 'Profiles of international candidates with skills, work history and languages. Filter by job category and experience.',
-        hubPageTitle: 'Candidates, page {page}',
+        hubPageTitle: 'Candidates from India, page {page}',
         categoryTitle: '{name}: candidates',
         categoryPageTitle: '{name}: candidates, page {page}',
         skillTitle: '{name} with {skill}',
@@ -29,12 +29,14 @@ const en = {
         impressum: 'Impressum',
         privacyDescription: 'How i2go handles personal data on the employer portal and in the I2Go Portal app.',
         termsDescription: 'Terms of use for employer accounts on the I2Go employer portal.',
+        impressumDescription: 'Legal notice for the I2Go employer portal: provider, contact and legal details.',
     },
     common: {
         brandTag: 'Employer portal',
         footerName: 'I2Go Employer Portal',
         footerCandidates: 'Candidates: build your profile in the I2Go Portal app.',
         signIn: 'Sign in',
+        backToTop: 'Back to top',
         createAccount: 'Create account',
         signOut: 'Sign out',
         account: 'Account',
@@ -58,6 +60,7 @@ const en = {
     nav: {
         home: 'Home',
         candidates: 'Candidates',
+        findCandidate: 'Find your candidate',
         guides: 'Guides',
         wishlist: 'Wishlist',
         recentlyViewed: 'Recently viewed',
@@ -527,6 +530,10 @@ const en = {
     notFound: {
         title: 'Page not found',
         text: 'This page doesn’t exist or has moved.',
+    },
+    error: {
+        title: 'Something went wrong',
+        text: 'This page couldn’t load. Please try again.',
     },
     seo: {
         statProfiles: { one: 'live profile', other: 'live profiles' },

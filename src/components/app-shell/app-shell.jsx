@@ -12,6 +12,7 @@ import { visuallyHidden } from '@mui/utils';
 import { keyframes } from '@emotion/react';
 import { FiArrowLeft, FiBookOpen, FiChevronDown, FiClock, FiHeart, FiHome, FiInbox, FiLogOut, FiMenu, FiSidebar, FiUsers } from 'react-icons/fi';
 import Breadcrumbs from '@/components/breadcrumbs';
+import ScrollToTop from '@/components/scroll-to-top';
 import { SignInButton, useAuth } from '@/features/auth';
 import { LanguageSwitcher, useI18n } from '@/features/i18n';
 import { format, isLocale } from '@/lib/i18n/config';
@@ -32,7 +33,7 @@ import { brand, tokens } from '@/app/theme';
 function navItems({ user, isEmployer, wishlistCount, t, p }) {
     return [
         { to: p.home, label: t.nav.home, icon: <FiHome size={20} />, end: true },
-        { to: p.hub, label: t.nav.candidates, icon: <FiUsers size={20} /> },
+        { to: p.hub, label: t.nav.findCandidate, icon: <FiUsers size={20} /> },
         { to: p.guides, label: t.nav.guides, icon: <FiBookOpen size={20} /> },
         ...(!user || isEmployer
             ? [
@@ -58,7 +59,7 @@ function routeMeta(pathname, lang, t, p) {
         if (segments.length === 1) {
             // No visible title or breadcrumb (the h1 stays for screen readers). On desktop the
             // page renders its search bar into the header row (see headerSlot).
-            return { title: t.nav.candidates, hideTitle: true, headerSearch: true };
+            return { title: t.meta.hubTitle, hideTitle: true, headerSearch: true };
         }
         if (parseCandidateSegment(segments[segments.length - 1]) != null) {
             return { title: t.shell.profileTitle, back: true };
@@ -560,6 +561,8 @@ export default function AppShell({ children }) {
                     the bottom of the window on short pages. */}
                 <MarketingFooter />
             </Box>
+            {/* Lifted on candidate profiles, which have a sticky action bar on phones. */}
+            <ScrollToTop raised={Boolean(meta.back)} />
         </Box>
     );
 }

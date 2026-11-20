@@ -30,6 +30,8 @@ export async function generateMetadata({ params }) {
         twitter: { card: 'summary_large_image', images: [`/api/og?lang=${lang}`] },
         // Until SITE_URL is set (11.15), nothing is indexed (lib/seo/config.js).
         robots: SITE_INDEXABLE ? undefined : { index: false, follow: false },
+        // Google Search Console HTML-tag check; not needed if the domain is verified by DNS.
+        verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
     };
 }
 

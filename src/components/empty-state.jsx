@@ -6,8 +6,9 @@ import { brand as b } from '@/app/theme';
  * Nothing to show (14.5c): a hairline card with a graphite tile and a cyan
  * icon (the rail's active look), an 800 title, a muted line and an optional
  * action. Pass a `cta` button for a way forward, `ghost` for a reset.
+ * `titleAs="h1"` when it is the whole page (404, error).
  */
-export default function EmptyState({ icon = <FiUsers />, title, message, action }) {
+export default function EmptyState({ icon = <FiUsers />, title, message, action, titleAs = 'h2' }) {
     return (
         <Card sx={{ py: { xs: 5, md: 7 }, px: 3, textAlign: 'center' }}>
             <Box
@@ -20,7 +21,7 @@ export default function EmptyState({ icon = <FiUsers />, title, message, action 
             >
                 {icon}
             </Box>
-            <Typography component="h2" sx={{ fontSize: { xs: 19, md: 21 }, lineHeight: 1.3, fontWeight: 800, letterSpacing: '-0.4px', color: b.ink }}>{title}</Typography>
+            <Typography component={titleAs} sx={{ fontSize: { xs: 19, md: 21 }, lineHeight: 1.3, fontWeight: 800, letterSpacing: '-0.4px', color: b.ink }}>{title}</Typography>
             {message && (
                 <Typography sx={{ mt: 0.75, maxWidth: 440, mx: 'auto', fontSize: 15, lineHeight: 1.65, color: b.muted }}>{message}</Typography>
             )}

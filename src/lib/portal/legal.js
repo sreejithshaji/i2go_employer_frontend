@@ -20,9 +20,10 @@
  * again, and see only the teaser until they do.
  *
  * Version 2 (2026-10-07): the GmbH's terms, adapted to the portal.
- * Version 3 (2026-11-18): the contracting party is now the Dubai FZCO; the
- * governing law and jurisdiction clause is open until the lawyer decides
- * (migration plan Q-DE-6). Not yet lawyer-reviewed.
+ * Version 3 (2026-11-18): the contracting party is now the Dubai FZCO. On
+ * 20 Nov 2026 I2Go decided that no governing law or jurisdiction clause is
+ * needed (P7), so § 12 keeps only the severability clause. Not yet
+ * lawyer-reviewed.
  */
 export const TERMS_VERSION = '3';
 /** "As of" dates shown on the pages, per language. */
@@ -60,26 +61,27 @@ export const COMPANY = {
         // or placement (migration plan Q-UAE-5, Q-IFZA-1).
         activity: { de: 'Human Resources Consultancies (Personalberatung)', en: 'Human Resources Consultancies' },
     },
-    trn: '[TRN: UAE tax registration number, or confirm the company is not VAT-registered]',
+    // Not VAT-registered, so there is no TRN (confirmed by I2Go, 20 Nov 2026).
+    // The legal notice leaves the line out while this is null.
+    trn: null,
     // Confirmed by I2Go on 18 Nov 2026 (as shown on i2goalqwa.ae).
     email: 'info@i2goalqwa.ae',
     phone: '+971 8558 7747',
     privacyEmail: 'info@i2goalqwa.ae',
     // The company's own website (given by I2Go as official).
     website: 'i2goalqwa.ae',
-    // Where this portal runs. Not decided yet (SITE_URL, PLAN.md 11.15).
-    portalDomain: '[PORTAL DOMAIN]',
-    // Set once an officer is appointed, or leave null if none is required
-    // (migration plan Q-DP-5).
+    // Where this portal runs (confirmed by I2Go, 20 Nov 2026). Set SITE_URL to
+    // https://i2go-jobportal.com in production (lib/seo/config.js).
+    portalDomain: 'i2go-jobportal.com',
+    // No data protection officer is required (I2Go, 20 Nov 2026). Stays null;
+    // the privacy policy says none is appointed.
     dpo: null,
     // GDPR Art. 27 representative in the EU; required if the company has no
     // EU establishment (migration plan 3.B5). Null until appointed.
     euRepresentative: null,
-    // Governing law and courts for the employer terms: open (Q-DE-6).
-    governingLaw: {
-        de: '[RECHTSWAHL UND GERICHTSSTAND: nach anwaltlicher Prüfung festzulegen]',
-        en: '[GOVERNING LAW AND JURISDICTION: to be set after legal review]',
-    },
+    // Person responsible for content under § 18(2) MStV: the manager
+    // (confirmed by I2Go, 20 Nov 2026), at the company address.
+    contentResponsible: 'Sathish Kumar Maney Maney',
 };
 
 export const PROCESSORS = {
