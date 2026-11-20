@@ -2,6 +2,7 @@
 
 import NextLink from 'next/link';
 import { Box } from '@mui/material';
+import { brand as b } from '@/app/theme';
 
 /**
  * Visible breadcrumbs (PLAN.md 11.13). items: [{ label, href? }]; the last one
@@ -14,13 +15,13 @@ export default function Breadcrumbs({ items, label = 'Breadcrumb', sx }) {
                 {items.map((crumb, i) => (
                     <Box key={`${crumb.label}-${i}`} component="li" sx={{ display: 'inline-flex', gap: 0.75, minWidth: 0 }}>
                         {crumb.href && i < items.length - 1 ? (
-                            <Box component={NextLink} href={crumb.href} sx={{ color: 'primary.main', fontWeight: 500, textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
+                            <Box component={NextLink} href={crumb.href} sx={{ color: b.accentText, fontWeight: 700, textDecoration: 'none', borderRadius: '4px', '&:hover': { textDecoration: 'underline' }, '&:focus-visible': b.focusRing }}>
                                 {crumb.label}
                             </Box>
                         ) : (
-                            <Box component="span" aria-current="page" sx={{ color: 'text.disabled' }}>{crumb.label}</Box>
+                            <Box component="span" aria-current="page" sx={{ color: b.muted, fontWeight: 600 }}>{crumb.label}</Box>
                         )}
-                        {i < items.length - 1 && <Box component="span" aria-hidden sx={{ color: 'primary.main' }}>/</Box>}
+                        {i < items.length - 1 && <Box component="span" aria-hidden sx={{ color: b.faint }}>/</Box>}
                     </Box>
                 ))}
             </Box>

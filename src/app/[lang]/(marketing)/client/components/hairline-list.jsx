@@ -2,14 +2,16 @@ import NextLink from 'next/link';
 import { Box, Typography } from '@mui/material';
 import { FiArrowRight } from 'react-icons/fi';
 import { brand as b } from '@/app/theme';
+import Reveal, { STAGGER } from './reveal';
 
 /**
  * Rows separated only by a 1px top hairline, no boxes (reference
  * `.ggrid/.gitem`, plan §1.6). Each item: { key?, label, text?, icon?, href? }.
  * With `href` the whole row is a link with an arrow at the end. `columns`
- * applies from 900px; below that the list is one column.
+ * applies from 900px; below that the list is one column. `reveal` gives each
+ * row the entrance (plan §10), staggered by column.
  */
-export default function HairlineList({ items, columns = 1, tone = 'light', sx, ...props }) {
+export default function HairlineList({ items, columns = 1, tone = 'light', reveal = false, sx, ...props }) {
     const dark = tone === 'dark';
     const colors = {
         line: dark ? b.onDark.line : b.line,
@@ -17,6 +19,7 @@ export default function HairlineList({ items, columns = 1, tone = 'light', sx, .
         text: dark ? b.onDark.body : b.muted,
         icon: dark ? b.onDark.subtle : b.faint,
         hover: dark ? b.cyan : b.accentText,
+        focus: dark ? b.focusRingDark : b.focusRing,
     };
     return (
         <Box
@@ -29,11 +32,19 @@ export default function HairlineList({ items, columns = 1, tone = 'light', sx, .
                 ...sx,
             }}
         >
-            {items.map((item) => (
-                <Box component="li" key={item.key ?? item.href ?? item.label} sx={{ borderTop: `1px solid ${colors.line}` }}>
-                    <Row item={item} colors={colors} />
-                </Box>
-            ))}
+            {items.map((item, i) => {
+                const key = item.key ?? item.href ?? item.label;
+                const liSx = { borderTop: `1px solid ${colors.line}` };
+                return reveal ? (
+                    <Reveal component="li" key={key} delay={(i % columns + 1) * STAGGER} sx={liSx}>
+                        <Row item={item} colors={colors} />
+                    </Reveal>
+                ) : (
+                    <Box component="li" key={key} sx={liSx}>
+                        <Row item={item} colors={colors} />
+                    </Box>
+                );
+            })}
         </Box>
     );
 }
@@ -76,7 +87,7 @@ function Row({ item, colors }) {
                 borderRadius: '6px',
                 '&:hover .hl-label, &:hover .hl-arrow': { color: colors.hover },
                 '&:hover .hl-arrow': { transform: 'translateX(2px)' },
-                '&:focus-visible': { outline: `2px solid ${colors.hover}`, outlineOffset: 2 },
+                '&:focus-visible': colors.focus,
             }}
         >
             {body}

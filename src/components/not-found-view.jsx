@@ -1,7 +1,6 @@
 'use client';
 
-import NextLink from 'next/link';
-import { Button } from '@mui/material';
+import CtaButton from '@/app/[lang]/(marketing)/client/components/cta-button';
 import { useI18n } from '@/features/i18n';
 import EmptyState from './empty-state';
 
@@ -11,7 +10,7 @@ export default function NotFound() {
         <EmptyState
             title={t.notFound.title}
             message={t.notFound.text}
-            action={<Button component={NextLink} href={p.hub} variant="contained">{t.common.browseCandidates}</Button>}
+            action={<CtaButton href={p.hub}>{t.common.browseCandidates}</CtaButton>}
         />
     );
 }

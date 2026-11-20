@@ -115,7 +115,7 @@ const cardSx = {
     transition: `transform 280ms ${b.ease}, border-color 280ms ${b.ease}, box-shadow 280ms ${b.ease}, background-color 280ms ${b.ease}`,
     '&:hover': { bgcolor: b.surface, borderColor: b.lineHover, transform: 'translateY(-1px)', boxShadow: b.shadow2 },
     '&:hover .cg-arrow': { color: b.accentText, transform: 'translateX(2px)' },
-    '&:focus-visible': { outline: `2px solid ${b.accent}`, outlineOffset: 3 },
+    '&:focus-visible': b.focusRing,
 };
 
 /** Glass card for the dark hero, matching the hero stat cards. */
@@ -125,5 +125,5 @@ const darkCardSx = {
     boxShadow: '0 12px 32px rgba(0,0,0,0.28)',
     '&:hover': { bgcolor: 'rgba(255,255,255,0.06)', borderColor: 'rgba(31,200,255,0.32)', transform: 'translateY(-1px)' },
     '&:hover .cg-arrow': { color: b.cyan, transform: 'translateX(2px)' },
-    '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: 3 },
+    '&:focus-visible': b.focusRingDark,
 };

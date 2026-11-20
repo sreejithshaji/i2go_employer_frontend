@@ -1,11 +1,40 @@
+'use client';
+
+import { Children, isValidElement, useEffect, useState } from 'react';
 import { Box, Card, Skeleton, Stack } from '@mui/material';
 import { tokens } from '@/app/theme';
+import Reveal, { STAGGER } from '@/app/[lang]/(marketing)/client/components/reveal';
 
-/** Responsive grid for candidate cards: as many 260px+ columns as fit. */
+/** How many columns the grid lays out right now (auto-fill), kept live on resize. */
+function useColumnCount() {
+    const [node, setNode] = useState(null);
+    const [count, setCount] = useState(1);
+    useEffect(() => {
+        if (!node || typeof ResizeObserver === 'undefined') return undefined;
+        const read = () => setCount(getComputedStyle(node).gridTemplateColumns.split(' ').filter(Boolean).length || 1);
+        const observer = new ResizeObserver(read);
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, [node]);
+    return [setNode, count];
+}
+
+/**
+ * Responsive grid for candidate cards: as many 260px+ columns as fit. Each
+ * card rises in as it scrolls into view (plan 14.10), staggered by its column
+ * so a row enters left to right like the homepage's latest candidates.
+ * Skeletons are not animated.
+ */
 export default function CandidateGrid({ children }) {
+    const [ref, columns] = useColumnCount();
     return (
-        <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', sm: 'repeat(auto-fill, minmax(260px, 1fr))' } }}>
-            {children}
+        <Box ref={ref} sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', sm: 'repeat(auto-fill, minmax(260px, 1fr))' } }}>
+            {Children.map(children, (child, i) => (
+                isValidElement(child) && child.type !== GridSkeleton ? (
+                    // display: grid so the card stretches to the row height, as it did as a direct grid item.
+                    <Reveal key={child.key} delay={(i % columns) * STAGGER} sx={{ display: 'grid', minWidth: 0 }}>{child}</Reveal>
+                ) : child
+            ))}
         </Box>
     );
 }

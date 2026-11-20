@@ -22,7 +22,7 @@ const pillSx = {
     transition: `border-color 200ms ${b.ease}, background-color 200ms ${b.ease}`,
     '& svg': { color: b.accentText, flexShrink: 0 },
     '&:hover': { borderColor: b.lineHover, bgcolor: b.surface3 },
-    '&:focus-visible': { outline: `2px solid ${b.accent}`, outlineOffset: 2 },
+    '&:focus-visible': b.focusRing,
 };
 
 /**

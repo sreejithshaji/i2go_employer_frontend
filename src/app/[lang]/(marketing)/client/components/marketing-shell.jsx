@@ -33,7 +33,7 @@ function Notices() {
 const skipLinkSx = {
     position: 'absolute', left: 16, top: -100, zIndex: 30, px: 2, py: 1.25, borderRadius: `${b.radiusSm}px`,
     bgcolor: b.graphite, color: '#fff', fontSize: 14, fontWeight: 700, textDecoration: 'none',
-    '&:focus': { top: 12, outline: `2px solid ${b.cyan}`, outlineOffset: 2 },
+    '&:focus': { top: 12, outline: `2px solid ${b.cyan}`, outlineOffset: 3 },
 };
 
 /**

@@ -63,6 +63,7 @@ export default function HeroPhoto() {
                     fill
                     sizes="(max-width: 900px) 100vw, 62vw"
                     fetchPriority="high"
+                    loading="eager"
                     style={{ objectFit: 'cover', objectPosition: '70% 30%' }}
                 />
             </Box>

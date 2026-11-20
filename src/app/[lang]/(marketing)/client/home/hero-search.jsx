@@ -252,7 +252,7 @@ const chipSx = {
     fontSize: 13, fontWeight: 700, color: b.ink2, textDecoration: 'none',
     transition: `border-color 280ms ${b.ease}, background-color 280ms ${b.ease}, transform 280ms ${b.ease}`,
     '&:hover': { bgcolor: b.surface, borderColor: b.lineHover, transform: 'translateY(-1px)' },
-    '&:focus-visible': { outline: `2px solid ${b.accent}`, outlineOffset: 3 },
+    '&:focus-visible': b.focusRing,
 };
 
 const chipDarkSx = {
@@ -260,7 +260,7 @@ const chipDarkSx = {
     bgcolor: 'rgba(255,255,255,0.05)', border: `1px solid ${b.onDark.border}`, color: b.onDark.text,
     backdropFilter: 'blur(6px)',
     '&:hover': { bgcolor: 'rgba(255,255,255,0.09)', borderColor: 'rgba(31,200,255,0.35)', transform: 'translateY(-1px)' },
-    '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: 3 },
+    '&:focus-visible': b.focusRingDark,
 };
 
 const listSx = {

@@ -24,7 +24,7 @@ function navLinks(t, p) {
     ];
 }
 
-const focusRing = { outline: `2px solid ${b.accent}`, outlineOffset: 2 };
+const focusRing = b.focusRing;
 
 const linkSx = {
     px: 1.5, py: 1, borderRadius: `${b.radiusSm}px`, fontSize: 14, fontWeight: 700, color: b.ink2, textDecoration: 'none',
@@ -40,7 +40,7 @@ const linkDarkSx = {
     ...linkSx,
     color: 'rgba(255,255,255,0.82)',
     '&:hover': { bgcolor: b.onDark.hover, color: b.onDark.text },
-    '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: 2 },
+    '&:focus-visible': b.focusRingDark,
 };
 
 // The reference's language pill (.lang-btn).
@@ -57,15 +57,43 @@ const languagePillDarkSx = {
     ...languagePillSx,
     bgcolor: 'transparent', borderColor: b.onDark.ring, color: b.onDark.text, boxShadow: 'none',
     '&:hover': { borderColor: 'rgba(255,255,255,0.32)' },
-    '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: 2 },
+    '&:focus-visible': b.focusRingDark,
 };
 
 const noopSubscribe = () => () => {};
 const subscribeScroll = (onChange) => {
     window.addEventListener('scroll', onChange, { passive: true });
-    return () => window.removeEventListener('scroll', onChange);
+    window.addEventListener('resize', onChange);
+    return () => {
+        window.removeEventListener('scroll', onChange);
+        window.removeEventListener('resize', onChange);
+    };
 };
-const readScrolled = () => window.scrollY > 8;
+
+/**
+ * What the bar lies over: 'top' (not scrolled past 8px yet), 'dark' (a
+ * section marked `data-nav-tone="dark"` is under the middle of the bar) or
+ * 'light'. Over dark sections the light glass looks grey, so the bar turns
+ * to dark glass there (plan 10.3).
+ */
+const readTone = () => {
+    if (window.scrollY <= 8) return 'top';
+    const bar = document.querySelector('[data-marketing-nav]');
+    const rect = bar?.getBoundingClientRect();
+    const y = rect ? (rect.top + rect.bottom) / 2 : 0;
+    for (const section of document.querySelectorAll('[data-nav-tone="dark"]')) {
+        const r = section.getBoundingClientRect();
+        if (r.top <= y && r.bottom > y) return 'dark';
+    }
+    return 'light';
+};
+
+const glass = { backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' };
+const surfaces = {
+    clear: { bgcolor: 'transparent', borderBottom: '1px solid transparent', '--focus-color': b.cyan },
+    light: { ...glass, bgcolor: 'rgba(252,254,255,0.72)', borderBottom: '1px solid rgba(13,42,66,0.06)' },
+    dark: { ...glass, bgcolor: 'rgba(6,13,21,0.72)', borderBottom: `1px solid ${b.onDark.line}`, '--focus-color': b.cyan },
+};
 
 /**
  * Whether the nav lies over the dark homepage hero (plan 9A.6): only on the
@@ -104,7 +132,7 @@ function AccountMenu({ fontClass, dark }) {
                     border: `1px solid ${dark ? b.onDark.ring : b.line}`, bgcolor: dark ? 'transparent' : b.surface,
                     transition: `border-color 200ms ${b.ease}, background-color 200ms ${b.ease}`,
                     '&:hover': { borderColor: dark ? 'rgba(255,255,255,0.32)' : b.line2 },
-                    '&:focus-visible': dark ? { outline: `2px solid ${b.cyan}`, outlineOffset: 2 } : focusRing,
+                    '&:focus-visible': dark ? b.focusRingDark : focusRing,
                 }}
             >
                 <Avatar sx={{ width: 30, height: 30, bgcolor: b.graphite, color: '#fff', fontSize: 12, fontWeight: 800 }}>
@@ -172,7 +200,7 @@ function MobileMenu({ open, onClose, fontClass }) {
         >
             <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                 <BrandLogo href={p.home} onClick={onClose} />
-                <IconButton onClick={onClose} aria-label={t.landing.nav.closeMenu} sx={{ color: b.ink }}>
+                <IconButton onClick={onClose} aria-label={t.landing.nav.closeMenu} sx={{ color: b.ink, '&:focus-visible': focusRing }}>
                     <FiX size={22} />
                 </IconButton>
             </Stack>
@@ -216,7 +244,8 @@ function MobileMenu({ open, onClose, fontClass }) {
  * (negative bottom margin) and is transparent with white text until the page
  * has scrolled 8px, then fades to the usual translucent bar in 200ms (plan 9A.6).
  * In the server HTML it isn't sticky, so without JS it scrolls away with the
- * hero instead of putting white text over the light sections.
+ * hero instead of putting white text over the light sections. After the hero,
+ * the bar is dark glass over sections marked `data-nav-tone="dark"` (readTone).
  */
 export default function MarketingNav({ fontClass, overlay = false }) {
     const { user } = useAuth();
@@ -224,24 +253,22 @@ export default function MarketingNav({ fontClass, overlay = false }) {
     const [drawerOpen, setDrawerOpen] = useState(false);
     // false in the server HTML and while hydrating, true after.
     const mounted = useSyncExternalStore(noopSubscribe, () => true, () => false);
-    const scrolled = useSyncExternalStore(subscribeScroll, readScrolled, () => false);
+    const tone = useSyncExternalStore(subscribeScroll, readTone, () => 'top');
 
-    const dark = overlay && !scrolled;
+    const clear = overlay && tone === 'top';
+    // White text and cyan focus rings: over the hero before scrolling, and over any dark section.
+    const dark = clear || tone === 'dark';
     const fade = `background-color 200ms ${b.ease}, border-color 200ms ${b.ease}, backdrop-filter 200ms ${b.ease}`;
 
     return (
         <Box
             component="header"
+            data-marketing-nav=""
             sx={{
                 position: overlay && !mounted ? 'relative' : 'sticky', top: 0, zIndex: 20,
                 mb: overlay ? { xs: `-${b.navHeightMobile}px`, md: `-${b.navHeight}px` } : 0,
                 transition: fade,
-                ...(dark
-                    ? { bgcolor: 'transparent', borderBottom: '1px solid transparent' }
-                    : {
-                        bgcolor: 'rgba(252,254,255,0.72)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-                        borderBottom: '1px solid rgba(13,42,66,0.06)',
-                    }),
+                ...surfaces[clear ? 'clear' : dark ? 'dark' : 'light'],
             }}
         >
             <Container wide sx={{ display: 'flex', alignItems: 'center', gap: 2, height: { xs: b.navHeightMobile, md: b.navHeight } }}>
@@ -277,7 +304,7 @@ export default function MarketingNav({ fontClass, overlay = false }) {
                         onClick={() => setDrawerOpen(true)}
                         aria-label={t.common.openMenu}
                         aria-expanded={drawerOpen}
-                        sx={{ display: { xs: 'inline-flex', lg: 'none' }, color: dark ? b.onDark.text : b.ink, mr: -1 }}
+                        sx={{ display: { xs: 'inline-flex', lg: 'none' }, color: dark ? b.onDark.text : b.ink, mr: -1, '&:focus-visible': dark ? b.focusRingDark : b.focusRing }}
                     >
                         <FiMenu size={22} />
                     </IconButton>

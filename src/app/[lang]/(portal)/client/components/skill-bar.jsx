@@ -3,7 +3,7 @@
 import { Box, Stack, Typography } from '@mui/material';
 import { useI18n } from '@/features/i18n';
 import { levelLabel } from '@/lib/portal/format';
-import { tokens } from '@/app/theme';
+import { brand as b, tokens } from '@/app/theme';
 
 // Proficiency levels from the app, as a share of the bar.
 const LEVELS = { beginner: 25, intermediate: 50, advanced: 75, expert: 100 };
@@ -45,7 +45,7 @@ export function SkillMeter({ name, level }) {
     const filled = STEPS.indexOf(level) + 1;
     return (
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', justifyContent: 'space-between', minWidth: 0 }}>
-            <Typography variant="body2" noWrap sx={{ color: 'text.primary', fontWeight: 500, minWidth: 0 }}>{name}</Typography>
+            <Typography variant="body2" noWrap sx={{ color: b.ink2, fontWeight: 600, minWidth: 0 }}>{name}</Typography>
             {filled > 0 && (
                 <Box
                     role="meter"
@@ -60,7 +60,7 @@ export function SkillMeter({ name, level }) {
                     {STEPS.map((step, i) => (
                         <Box
                             key={step}
-                            sx={{ width: 14, height: 6, borderRadius: 999, bgcolor: i < filled ? 'primary.main' : tokens.primarySoftHover }}
+                            sx={{ width: 14, height: 6, borderRadius: 999, bgcolor: i < filled ? b.accent : b.line }}
                         />
                     ))}
                 </Box>

@@ -41,8 +41,10 @@ export default function HeroSection({ total = 0, jobs = [], categories = [], lat
     return (
         <Box component="section" aria-labelledby="hero-title">
             <Box
+                data-nav-tone="dark"
                 sx={{
                     position: 'relative', overflow: 'hidden', isolation: 'isolate', color: b.onDark.text,
+                    '--focus-color': b.cyan,
                     display: 'flex', flexDirection: 'column',
                     // The screen height minus whatever part of the nav sits above the hero.
                     minHeight: { md: `max(640px, calc(100svh - ${b.navHeight}px + var(--nav-overlap, 0px)))` },

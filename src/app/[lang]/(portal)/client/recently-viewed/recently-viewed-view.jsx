@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import NextLink from 'next/link';
+import CtaButton from '@/app/[lang]/(marketing)/client/components/cta-button';
 import { Alert, Button, Snackbar, Stack, Typography } from '@mui/material';
 import { FiClock, FiTrash2, FiUsers } from 'react-icons/fi';
 import { useI18n } from '@/features/i18n';
@@ -72,7 +73,7 @@ export default function RecentlyViewedView() {
                     icon={<FiClock size={28} />}
                     title={t.recentlyViewed.emptyTitle}
                     message={t.recentlyViewed.emptyText}
-                    action={<Button component={NextLink} href={p.hub} variant="contained">{t.common.browseCandidates}</Button>}
+                    action={<CtaButton href={p.hub}>{t.common.browseCandidates}</CtaButton>}
                 />
             ) : (
                 <CandidateGrid>

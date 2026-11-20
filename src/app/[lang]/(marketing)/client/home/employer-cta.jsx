@@ -6,7 +6,9 @@ import { SignInButton, useAuth } from '@/features/auth';
 import { useI18n } from '@/features/i18n';
 import { brand as b } from '@/app/theme';
 import CtaButton from '../components/cta-button';
+import DriftGlow from '../components/drift-glow';
 import Eyebrow from '../components/eyebrow';
+import Reveal from '../components/reveal';
 
 /**
  * Who sees which employer call to action (plan §4.4): guests register or sign
@@ -26,32 +28,36 @@ const secondaryLinkSx = {
     display: 'inline-flex', alignItems: 'center', minHeight: 44, px: 0.5, minWidth: 0,
     fontSize: 15, fontWeight: 800, color: b.cyan, textDecoration: 'none', borderRadius: '6px',
     '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
-    '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: 2 },
+    '&:focus-visible': b.focusRingDark,
 };
 
 /**
  * The employer story's closing panel: dark `.dhero` panel with a cyan glow,
- * the chapter-scale heading and the auth-aware actions.
+ * the chapter-scale heading and the auth-aware actions. `headingLevel` is h3
+ * inside the homepage story, h2 where it stands alone (portal pages, 14.11);
+ * `sx` adjusts the outer spacing.
  */
-export default function EmployerCta() {
+export default function EmployerCta({ headingLevel = 'h3', sx }) {
     const { t } = useI18n();
     const c = t.landing.employer.cta;
     const cta = useEmployerCta();
 
     return (
-        <Box
+        <Reveal
             aria-labelledby="employer-cta-title"
             component="section"
             sx={{
-                position: 'relative', overflow: 'hidden', mt: { xs: 6, md: 9 },
+                position: 'relative', overflow: 'hidden', isolation: 'isolate', mt: { xs: 6, md: 9 },
                 p: { xs: 3, md: 7 }, borderRadius: `${b.radiusPanel}px`,
-                background: b.darkPanel, border: `1px solid ${b.darkPanelBorder}`, boxShadow: b.shadowDarkPanel,
+                background: b.darkPanelBase, border: `1px solid ${b.darkPanelBorder}`, boxShadow: b.shadowDarkPanel,
+                ...sx,
             }}
         >
+            <DriftGlow color="rgba(31,200,255,0.12)" sx={{ zIndex: -1, top: -200, right: { xs: -260, md: -120 }, width: { xs: 560, md: 760 }, height: 460 }} />
             <Eyebrow tone="dark">{c.eyebrow}</Eyebrow>
             <Typography
                 id="employer-cta-title"
-                component="h3"
+                component={headingLevel}
                 sx={{
                     m: 0, mt: 1.5, maxWidth: 720,
                     fontSize: { xs: 32, md: 48 }, lineHeight: 1.08, fontWeight: 800,
@@ -90,6 +96,6 @@ export default function EmployerCta() {
                     )}
                 </Box>
             )}
-        </Box>
+        </Reveal>
     );
 }

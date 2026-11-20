@@ -9,6 +9,7 @@ import { brand as b } from '@/app/theme';
 import Container from '../components/container';
 import SectionHeading, { textLinkSx } from './section-heading';
 import CompactCandidateCard from './compact-candidate-card';
+import Reveal, { STAGGER } from '../components/reveal';
 
 /**
  * Newest candidates (plan §6 row 2a, R1), kept low: up to 6 compact cards
@@ -22,13 +23,13 @@ export default function LatestCandidates({ latest = [], total = 0 }) {
     return (
         <Box component="section" aria-labelledby="latest-title" sx={{ py: { xs: 4, md: 5 } }}>
             <Container>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: { xs: 1, md: 1.5 } }}>
+                <Reveal sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: { xs: 1, md: 1.5 } }}>
                     <SectionHeading id="latest-title">{l.title}</SectionHeading>
                     <Box component={NextLink} href={p.hub} sx={{ ...textLinkSx, flexShrink: 0 }}>
                         {plural(l.seeAll, Math.max(total, latest.length))}
                         <FiArrowRight size={16} aria-hidden />
                     </Box>
-                </Box>
+                </Reveal>
                 <Box sx={{ display: 'grid', gap: 1.5 }}>
                     <Box
                         component="ul"
@@ -39,7 +40,7 @@ export default function LatestCandidates({ latest = [], total = 0 }) {
                             display: 'grid', gap: 1.5,
                             gridTemplateColumns: { md: 'repeat(3, minmax(0, 1fr))' },
                             borderRadius: `${b.radiusMd}px`,
-                            '&:focus-visible': { outline: `2px solid ${b.accent}`, outlineOffset: 4 },
+                            '&:focus-visible': b.focusRing,
                             '@media (max-width: 899.95px)': {
                                 gridTemplateRows: 'repeat(2, auto)',
                                 gridAutoFlow: 'column',
@@ -54,10 +55,11 @@ export default function LatestCandidates({ latest = [], total = 0 }) {
                             },
                         }}
                     >
-                        {latest.map((c) => (
-                            <Box component="li" key={c.id} sx={{ minWidth: 0, scrollSnapAlign: 'start' }}>
+                        {latest.map((c, i) => (
+                            // Stagger by column (3 per row from 900px), so each row comes in left to right.
+                            <Reveal component="li" key={c.id} delay={(i % 3 + 1) * STAGGER} sx={{ minWidth: 0, scrollSnapAlign: 'start' }}>
                                 <CompactCandidateCard candidate={c} />
-                            </Box>
+                            </Reveal>
                         ))}
                     </Box>
                 </Box>

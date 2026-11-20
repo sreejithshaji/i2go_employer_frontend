@@ -10,6 +10,7 @@ import { brand as b } from '@/app/theme';
 import Container from '../components/container';
 import PortalButton from '../components/portal-button';
 import Eyebrow from '../components/eyebrow';
+import Reveal, { STAGGER } from '../components/reveal';
 import SectionHeading from './section-heading';
 import { EUROPE_PATHS, INDIA_PATH } from './map-outlines';
 
@@ -72,8 +73,12 @@ export default function ContextSection() {
             <MapLayer side="india" dotRef={indiaDot} />
             <Container>
                 <Box sx={{ textAlign: 'center', maxWidth: 640, mx: 'auto' }}>
-                    <Eyebrow component="h2" id="context-title">{c.label}</Eyebrow>
-                    <SectionHeading component="p" sx={{ mt: 1.25 }}>{c.title}</SectionHeading>
+                    <Reveal>
+                        <Eyebrow component="h2" id="context-title">{c.label}</Eyebrow>
+                    </Reveal>
+                    <Reveal delay={STAGGER}>
+                        <SectionHeading component="p" sx={{ mt: 1.25 }}>{c.title}</SectionHeading>
+                    </Reveal>
                 </Box>
                 <Box
                     sx={{
@@ -83,6 +88,7 @@ export default function ContextSection() {
                     }}
                 >
                     <Column
+                        delay={2 * STAGGER}
                         theme={EUROPE}
                         icon={<FiAlertCircle size={18} />}
                         label={c.challengeLabel}
@@ -92,6 +98,7 @@ export default function ContextSection() {
                     />
                     <Bridge label={c.bridgeLabel} startRef={europeDot} endRef={indiaDot} onLogo={setLogo} />
                     <Column
+                        delay={3 * STAGGER}
                         theme={INDIA}
                         icon={<FiTrendingUp size={18} />}
                         label={c.opportunityLabel}
@@ -100,9 +107,9 @@ export default function ContextSection() {
                         points={c.opportunityPoints}
                     />
                 </Box>
-                <Box sx={{ mt: { xs: 4, md: 6 }, display: 'flex', justifyContent: 'center' }}>
+                <Reveal sx={{ mt: { xs: 4, md: 6 }, display: 'flex', justifyContent: 'center' }}>
                     <PortalButton />
-                </Box>
+                </Reveal>
             </Container>
         </Box>
     );
@@ -296,9 +303,10 @@ function MapLayer({ side, dotRef }) {
     );
 }
 
-function Column({ theme, icon, label, title, text, points = [] }) {
+function Column({ theme, icon, label, title, text, points = [], delay = 0 }) {
     return (
-        <Box
+        <Reveal
+            delay={delay}
             sx={{
                 minWidth: 0, position: 'relative', zIndex: 0,
                 // Soft light halo so the map lines fade out behind the text.
@@ -342,7 +350,7 @@ function Column({ theme, icon, label, title, text, points = [] }) {
                     ))}
                 </Box>
             )}
-        </Box>
+        </Reveal>
     );
 }
 

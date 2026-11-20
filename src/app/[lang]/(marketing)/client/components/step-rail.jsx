@@ -7,7 +7,8 @@ const NODE = 15;
  * Vertical step rail (the reference's left rail, plan §4.2), drawn on the
  * navy employer section: 15px ring nodes joined by a 1px line, a tracked number, the title and
  * a short subtitle. Each step links to its chapter (`#${idPrefix}-${n}`).
- * Steps before `active` and the line leading to it are filled with cyan; the active node is solid. Without JS `active` stays 0.
+ * Steps before `active` get a cyan ring and the line below them fills with cyan (scaleY);
+ * the active node is solid. Without JS `active` stays 0.
  *
  * steps: [{ title, short }]
  */
@@ -25,10 +26,18 @@ export default function StepRail({ steps, active = 0, idPrefix, label, sx }) {
                                     aria-hidden
                                     sx={{
                                         position: 'absolute', left: (NODE - 1) / 2, top: NODE + 10, bottom: 2, width: '1px',
-                                        bgcolor: i < active ? b.cyan : b.onDark.border,
-                                        transition: `background-color 250ms ${b.ease}`,
+                                        bgcolor: b.onDark.border,
                                     }}
-                                />
+                                >
+                                    {/* The segment below a passed step fills top-down (plan §10, 250ms). */}
+                                    <Box
+                                        sx={{
+                                            height: '100%', bgcolor: b.cyan, transformOrigin: 'top',
+                                            transform: i < active ? 'none' : 'scaleY(0)',
+                                            transition: `transform 250ms ${b.ease}`,
+                                        }}
+                                    />
+                                </Box>
                             )}
                             <Box
                                 component="a"
@@ -38,7 +47,7 @@ export default function StepRail({ steps, active = 0, idPrefix, label, sx }) {
                                     display: 'grid', gridTemplateColumns: `${NODE}px 1fr`, columnGap: 1.75, alignItems: 'start',
                                     textDecoration: 'none', borderRadius: '8px', pt: '4px',
                                     '&:hover .rail-title': { color: b.onDark.text },
-                                    '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: 3 },
+                                    '&:focus-visible': b.focusRingDark,
                                 }}
                             >
                                 <Node state={state} />

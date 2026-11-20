@@ -7,7 +7,7 @@ import { LOCALES, isLocale } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/dictionaries';
 import { SITE_INDEXABLE, SITE_URL } from '@/lib/seo/config';
 import { organizationLd, websiteLd } from '@/lib/seo/json-ld';
-import { poppins } from '../fonts';
+import { jakarta } from '../fonts';
 import Providers from '../providers';
 
 // Every page lives under /de or /en (PLAN.md 11.1, 11.3). src/proxy.js sends
@@ -34,7 +34,8 @@ export async function generateMetadata({ params }) {
 }
 
 export const viewport = {
-    themeColor: '#2563EB',
+    // brand.surface: the light top bar on phones (homepage and portal, 14.2c).
+    themeColor: '#FFFFFF',
 };
 
 // Slugs for the language switcher. Without the database the switcher falls
@@ -54,7 +55,7 @@ export default async function RootLayout({ children, params }) {
     const slugMaps = await loadSlugMaps();
 
     return (
-        <html lang={lang} className={poppins.variable}>
+        <html lang={lang} className={jakarta.variable}>
             <body>
                 <JsonLd data={[organizationLd(), websiteLd(lang, t.meta.description)]} />
                 {/* Collects MUI (Emotion) styles on the server and puts them in the HTML */}

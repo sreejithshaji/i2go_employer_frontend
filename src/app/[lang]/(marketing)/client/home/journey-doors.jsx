@@ -6,6 +6,7 @@ import { useI18n } from '@/features/i18n';
 import { brand as b } from '@/app/theme';
 import Container from '../components/container';
 import Eyebrow from '../components/eyebrow';
+import Reveal, { STAGGER } from '../components/reveal';
 
 /**
  * "Choose your journey" (plan §6 row 4): two equal panels linking to the
@@ -20,10 +21,16 @@ export default function JourneyDoors() {
     return (
         <Box component="section" aria-labelledby="doors-title" sx={{ py: { xs: 4, md: 5 } }}>
             <Container>
-                <Eyebrow component="h2" id="doors-title">{d.label}</Eyebrow>
+                <Reveal>
+                    <Eyebrow component="h2" id="doors-title">{d.label}</Eyebrow>
+                </Reveal>
                 <Box sx={{ mt: { xs: 2, md: 2.5 }, display: 'grid', gap: { xs: 1.5, md: 3 }, gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' } }}>
-                    <Door href="#employers" copy={d.employer} meta={`01–06 · ${d.steps}`} dark />
-                    <Door href="#candidates" copy={d.candidate} meta={`01–06 · ${d.steps}`} />
+                    <Reveal delay={STAGGER} sx={{ display: 'flex' }}>
+                        <Door href="#employers" copy={d.employer} meta={`01–06 · ${d.steps}`} dark />
+                    </Reveal>
+                    <Reveal delay={2 * STAGGER} sx={{ display: 'flex' }}>
+                        <Door href="#candidates" copy={d.candidate} meta={`01–06 · ${d.steps}`} />
+                    </Reveal>
                 </Box>
             </Container>
         </Box>
@@ -43,8 +50,8 @@ function smoothScrollTo(event, href) {
 
 function Door({ href, copy, meta, dark = false }) {
     const c = dark
-        ? { title: b.onDark.text, text: b.onDark.body, meta: b.onDark.subtle, chipBg: 'rgba(255,255,255,0.08)', chipBgHover: 'rgba(255,255,255,0.16)', chip: b.cyan, focus: b.cyan }
-        : { title: b.ink, text: b.muted, meta: b.muted, chipBg: b.accentSoft, chipBgHover: b.accentLine, chip: b.accentText, focus: b.accent };
+        ? { title: b.onDark.text, text: b.onDark.body, meta: b.onDark.subtle, chipBg: 'rgba(255,255,255,0.08)', chipBgHover: 'rgba(255,255,255,0.16)', chip: b.cyan }
+        : { title: b.ink, text: b.muted, meta: b.muted, chipBg: b.accentSoft, chipBgHover: b.accentLine, chip: b.accentText };
     const surface = dark
         ? { background: b.darkPanel, border: `1px solid ${b.darkPanelBorder}`, boxShadow: b.shadowDarkPanel }
         : { bgcolor: b.surface, border: `1px solid ${b.line}`, boxShadow: b.shadow1 };
@@ -58,12 +65,12 @@ function Door({ href, copy, meta, dark = false }) {
             onClick={(event) => smoothScrollTo(event, href)}
             sx={{
                 ...surface,
-                position: 'relative', display: 'flex', flexDirection: 'column',
+                position: 'relative', display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0,
                 p: { xs: 2.5, md: 3 }, borderRadius: `${b.radiusLg}px`, textDecoration: 'none', overflow: 'hidden',
                 transition: `transform 280ms ${b.ease}, border-color 280ms ${b.ease}, box-shadow 280ms ${b.ease}`,
                 '&:hover': hover,
                 '&:hover .door-chip': { bgcolor: c.chipBgHover, transform: 'translateX(2px)' },
-                '&:focus-visible': { outline: `2px solid ${c.focus}`, outlineOffset: 3 },
+                '&:focus-visible': dark ? b.focusRingDark : b.focusRing,
             }}
         >
             <Eyebrow tone={dark ? 'dark' : 'light'}>{copy.eyebrow}</Eyebrow>

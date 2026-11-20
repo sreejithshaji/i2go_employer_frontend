@@ -46,7 +46,7 @@ export default function CandidateTicker({ candidates = [] }) {
                 borderRadius: 999, background: b.darkPanel, border: `1px solid ${b.darkPanelBorder}`,
                 textDecoration: 'none', cursor: 'pointer', transition: 'border-color .2s',
                 '&:hover': { borderColor: b.cyan },
-                '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: 2 },
+                '&:focus-visible': b.focusRingDark,
             }}
         >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0, pl: 2, pr: 1.5 }}>

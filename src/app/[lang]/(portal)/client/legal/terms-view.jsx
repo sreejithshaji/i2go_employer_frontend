@@ -6,7 +6,7 @@ import { Alert, Box, Button, Checkbox, CircularProgress, FormControlLabel, Stack
 import { useAuth } from '@/features/auth';
 import { useI18n } from '@/features/i18n';
 import { TERMS_DATE, TERMS_VERSION } from '@/lib/portal/legal';
-import { tokens } from '@/app/theme';
+import { brand, tokens } from '@/app/theme';
 import LegalDocument from './legal-document';
 import { TERMS_INTRO, TermsDe, TermsEn } from './terms-text';
 
@@ -49,7 +49,7 @@ function AcceptPanel() {
                     label={t.terms.acceptLabel}
                     sx={{ flex: 1, mr: 0 }}
                 />
-                <Button variant="contained" disabled={!checked || saving} onClick={accept} startIcon={saving ? <CircularProgress size={16} color="inherit" /> : null}>
+                <Button variant="cta" disabled={!checked || saving} onClick={accept} startIcon={saving ? <CircularProgress size={16} color="inherit" /> : null}>
                     {t.terms.acceptButton}
                 </Button>
             </Stack>
@@ -69,7 +69,7 @@ export default function TermsView({ lang }) {
     const Body = lang === 'en' ? TermsEn : TermsDe;
     return (
         <>
-            {showPanel && <Box sx={{ maxWidth: 860, mx: 'auto' }}><AcceptPanel /></Box>}
+            {showPanel && <Box sx={{ maxWidth: brand.readingMax }}><AcceptPanel /></Box>}
             <LegalDocument
                 lang={lang}
                 notice={t.legal.germanPrevails}

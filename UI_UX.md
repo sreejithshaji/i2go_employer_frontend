@@ -1,683 +1,308 @@
-# UI/UX Design System — I2Go Employer Portal
+# UI/UX Design System: I2Go employer frontend
 
-This is the single source of truth for how the employer portal looks and behaves.
-Every token below exists in code in [`src/app/theme.js`](src/app/theme.js) (`tokens` export, also
-emitted as CSS custom properties on `:root`). If a value is not here, don't invent it —
-add it here first, then to `theme.js`.
+The single source of truth for how the employer frontend looks and behaves: the homepage
+(`(marketing)`), the employer portal (`(portal)`) and login/signup (`(auth)`). Since Task 14 of
+`homepage-redesign-plan.md` they share **one** visual language, taken from the reference site
+(plan §1). The admin app (`admin_frontend`) is not covered and keeps its own look.
 
-Stack reminder: React 19 + MUI v7 (`sx` + theme overrides) + React Router v7 +
-`react-icons/fi` (Feather). No CSS files, no Tailwind.
+Every value below lives in `brand` in [`src/app/theme.js`](src/app/theme.js). Components read
+`brand` (imported as `b`) or the MUI theme; they never use raw hex. If a value is missing, add it
+here first, then to `brand`.
+
+Stack: Next.js 16 app router + React 19 + MUI v7 (`sx` + theme overrides) + `react-icons/fi`
+(Feather). No CSS files, no Tailwind.
+
+> **Legacy `tokens`.** `theme.js` still exports the old `tokens` object, but since 14.2 every
+> entry is an alias of a `brand` value. New code must not use it. It is removed in 14.7, once the
+> last files (`badge.jsx`, `app-shell.jsx`, `skill-bar.jsx`, `wishlist-button.jsx`,
+> `candidate-grid.jsx`, the profile, enquiry modal, enquiries and legal views) no longer read it.
 
 ---
 
-## Design Philosophy
+## 1. Principles
 
-- **Calm, light, blue.** The interface is white and cool-neutral; blue is reserved for
-  navigation, primary actions, selection and links. Everything else is neutral.
-- **Surfaces, not lines.** Separate content with white cards on a `#F8FAFC` canvas and
-  soft shadows. Borders only on inputs, dividers inside cards and outlined buttons.
-- **One strong anchor.** The solid blue sidebar is the only large block of colour. Content
-  never competes with it (no coloured page backgrounds, no gradients on content).
-- **Compact but breathable.** 14px body text, 40px controls, 20–24px card padding,
-  24px gaps between cards.
-- **Real data only.** Never add UI for something the app can't do (ratings, notifications,
-  sort options, view toggles). If the reference shows a pattern we have no data for,
-  use the slot for the closest real thing or leave it out.
+- **Almost monochrome.** Ink and greys on a near-white canvas, one blue accent. Cyan appears only
+  on navy.
+- **Hairlines, not shadows.** Content is separated by 1px lines and whitespace. Cards have a
+  hairline border and a barely visible shadow.
+- **Strong type.** Extra-bold (800) headings with tight negative tracking; small labels uppercase
+  with wide tracking (the eyebrow).
+- **Numbers tell the order.** Two-digit numbers (01, 02…) on sections, steps, link groups and
+  form groups. They are `aria-hidden`; screen readers hear only the title.
+- **Navy is for highlights.** Dark panels (enquiry CTA, guest employer CTA, guide CTA, the auth
+  side panel, the homepage hero and employer section) are the only large dark blocks. The rail,
+  header and canvas are light.
+- **One gradient on controls.** Only the primary call to action (`cta`) has a gradient.
+- **Real data only.** No UI for things the app can't do (ratings, notifications, invented
+  percentages or counts). If the reference has a slot we have no data for, use the closest real
+  thing or leave it out.
+- **No decoration for its own sake.** No illustrations, stock photos or decorative shapes.
+  Visuals come from real data and real UI.
 
-## Reference Analysis
+## 2. Colour (`brand.*`)
 
-Reference: `ui-ref/reference-image.png` ("Jobie" talents dashboard). What we take from it:
-
-| Reference trait | How we apply it |
-|---|---|
-| Solid brand-colour sidebar, logo top-left, icon + label nav | Blue `#2563EB` sidebar, I2Go logo, Feather icons + labels |
-| Active nav item is a pill the same colour as the canvas, "cut into" the sidebar | Active item uses `--color-background` with inverted corners so it merges with the content panel |
-| Content panel with a large rounded top-left corner overlapping the sidebar | Main panel `border-top-left-radius: 32px` on desktop |
-| Header: back arrow + large title, search, icon buttons, avatar + name/role | Header: optional back arrow + page title, account block (avatar, name, "Employer") or Sign in / Create account |
-| Breadcrumb under the title (blue current-section link / grey current page) | Breadcrumbs from route meta in `AppShell` |
-| One wide white search bar card: location select │ keyword │ FILTER │ FIND | Candidates search bar: name search │ categories │ Filters │ Search |
-| "Showing 246 Talents / Based your preferences" results line | "Showing N candidates" + context subtitle |
-| Vertical talent cards: centred avatar, orange badge overlapping avatar, name, handle, location, bio, skill bars | Candidate cards: centred avatar, green **Verified** badge overlapping avatar, name, facts, categories, bio, skill level bars |
-| "Showing 10 from 160 data" + Previous / soft-pill page numbers / Next | `Pagination` component with the same structure |
-
-What we deliberately do **not** copy: purple palette (replaced by blue), orange rating badge
-(we have no ratings), message/notification bells, Newest sort, grid/list toggle,
-Fulltime/Freelance/Salary toggles, numeric skill percentages.
-
-## Brand Colors
-
-| Role | Hex | Use |
+### Light surfaces
+| Token | Value | Use |
 |---|---|---|
-| Primary | `#2563EB` | Sidebar, primary buttons, active states, links, progress fill |
-| Primary Light | `#3B82F6` | Sidebar hover, focus rings, secondary accents (never as text on white < 18px) |
-| Background | `#F8FAFC` | App canvas, active sidebar pill |
-| Surface | `#FFFFFF` | Cards, panels, inputs, header |
-| Text Primary | `#1F2937` | Headings, names, important values |
-| Text Secondary | `#64748B` | Body support text, labels, metadata |
-| Border | `#E2E8F0` | Input borders, dividers |
-| Accent / Success | `#10B981` | Verified, success, completed |
-| Warning | `#F59E0B` | Warnings, medium-priority |
-| Danger | `#EF4444` | Errors, destructive |
+| `ink` | `#0A0F16` | headings |
+| `ink2` | `#2C3641` | card titles, strong body, button text |
+| `muted` | `#5D6873` | body text, leads, placeholders (5.4:1 on `bg1`) |
+| `faint` | `#98A1AB` | icons and decoration only. **Never text** (2.6:1) |
+| `line` / `line2` / `lineHover` | `#E2E7EC` / `#CED6DE` / `#9AA7B3` | hairlines and card borders / chips, inputs on hover, soft buttons / hovered borders |
+| `bg1` / `bg2` | `#F7F8FA` / `#EFF1F3` | page canvas / alternate band |
+| `surface` / `surface2` / `surface3` | `#FFF` / `#FDFDFE` / `#F3F5F7` | cards / resting cards / inset areas, chips, tracks |
 
-The I2Go logo (`public/images/i2go_logo.png`, served as `/images/i2go_logo.png`) is used unchanged. On the blue sidebar it
-sits on a 40px white rounded tile so it keeps its own colours.
-
-## Color Tokens
-
-```css
-:root {
-  /* Brand */
-  --color-primary:            #2563EB;
-  --color-primary-hover:      #1D4ED8; /* pressed/hover for filled buttons (AA on white text) */
-  --color-primary-light:      #3B82F6;
-  --color-primary-soft:       #EFF6FF; /* selected backgrounds, soft buttons, icon tiles */
-  --color-primary-soft-hover: #DBEAFE;
-
-  /* Neutrals */
-  --color-background:   #F8FAFC;
-  --color-surface:      #FFFFFF;
-  --color-surface-muted:#F1F5F9; /* inset areas: skill tiles, input adornments, table header */
-  --color-border:       #E2E8F0;
-  --color-border-strong:#CBD5E1; /* input hover */
-
-  /* Text */
-  --color-text-primary:   #1F2937;
-  --color-text-secondary: #64748B;
-  --color-text-muted:     #94A3B8; /* placeholders, disabled, captions on cards */
-  --color-text-on-primary:#FFFFFF;
-
-  /* Semantic (fg / soft bg / text-on-soft) */
-  --color-success: #10B981; --color-success-soft: #ECFDF5; --color-success-text: #047857;
-  --color-warning: #F59E0B; --color-warning-soft: #FFFBEB; --color-warning-text: #B45309;
-  --color-danger:  #EF4444; --color-danger-soft:  #FEF2F2; --color-danger-text:  #B91C1C;
-
-  /* Sidebar */
-  --color-sidebar-bg:          #2563EB;
-  --color-sidebar-text:        rgba(255,255,255,0.80);
-  --color-sidebar-text-hover:  #FFFFFF;
-  --color-sidebar-hover-bg:    rgba(255,255,255,0.10);
-  --color-sidebar-active-bg:   var(--color-background);
-  --color-sidebar-active-text: var(--color-primary);
-}
-```
-
-Rules:
-- Text on a soft semantic background uses the `*-text` shade, not the base colour.
-- Never put Primary Light or Warning as text on white (fails contrast).
-- No gradients on content. The only "colour block" allowed outside the sidebar is the auth
-  brand panel and the Home welcome card (solid `--color-primary`).
-
-## Typography
-
-Font: **Poppins** (weights 400/500/600/700, self-hosted through `next/font` in `src/app/fonts.js`; never link Google Fonts directly), fallback
-`system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif`.
-Base size 14px. Headings use `letter-spacing: -0.01em`; nothing is uppercase except
-`overline`.
-
-## Typography Scale
-
-| Token | MUI variant | Size / line-height | Weight | Colour | Use |
-|---|---|---|---|---|---|
-| `display` | `h2` | 40/48 (28/36 on xs) | 700 | text-primary | Auth panel + Home welcome headline only |
-| `page-title` | `h1`/`h4` | 26/34 (20/28 on xs) | 600 | text-primary | Header page title |
-| `section-title` | `h6` | 18/26 | 600 | text-primary | Card/section headings, "Showing N candidates" |
-| `card-title` | `subtitle1` | 16/24 | 600 | text-primary | Candidate name, entry titles |
-| `body` | `body1` | 14/22 | 400 | text-primary | Paragraphs |
-| `body-secondary` | `body2` | 13/20 | 400 | text-secondary | Metadata, helper copy |
-| `caption` | `caption` | 12/18 | 400 | text-muted / secondary | Footnotes, timestamps |
-| `label` | `subtitle2` | 13/20 | 500 | text-secondary | Input labels, small headings |
-| `button` | `button` | 14/20 | 600 | — | All buttons, sentence case |
-| `badge` | (custom) | 12/16 | 600 | — | Badges, counts |
-| `overline` | `overline` | 12/16, +0.08em | 600 | primary | Eyebrow above display headlines |
-
-## Spacing System
-
-4px base grid. MUI `theme.spacing(1) = 8px`, so `sx` values are in units of 8.
-
-| Token | px | MUI `sx` | Typical use |
-|---|---|---|---|
-| `--space-1` | 4 | `0.5` | Icon–text gap in badges |
-| `--space-2` | 8 | `1` | Icon–text gap in buttons, chip gaps |
-| `--space-3` | 12 | `1.5` | Gap between controls in a toolbar |
-| `--space-4` | 16 | `2` | Mobile page gutter, small card padding, stack gap in forms |
-| `--space-5` | 20 | `2.5` | Candidate card padding |
-| `--space-6` | 24 | `3` | Card padding (default), grid gap, section gap |
-| `--space-8` | 32 | `4` | Gap between page sections, desktop gutter (md) |
-| `--space-10` | 40 | `5` | Desktop gutter (lg+) |
-| `--space-12` | 48 | `6` | Empty-state vertical padding |
-
-Do not use odd values (e.g. `p: 1.75`, `mt: 0.75`) except `0.5` for tight text pairs.
-
-## Border Radius
-
-| Token | px | Use |
+### Accent and status
+| Token | Value | Use |
 |---|---|---|
-| `--radius-xs` | 6 | Progress bars, tiny tags |
-| `--radius-sm` | 8 | Chips, menu items, tooltips, icon buttons (small) |
-| `--radius-md` | 12 | Buttons, inputs, selects, skill tiles, nav items |
-| `--radius-lg` | 16 | Cards, dialogs, popovers |
-| `--radius-xl` | 20 | Search bar card, hero/welcome card |
-| `--radius-2xl` | 32 | Main content panel's top-left corner |
-| `--radius-full` | 999 | Avatars, badges, pagination pills |
+| `accent` | `#0F8FC7` | borders, ticks, nodes, focus rings, large text. **Not small text** (3.6:1) |
+| `accentText` | `#0B6A94` | eyebrows, links, section numbers, counts: all small accent text (6.0:1). MUI `primary.main` |
+| `accentInk` / `accentSoft` / `accentLine` | `#06364B` / `#F1F7FA` / `#D3E5EE` | deep accent, hover / soft fill (info boxes) / soft border |
+| `ok` / `okText` / `okSoft` | `#12996B` / `#0E7F59` / `#E4F8EF` | ticks and fills / small success text / soft fill |
+| `danger` | `#D92D20` | errors, a saved heart |
 
-## Shadows
-
-```css
---shadow-xs:         0 1px 2px rgba(15,23,42,0.04);
---shadow-card:       0 1px 2px rgba(15,23,42,0.04), 0 4px 16px rgba(15,23,42,0.04);
---shadow-card-hover: 0 2px 4px rgba(15,23,42,0.04), 0 12px 32px rgba(37,99,235,0.10);
---shadow-popover:    0 12px 32px rgba(15,23,42,0.12);
---shadow-primary:    0 6px 16px rgba(37,99,235,0.24); /* filled primary button hover only */
---focus-ring:        0 0 0 3px rgba(59,130,246,0.25);
-```
-
-Cards have **no border** by default — `--shadow-card` separates them from the canvas.
-
-## Layout
-
-```
-Desktop (≥ 900px)
-┌──────────┬───────────────────────────────────────────────┐
-│ Sidebar  │ Header (88px): [←] Title          [account]   │
-│ 220px    ├───────────────────────────────────────────────┤
-│ blue     │ Breadcrumb                                    │
-│          │ Page content (max 1440px, gutter 40px)        │
-└──────────┴───────────────────────────────────────────────┘
-```
-
-- `AppShell` (`src/components/app-shell/app-shell.jsx`) owns the shell: sidebar, header (title, back,
-  breadcrumbs from route meta), candidate-account banner, then the page (`children`).
-- Content panel: `bgcolor: --color-background`, `border-top-left-radius: 32px`, sits on the
-  blue sidebar colour so the corner reads as "cut out" (desktop only).
-- Page gutter: `px: { xs: 2, md: 4, lg: 5 }`; page bottom padding `pb: 3` (under the footer).
-- Max content width 1440px, left-aligned (not centred) on very wide screens.
-- **Page footer** (`PageFooter` in `app-shell.jsx`), after every page's content (so under the
-  pagination on Candidates): one centred line, 12/18 text-muted, items separated by "·" —
-  "**I2Go Employer Portal**" (600, text-secondary) · "© {year} ITOOGO ALQWA HR CONSULTANCY - FZCO" (`COMPANY.name`) · "Candidates:
-  build your profile in the I2Go Portal app." Plain: 24px above it, no border, no padding;
-  the page's bottom padding is 24px. Wraps on narrow screens.
-- Pages that read as a document (candidate profile) use a two-column grid
-  `minmax(0,1fr) 340px` on `lg`, single column below.
-- Auth pages (`/login`, `/signup`) render **outside** the shell as a split screen.
-
-## Sidebar
-
-- Width 220px (`md`+), `--color-sidebar-bg`, full height, `position: sticky; top: 0`.
-- Top: logo tile (40×40, white, `--radius-md`) + "I2Go" wordmark (20px/700, white) +
-  "Employer portal" caption (12px, 70% white). Padding `32px 24px`.
-- Nav list starts 32px below the logo. Items: height 52, 16px left inset, 20px left padding,
-  icon 20px + 12px gap + label 15px/500. Logo block and footer use 20px horizontal padding.
-- No footer text in the sidebar (it's the page footer now, see AppShell).
-- Collapsible (`md`+): a `FiSidebar` `IconButton` at the left of the header toggles an 88px
-  icon-only rail (width slides 200ms). Labels and the wordmark fade out, nav items show their
-  label as a right-hand tooltip, a count badge shrinks onto the icon's top-right, and the
-  legal links hide (the page footer has them). The choice is kept in `localStorage`
-  (`useSidebarCollapsed`); the server always renders it expanded. The drawer never collapses.
-- Drawer version only (below `md`, where the header has no account controls): an account
-  card pinned to the bottom (white 10% bg, `--radius-lg`, 16px padding) — guests get
-  Create account (white) + Sign in (white 12%); signed-in users get avatar, name, Sign out.
-
-## Header
-
-- Height 88px desktop / 64px mobile, transparent (sits on the canvas), not sticky on desktop;
-  sticky with white 90% + blur on mobile.
-- Left: optional back `IconButton` (`FiArrowLeft`, 40px) then `h1` page title.
-- Right (desktop): signed in → 40px avatar + name (14/600) + role line "Employer" (12px,
-  text-secondary) + chevron; click opens account menu (email, Sign out). Guest → text
-  button "Sign in" + primary "Create account".
-- Right (mobile): menu `IconButton` opening the sidebar as a drawer.
-- Breadcrumbs sit under the header, 13px: ancestors in `--color-primary` 500 weight, current
-  page `--color-text-muted`, separator `/`.
-
-## Navigation
-
-Items come from `navItems(...)` in `app-shell.jsx` — never hard-code extra items.
-
-| Item | Icon (Feather) | Visible to |
+### Dark surfaces (cyan lives only here)
+| Token | Value | Use |
 |---|---|---|
-| Home | `FiHome` | everyone |
-| Candidates | `FiUsers` | everyone |
-| Wishlist | `FiHeart` | guests + employers (guests are sent to sign in); count badge for employers |
-| My enquiries | `FiInbox` | employers |
+| `navy` → `navy2` | `#03070C` → `#060D15` | the `darkSection` gradient (homepage hero) |
+| `graphite` | `#0B1420` | selected page / chip / rail item, number circles, icon tiles, tooltips, toasts |
+| `cyan` | `#1FC8FF` | numerals and icons on graphite or navy, glow, focus rings on dark |
+| `gold` | `#FFC94D` | "European Employers" in the hero H1 only |
+| `onDark.text` / `.bodyStrong` / `.body` / `.subtle` | white / 78% / 64% / 50% | headings / small text over photos / body / small meta. Nothing below 50% is text |
+| `onDark.line` / `.border` / `.ring` / `.hover` | white 7% / 10% / 16% / 4.5% | hairlines / panel borders / node rings / hover fill |
 
-States:
-- Default: `--color-sidebar-text`.
-- Hover: white text, `--color-sidebar-hover-bg`, `border-radius: 12px 0 0 12px`.
-- Count badge (Wishlist): 22px pill pushed right, 12/600, white 18% bg + white text;
-  on the active item `--color-primary-soft-hover` bg + primary text.
-- Active (`NavLink .active`): `--color-sidebar-active-bg` background, `--color-primary` text +
-  icon, 600 weight, `border-radius: 999px 0 0 999px`, extends to the sidebar's right edge with
-  16px inverted corners top and bottom (pseudo-elements with a box-shadow in the canvas
-  colour). "Candidates" is also active on `/candidates/:id`. "Home" uses `end`.
-- Focus-visible: 2px white outline offset −2px.
+Backgrounds: `darkSection` (hero), `darkPanel` (navy panel with a cyan radial), `darkPanelBase`
+(the same without the radial, for panels that add a moving `DriftGlow`), border `darkPanelBorder`,
+shadow `shadowDarkPanel`, `glow` (static cyan radial behind the hero card).
 
-## Buttons
+### Pairing rules
+- Small text on white: `ink`, `ink2`, `muted`, `accentText`, `okText`. Never `faint`, `accent`, `ok`.
+- Graphite or navy surface → its numeral or icon is `cyan`.
+- Selected state = graphite with white or cyan; never a blue fill.
+- Status is never colour only: pills and progress always carry text.
 
-All buttons: height 40 (`medium`), 36 (`small`), 48 (`large`); radius `--radius-md`;
-14px/600 sentence case; icon 16–18px with 8px gap; `transition: background-color,
-box-shadow, border-color, color 150ms ease`.
+## 3. Typography
 
-| Variant | MUI | Default | Hover | Use |
+Font: **Plus Jakarta Sans** (variable 500–800, self-hosted via `next/font`: `jakarta` in
+`src/app/fonts.js`, CSS variable `--font-jakarta`, set on `<html>` in `[lang]/layout.jsx`).
+`brand.fontFamily` refers to it. Poppins is gone.
+
+| Role | Size / line height | Weight | Tracking | Where |
 |---|---|---|---|---|
-| Primary | `variant="contained"` | `--color-primary` bg, white | `--color-primary-hover` + `--shadow-primary` | One per view: Send enquiry, Search, Create account |
-| Secondary (soft) | `variant="soft"` (custom) | `--color-primary-soft` bg, primary text | `--color-primary-soft-hover` | Filters, Clear filters, secondary page actions |
-| Outline | `variant="outlined"` | white bg, `--color-border` border, text-primary | border `--color-border-strong`, bg `--color-surface-muted` | Previous/Next, Sign out, alternative actions |
-| Ghost | `variant="text"` | transparent, primary text | `--color-primary-soft` bg | "See all", inline actions |
-| Destructive | `color="error"` contained | `--color-danger` | darken 8% | Irreversible actions (none today) |
-| Icon-only | `IconButton` | 40×40, radius `--radius-md`, text-secondary | `--color-surface-muted` bg | Wishlist heart, back, menu |
+| Hero H1, chapter H2 | 48 / 1.08 (32 below 900px) | 800 | -1.8px (-0.8px) | homepage |
+| Landing H1 | 40 / 1.1 (30 below 900px) | 800 | -1.4px (-0.8px) | category, skill pages (`LandingHeader`) |
+| Shell H1 | 32 / 38px (20 / 26px on phones) | 800 | -1px (-0.4px) | portal page title in the header |
+| Step / panel title | 26–28 / 1.15–1.2 (22 on phones) | 800 | -0.7 to -0.8px | dark panels, homepage steps |
+| Section H2 | 18–20 | 800 | -0.4px | profile sections, link sections, guides |
+| Stat figure | 23 / 1.2 | 800 | -0.7px | `StatBlock` |
+| Lead | 16 / 1.65 (15 on phones) | 500 | 0 | `PageIntro`, landing intro; measure 640–680px |
+| Body | 14.5–15 / 1.6–1.65 | 500 | 0 | |
+| Small, captions | 12.5–13 / 1.55 | 600 | 0 | |
+| Eyebrow | 11 / 1.4, uppercase | 800 | 0.14em | `Eyebrow`; `accentText` on light, `cyan` on dark |
+| Section number | 11 | 800 | 0.14em | two digits, `accentText`, tabular numerals, `aria-hidden` |
+| Button | 15 (14 small) | 800 (ghost, soft 700) | -0.2px | |
 
-- Disabled: 45% opacity of the variant's colours (contained: `--color-border` bg,
-  `--color-text-muted` text). Cursor `not-allowed`.
-- Loading: keep the label width, swap the start icon for `CircularProgress size={16}`,
-  change label to the "-ing…" form ("Sending…"), and disable.
-- Pressed: `transform: scale(0.98)` on `:active` (contained and soft only).
-- Don't put more than one contained button side by side.
+Headings follow the pattern **eyebrow → 800 heading → muted lead**. Use `fontVariantNumeric:
+'tabular-nums'` for counts and ranges. Sentence case everywhere.
 
-## Inputs
+## 4. Spacing, radii, shadows
 
-- Outlined `TextField`, white bg, 1px `--color-border`, `--radius-md`, height 40
-  (`small`, default) or 48 (`medium`, auth forms only).
-- Hover border `--color-border-strong`; focus border `--color-primary` 1px +
-  `--focus-ring`. No label float animation changes beyond MUI default.
-- Placeholder `--color-text-muted`. Label 14px text-secondary; focused label primary.
-- Error: border `--color-danger`, helper text 12px `--color-danger-text`. Helper text
-  otherwise 12px text-secondary, 4px top margin.
-- Start adornment icons: 18px, `--color-text-muted`.
-- Forms stack with 16px gap; paired fields go side by side from `sm` up.
+Spacing is the MUI 8px scale. Page gutter 16px on phones, 32px from 900px, 40px from 1200px.
+Card padding 20–24px (16px on phones); dark panels 24px (phones) to 32–44px. Gaps between cards
+16–24px; between page sections 40–56px.
 
-## Selects
-
-Use `TextField select` (same chrome as inputs). Menu: `--radius-lg`, `--shadow-popover`,
-6px inner padding, items 36px tall, `--radius-sm`, hover `--color-surface-muted`,
-selected `--color-primary-soft` + primary text 500.
-Multi-select with chips: `Autocomplete`, tags use the Chip style below.
-
-## Search
-
-The Candidates search bar replicates the reference's single white bar:
-
-- Container: white, `--radius-xl`, `--shadow-card`, padding 8px (12px left) on desktop /
-  16px on mobile, `display: flex; gap: 12px; align-items: center`. Fields and buttons are
-  40px tall on desktop (bar ≈ 56px total) and 48px on mobile (touch targets).
-- Segments separated by a 1px × 24px `--color-border` vertical divider (desktop only):
-  1. Name search: borderless input, `FiSearch` 18px primary icon, flex 1.
-  2. Job categories: borderless `Autocomplete`, `FiBriefcase` icon, width 240 (`md`) / 360 (`lg`+).
-  3. **Filters** soft button (`FiSliders`), shows active count `Filters · 2`; becomes
-     contained-soft-active (`--color-primary-soft-hover` bg) while the panel is open.
-  4. **Search** primary button (`FiSearch`) — submits the name immediately (same as the
-     400ms debounce firing early).
-- Desktop (`md`+): the bar sits in the header row beside the account controls. On this page
-  the header is `position: sticky; top: 0; z-index: 10` with 16px vertical padding and a
-  **frosted glass** fill: `tokens.glassBg` (`rgba(248,250,252,0.72)`) +
-  `backdrop-filter: blur(16px) saturate(180%)` (`tokens.glassBlur`). The bar itself is a
-  translucent panel — `tokens.glassSurface` (`rgba(255,255,255,0.62)`), 1px
-  `tokens.glassBorder` (`rgba(255,255,255,0.8)`) and an inset top highlight — and has **no
-  backdrop-filter of its own** (a nested backdrop-filter can't see past its blurred parent).
-  Once the page has scrolled (`scrollY > 8`) the bar's shadow becomes `--shadow-popover`
-  plus a faint border ring. Not sticky below `md` (too tall when stacked), and the bar is a
-  plain white card there.
-- Name and categories fields share the free width (`flex: 1 1 0`, categories max 360px).
-  Below 1360px the Filters and Search buttons are icon-only 40×40 (Filters keeps its active
-  count next to the icon; both keep `aria-label`s), categories show 1 tag instead of 2, and
-  the signed-in account shows the avatar only. From 1360px they show their labels.
-- Mobile: segments stack vertically with 12px gap; borderless inputs get
-  `--color-surface-muted` bg so they still read as fields.
-- Expanded filters appear **inside the same card** under a 1px divider, 16px top padding,
-  4 equal columns on `md`, 2 on `sm`, 1 on `xs`.
-
-## Filters
-
-- Only real filters: categories, gender, min experience, min/max age, name.
-- Active state: Filters button shows the count; results line shows a soft "Clear filters"
-  button. Filters live in the URL (unchanged behaviour).
-- Never add sort/view toggles until the API supports them.
-
-## Cards
-
-| Variant | Spec | Where |
+| Token | Value | Use |
 |---|---|---|
-| Standard | white, `--radius-lg`, `--shadow-card`, padding 24 (20 on xs) | Profile sections, enquiry list container |
-| Interactive | Standard + hover `--shadow-card-hover` + `translateY(-2px)`, 200ms; whole card is the link | `CandidateCard` |
-| Search / toolbar | white, `--radius-xl`, padding 12 | Candidates search bar |
-| Info (step) | Standard + 44px icon tile (`--color-primary-soft` bg, primary icon, `--radius-md`) | Home "How it works" |
-| Highlight | solid `--color-primary`, white text, `--radius-xl`, padding 32–40 | Home welcome, profile CTA |
-| Form | Standard, padding 32 desktop | Auth forms (inside split screen), dialog content |
-| Empty/warning | Standard, centred, `py: 6`, 64px soft icon circle | `EmptyState` |
+| `radiusSm` | 10 | small tiles, rail items, menu items |
+| `radiusButton` | 14 | buttons (cta small 12); pills and chips 999 |
+| `radiusMd` | 16 | cards, inputs, stat blocks |
+| `radiusPanel` | 18 | dark panels |
+| `radiusLg` / `radiusXl` | 20 / 26 | dialogs / large panels |
+| `shadow1` | `0 1px 2px` (navy tint) | resting card |
+| `shadow2` | `0 8px 20px` | hovered card, focused search |
+| `shadow3` | `0 18px 44px` | dialogs, menus, popovers |
+| `shadowDarkPanel` | `0 12px 32px` | dark panels |
+| `ctaShadow` | gradient button only | |
 
-**Candidate card** (vertical, as the reference talent card), text centred, `overflow: hidden`.
-Target height ≈ 385px at 267px wide (1440px screen, 4 per row):
-1. **Cover band** 56px tall, `--color-primary-soft` with a faint dot grid
-   (`radial-gradient(rgba(37,99,235,0.14) 1px, transparent 1px)`, 12px grid). Decorative only.
-2. Wishlist heart top-right on a white 85% + blur tile (where the reference has the kebab).
-3. Avatar 72px overlapping the band (`mt: -36px`), 4px white ring + soft shadow; initials
-   fallback primary on white. Scales to 1.04 on card hover.
-4. Verified badge (small: 22px tall, 11/600) pinned **top-left** of the card (14px inset),
-   mirroring the wishlist heart top-right; only if verified. `pointer-events: none`, so
-   clicks reach the card link. Nothing reserves space under the avatar.
-5. Name 17/600, one line, 10px below the avatar. Then up to 2 job categories as `primary` Badges
-   (+N neutral), 6px below.
-6. **Stat strip** 12px below: `--color-background` box, 1px `--color-border`, `--radius-md`,
-   three equal cells split by 1px dividers (8px inset top/bottom), 6px vertical cell padding —
-   value 13/18 600, label 11/14 text-muted, no gap between them (strip ≈ 44px tall):
-   Age · Gender · Experience ("7 yrs"). Missing values show "–".
-7. Bio 13/20 text-secondary, 2-line clamp, **always 40px tall** (so the skills below line up
-   across a row), 12px top margin.
-8. Skills 16px below the bio, above a 1px `--color-border` divider (14px gap): the top **2**
-   `SkillMeter` rows (name left, four 14×6px pill segments right; filled = primary, empty =
-   `--color-primary-soft-hover`; beginner→1 … expert→4), 8px apart. "+N more skills" caption
-   (12px, muted, left) below them only when there are more than 2. No "Top skills" eyebrow.
-9. No footer row: the whole card is the link to the profile.
-- Hover: `translateY(-3px)`, `--shadow-card-hover` plus a 1px `--color-primary-soft-hover`
-  ring, avatar scales to 1.04. No MUI ripple overlay; keyboard focus shows an inset 2px
-  Primary Light ring.
-- `GridSkeleton` mirrors this layout (56px band, 72px circle, name, pill, 44px stat box,
-  two lines, two meter rows).
-- The profile page keeps the Verified badge under the large avatar (it isn't a card).
+## 5. Layout
 
-## Tables
+- **Breakpoints**: MUI defaults; the main one is **900px** (`md`). `sm` 600 hides the phone bar.
+- **Widths**: `contentMax` 1080 (homepage sections), `wideMax` 1440 (nav, hero, portal `<main>`),
+  `readingMax` 820 (guides, legal).
+- **Portal shell** (`components/app-shell/app-shell.jsx`):
+  - Desktop: a light rail on the left, 248px (88px collapsed), white with a hairline edge; items
+    are grey icon tiles with two-digit numbers; the active item is a graphite pill with a cyan
+    icon. The page is one light `bg1` canvas.
+  - Header: eyebrow ("Employer portal") over the H1, 112px tall. On pages with the header search
+    (candidate list, categories, skills) it is 88px, sticky, and uses the homepage nav's white
+    glass (`rgba(252,254,255,0.72)`, `blur(16px)`); its `rgba(13,42,66,0.06)` hairline appears
+    only after 8px of scroll.
+  - Phones: a 64px sticky top bar, white 86% with `blur(14px) saturate(180%)` and a `line`
+    hairline; the rail becomes a drawer behind the menu button.
+  - The footer is `MarketingFooter`, after `<main>`, so it sits at the bottom of short pages.
+- **Homepage nav** (`marketing-nav.jsx`): 78px (64px on phones), transparent over the hero, white
+  glass once scrolled, dark glass (`rgba(6,13,21,0.72)`) over sections marked
+  `data-nav-tone="dark"`.
+- **Auth** (`(auth)/client/components/auth-card.jsx`): from 900px a navy side panel with the
+  homepage's `HeroBackground` and the benefits as a numbered hairline list; the form column has
+  an eyebrow and an 800 H1.
 
-No tabular data exists today. If one is added: white Standard card container, header row
-`--color-surface-muted` 12px/600 uppercase text-secondary 44px tall, body rows 64px, 1px
-`--color-border` row dividers only (no vertical lines), hover `--color-background`, first
-column 24px left padding, numeric columns right-aligned, actions in a trailing 48px column.
+## 6. Components
 
-## Lists
-
-- **Row list** (My enquiries): one Standard card, rows separated by 1px dividers, row
-  padding 20px 24px. Row = avatar 44px + name (16/600 link) + meta line, status badge right,
-  message preview (2-line clamp) and status explanation below, aligned with the name.
-- **Entry list** (work, education, languages): 16px vertical gap, 1px dividers, an icon tile
-  (36px, `--color-primary-soft`, `--radius-md`) on the left of each entry.
-
-## Badges
-
-Height 24, padding `0 10px`, `--radius-full`, 12px/600, optional 14px icon with 4px gap.
-
-| Tone | Bg | Text |
+### Buttons (MUI variants in `theme.js`)
+| Variant | Look | Use |
 |---|---|---|
-| `neutral` | `--color-surface-muted` | `--color-text-secondary` |
-| `primary` | `--color-primary-soft` | `--color-primary` |
-| `success` | `--color-success-soft` | `--color-success-text` |
-| `warning` | `--color-warning-soft` | `--color-warning-text` |
-| `danger` | `--color-danger-soft` | `--color-danger-text` |
+| `cta` | `ctaGradient`, white 15/800, radius 14, 50px (40px `small`). The `endIcon` becomes a 28px round chip (white 18%) | the one primary action per view area. `CtaButton` adds the arrow and handles links |
+| `contained` | same gradient and weight, no chip unless an `endIcon` is passed | primary actions inside forms and cards |
+| `soft` | `surface3`, `line2` hairline, `ink2` 700 | secondary actions: Previous/Next, Clear filters, Filters |
+| `ghost` | transparent, `ink2` 14/700, hover `rgba(13,42,66,0.05)` | a quiet action next to a `cta` (Cancel, Login) |
+| `outlined` | white, `line2` border | rare; prefer `soft` |
 
-The **Verified** badge on candidate cards is the one solid badge: `--color-success` bg, white
-text, `FiCheck` icon, 2px white ring — it plays the role of the reference's orange rating
-pill. Enquiry status: received → `warning` (awaiting review), forwarded → `primary`, closed → `neutral`.
-Category chips use `primary` tone (MUI `Chip` styled to match).
+Hover lifts 1–2px; disabled `cta` fades to 60%. One `cta` per view area.
 
-## Modals
+### Focus
+Every interactive element gets a 2px outline 3px out: `focusRing` (accent) on light,
+`focusRingDark` (cyan) on dark. `cta`, `ghost` and `contained` read `var(--focus-color)`; dark
+panels set `--focus-color: b.cyan`. Cyan on white is under 3:1, so it never rings on light.
 
-- `Dialog`: `--radius-lg`, `--shadow-popover`, max width `sm` (600px), full-screen below `sm`.
-- Title 18/600 with 24px padding; content 24px horizontal; actions right-aligned, 24px
-  padding, 12px gap, primary action last.
-- Backdrop `rgba(15,23,42,0.40)`. Enter: fade + 8px upward slide, 200ms.
+### Cards
+White, 1px `line` border, `radiusMd`, `shadow1` (the `MuiCard` default). Hover: lift 1px, border
+`lineHover`, `shadow2`, 280ms. Candidate cards (`candidate-card.jsx`, shared pieces in
+`candidate-card-parts.jsx`) are left-aligned: avatar, name with a green tick, `accentText`
+category, current role, German-first language chips, a 2-line bio, the top two `SkillMeter`s.
 
-## Dropdowns
+### Dark panel
+`darkPanelBase` + `darkPanelBorder` + `shadowDarkPanel`, radius `radiusPanel`, a cyan `DriftGlow`,
+`isolation: isolate`, `--focus-color: cyan`. Inside: optional hairline icon tile with a cyan
+icon, 800 white heading, `onDark.body` text, a `cta`. Used by the profile enquiry panel,
+`EmployerCta` (homepage; on portal list pages for guests via `GuestEmployerCta`), the guide CTA.
 
-Menus/popovers: `--radius-lg`, `--shadow-popover`, 1px `--color-border`, 6px padding,
-min width 220. Account menu header: name 14/600 + email 12px secondary, then divider,
-then items with 18px icons.
+### Chips and pills
+- Link and filter chips: `surface3`, `line2` hairline, 13.5/700 `ink2`, count in 11.5/800
+  `accentText`; lift on hover (`seo-links.jsx`, the hero category chips).
+- Selected / active filter chips: graphite with white text, removable (×, Enter, Delete).
+- Status pills (`enquiries/enquiry-status.jsx` `StatusPill`): neutral `surface3`, hairline, `ink2`
+  text, a dot that is accent while open and `faint` once closed. No coloured status fills.
 
-## Toasts
+### Numbered things
+- Section headings: two-digit `accentText` number before the 800 title, counted over the sections
+  actually shown.
+- Circles: 26px graphite with an 11.5/800 cyan numeral (enquiry form groups), or ring nodes on
+  dark (auth benefits, homepage timeline).
+- Progress: `StatusProgress`, the step rail's 15px ring nodes on light (accent; the current node
+  solid with an `accentLine` halo), an `<ol>` with `aria-current="step"`.
 
-MUI `Snackbar` bottom-center (bottom-left on desktop), dark `#1F2937` bg, white 14px text,
-`--radius-md`, 4s auto-hide. Use for transient failures (e.g. save toggle). Persistent
-errors use inline `Alert`, not toasts.
+### Lists
+Hairline `ul/li` rows (`line` between rows), `faint` icons, no `Divider`, no icon tiles. FAQ is a
+hairline `dl`. "On this page" in guides is a two-column numbered hairline list.
 
-## Empty States
+### Inputs and search
+Inputs: white, `line` border, `line2` on hover, accent border and a soft accent ring on focus,
+radius 16, `muted` placeholders. The candidate search is the homepage hero search: a white
+hairline panel, `faint` icons, `shadow1` (`shadow2` once scrolled or focused), `cta` Search.
 
-`EmptyState` component: Standard card, centred, `py: 6`, 64px circle
-(`--color-primary-soft`, primary 28px icon), title 18/600, message 14px secondary
-max-width 420, optional single action (contained) 20px below. Copy explains *why* it's empty
-and what to do next.
+### Pagination
+`components/pagination.jsx`: a `surface3` track with a `line2` hairline; the selected page is
+graphite with a cyan 800 numeral; other pages `ink2` with a white hover; `soft` Previous/Next at
+40px; the range text bold `ink`, tabular.
 
-## Loading States
+### Empty, loading, error
+- `EmptyState`: a 56px graphite tile with a cyan icon, an 800 title, a muted 15px line, the action
+  centred (`CtaButton` for "Browse candidates", `soft` for "Clear filters").
+- Skeletons match the final layout (`page-skeletons.jsx`, `GridSkeleton`) on `surface3`.
+- Errors: inline `Alert` + Retry. Info boxes are `accentSoft` with an `accentLine` hairline.
 
-- Lists/grids: skeletons with the same geometry as the real cards (`GridSkeleton` mirrors the
-  centred candidate card). Skeleton colour `--color-surface-muted`, wave animation.
-- Whole-page auth gate: centred 32px `CircularProgress`.
-- Buttons: see Buttons → Loading.
-- Never show "Loading…" text alone for content that has a known shape.
+### Dialogs, menus, tooltips, toasts
+Dialogs: `radiusLg`, `shadow3`, hairline, 19/800 title, navy 48% backdrop; full screen on phones
+where the content is long. Menus and autocomplete: `radiusLg`, `shadow3`, hairline. Tooltips and
+toasts: graphite.
 
-## Error States
+### Phone action bar
+The candidate profile has a bar fixed to the bottom below 600px: the phone top bar's glass, a
+`line` top hairline, safe-area padding, the wishlist heart and the enquiry action as `cta`. The
+page adds matching bottom padding.
 
-Inline `Alert` (`--radius-md`, soft semantic bg, `*-text` colour, 1px border in the base
-colour at 20% opacity) placed where the content would be, with a **Retry** text button when
-the action can be retried. Form field errors go in helper text; form-level errors in an Alert
-above the submit button.
-
-## Responsive Design
-
-Desktop-first. Design at 1440, verify at 1280, 1024, 900, 768, 390.
-
-## Breakpoints
-
-MUI defaults: `xs 0`, `sm 600`, `md 900`, `lg 1200`, `xl 1536`.
-
-| Range | Name |
-|---|---|
-| ≥ 1200 | Desktop |
-| 900–1199 | Laptop / small desktop |
-| 600–899 | Tablet |
-| < 600 | Mobile |
-
-## Mobile Behavior (< 600)
-
-- Sidebar becomes a left `Drawer` (same blue styling, 280px) opened from the header menu
-  button; closes on navigation.
-- Header sticky, 64px, white 90% + blur, bottom border; page title 20px.
-- Content panel has no rounded corner; gutter 16px.
-- Candidate grid 1 column; search bar segments stacked; pagination collapses to
-  Previous / "Page 3 of 9" / Next.
-- Candidate profile: sticky bottom action bar (Save + Send enquiry), single column.
-- Dialogs full-screen.
-
-## Tablet Behavior (600–899)
-
-- Same drawer navigation and sticky 64px header as mobile.
-- Candidate grid `auto-fill, minmax(260px, 1fr)` (2 columns at 768); search bar segments
-  stacked, Filters + Search side by side at equal width.
-- Gutter 16px; candidate profile header goes back to a row layout from `sm`.
-
-## Desktop Behavior (≥ 900)
-
-- Persistent sidebar (220px), content panel with 32px top-left radius.
-- Candidate grid `repeat(auto-fill, minmax(260px, 1fr))` → 2 cols at 900, 3 at 1200, 4 at 1440,
-  5 at 1920 (as the reference).
-- Candidate profile two-column from `lg`.
-
-## Animation & Transitions
-
-Subtle and fast. Easing `cubic-bezier(0.2, 0, 0, 1)`.
-
-| What | Duration | Effect |
-|---|---|---|
-| Hover colour/border changes | 150ms | colour |
-| Card hover | 200ms | shadow + `translateY(-2px)` |
-| Button press | 100ms | `scale(0.98)` |
-| Filters panel | MUI `Collapse` 200ms | height |
-| Dialog / menu | 200ms / 150ms | fade + 8px slide / fade + scale(0.98) |
-| Page content | 200ms | fade-in + 4px rise on route change (`key={pathname}`) |
-
-Respect `prefers-reduced-motion: reduce` — disable transforms and page fade.
-
-## Accessibility
-
-- Text contrast ≥ 4.5:1 (body) / 3:1 (≥ 18px or 14px bold). `#64748B` on `#F8FAFC` passes
-  (4.6:1); `#94A3B8` is only for placeholders/decoration and non-essential captions.
-- Every icon-only button has `aria-label` and a `Tooltip`.
-- Visible focus: `--focus-ring` on inputs/buttons; white outline on sidebar items.
-- One `h1` per page (the header title). Section titles are `h2`.
-- Hit targets ≥ 40×40 (36 allowed for dense `small` buttons on desktop).
-- Status is never colour-only: badges always have text.
-
-## Component Rules
+## 7. Shared building blocks
 
 | Component | File | Notes |
 |---|---|---|
-| `AppShell` (sidebar, header, breadcrumbs) | `components/app-shell/app-shell.jsx` | Route meta map for title/back/crumbs |
-| `CandidateCard`, `VerifiedBadge` | `app/(portal)/client/components/candidate-card.jsx` | Card spec above |
-| `CandidateGrid`, `GridSkeleton` | `app/(portal)/client/components/candidate-grid.jsx` | auto-fill grid |
-| `SkillBar`, `SkillMeter` | `app/(portal)/client/components/skill-bar.jsx` | `SkillBar` (profile page): level label + bar at 25/50/75/100%. `SkillMeter` (cards): four-step segmented meter. Never show a numeric % |
-| `Badge` | `components/badge.jsx` | Tones above |
-| `Pagination` | `components/pagination.jsx` | Wraps MUI `usePagination` |
-| `EmptyState` | `components/empty-state.jsx` | |
-| `PageIntro` | `components/page-intro.jsx` | Subtitle line + optional actions under the breadcrumb |
-| `WishlistButton` | `app/(portal)/client/components/wishlist-button.jsx` | Heart (`FiHeart`). `variant="icon"` on cards / phone bar, `variant="button"` (outlined, "Add to wishlist" / "In wishlist") on the profile header. Filled `--color-danger` when in the list; pops (scale 1.3, 320ms) on add; toast "Added to your wishlist" + View link (portalled). Guests → `/login?next=…`; hidden for signed-in non-employers |
-| `EnquiryDialog`, `Turnstile` | `app/(portal)/client/candidate-profile/enquiry-modal.jsx`, `turnstile.jsx` | restyled via theme |
+| `AppShell` | `components/app-shell/app-shell.jsx` | rail, header, route meta (title, back, crumbs, `headerSearch`, `hideTitle`) |
+| `PageIntro` | `components/page-intro.jsx` | the lead under the shell title, optional actions |
+| `Eyebrow` | `(marketing)/client/components/eyebrow.jsx` | `tone="dark"` for cyan |
+| `CtaButton` | `(marketing)/client/components/cta-button.jsx` | `cta` + arrow chip; `href` makes it a link |
+| `Reveal`, `STAGGER` | `(marketing)/client/components/reveal.jsx` | entrance motion, see §8 |
+| `DriftGlow` | `(marketing)/client/components/drift-glow.jsx` | moving cyan glow in dark panels |
+| `StatBlock` | `(marketing)/client/components/stat-block.jsx` | `bare` for a row of figures |
+| `EmployerCta` | `(marketing)/client/home/employer-cta.jsx` | `headingLevel`, `sx` |
+| `GuestEmployerCta` | `(portal)/client/components/guest-employer-cta.jsx` | `EmployerCta` for confirmed guests only |
+| `LandingHeader`, `LinkSection` | `(portal)/client/seo/landing-header.jsx` | category and skill page tops, numbered link groups |
+| `JobLinks` | `(portal)/client/components/seo-links.jsx` | crawlable chip links |
+| `CandidateCard`, `CandidateGrid` | `(portal)/client/components/` | the grid staggers cards by column |
+| `SkillBar`, `SkillMeter` | `(portal)/client/components/skill-bar.jsx` | level label + bar; never a numeric % |
+| `StatusPill`, `StatusProgress` | `(portal)/client/enquiries/enquiry-status.jsx` | |
+| `EmptyState`, `Pagination` | `components/` | |
+| `WishlistButton` | `(portal)/client/components/wishlist-button.jsx` | heart; `danger` when saved; guests go to login |
+| `MarketingFooter` | `(marketing)/client/components/marketing-footer.jsx` | homepage and portal |
 
-- Colours/radii/shadows come from `tokens` in `theme.js` — no raw hex in components.
-- Prefer theme overrides over per-instance `sx` for anything used twice.
-- Icons: **Feather only** (`react-icons/fi`), sizes 14 (inline meta), 16 (buttons),
-  18 (inputs), 20 (nav, header).
+Icons: **Feather only** (`react-icons/fi`), 14 (inline meta), 16 (buttons), 18 (inputs), 20 (nav).
 
-## Page-specific UI Rules
+## 8. Motion
 
-- **Home `/`**: inside the shell. Highlight welcome card (overline, display headline,
-  supporting text, Browse candidates (white button) + Create a free account (outline-white)),
-  then "How it works" 3 Info cards, then "Latest candidates" grid with "See all" ghost button.
-- **Candidates**: no visible header title, breadcrumb, greeting or intro copy (route meta
-  `hideTitle` + `headerSearch`; the `h1` stays visually hidden for screen readers).
-  Desktop: the header row *is* the search row — the page portals its search bar into
-  AppShell's header slot (`HeaderSlotContext` in `app-shell/header-slot.js`), account controls on the right
-  (centred in a 56px box). Phones: logo + "I2Go" in the header, search bar inline below it.
-  Then: results line (`Showing N candidates` 16/600 +
-  13px secondary context; Clear filters soft button right) → grid → pagination row
-  (`Showing 13–24 of 57` left, pager right).
-- **Candidate profile**: back arrow in header. Hero card (avatar 112 + verified badge, name
-  h2 26/600, facts, category chips, Save + Send enquiry right). Main column: About, Intro
-  video, Work experience, Education. Side column: Skills (SkillBars), Languages, CTA
-  Highlight card (not sticky: the side column can be taller than the viewport).
-  Phone sticky action bar kept.
-- **Wishlist** (`/wishlist`, old `/saved` redirects): PageIntro copy + "Browse more candidates"
-  soft button → candidate grid (newest added first) → note if some are no longer listed.
-  Empty state: heart icon, "Your wishlist is empty".
-- **My enquiries**: PageIntro copy → row list.
-- **Login / Sign up**: split screen. Left 45% blue panel (logo, display headline, 3
-  benefit rows with Feather icons in 40px white-10% tiles) hidden below `md`. Right: centred
-  form column max 400px, logo shown above the form on mobile.
-
-## Do / Don't
-
-**Do**
-- Use `tokens.*` and theme variants; keep one primary button per view.
-- Reuse `Badge`, `EmptyState`, `Pagination`, `SkillBar` rather than restyling chips ad hoc.
-- Keep card internals aligned to the same left edge (or centre, for candidate cards).
-- Keep copy short and sentence case.
-
-**Don't**
-- Don't add gradients, coloured page backgrounds or more than one solid-blue block per view.
-- Don't add borders to cards, or shadows to inputs.
-- Don't mix icon libraries or use filled icons.
-- Don't fabricate data (ratings, percentages, counts) to fill the reference's slots.
-- Don't change routes, API calls, auth or URL-based filter state while restyling.
-
-## Implementation Guidelines
-
-1. Start from `theme.js`: if a new value is needed, add a token there and here.
-2. New page: put it in a route group whose layout renders `AppShell` (add a route meta entry for title/crumbs/back), start
-   with `PageIntro`, use Standard cards with 24px gaps, `EmptyState` for empties,
-   skeletons matching the final layout, inline `Alert` + Retry for errors.
-3. New list of things → card grid (`CandidateGrid` pattern) if visual, row list if
-   text/status heavy, table only for ≥ 4 comparable columns.
-4. Check at 1440, 1024, 768 and 390 widths before calling it done.
-5. Run `npm run lint` and `npm run build`.
-
----
-
-## Marketing pages (homepage)
-
-_Added 2026-11-18 (homepage-redesign-plan.md, Task 1)._ The homepage (`/de`, `/en`) has its own
-visual language, taken from the reference site partners.primework360.com (plan §1). It applies
-**only** inside the marketing layout. Every portal page keeps the system above. Values live in
-`brand` in [`src/app/theme.js`](src/app/theme.js); components never use raw hex.
-
-The rules above that this section overrides for marketing pages: Poppins (→ Plus Jakarta Sans),
-"no gradients on content" (→ the dark section, the dark panel and the CTA have gradients),
-"cards have no border" (→ 1px hairline borders), the portal blue (→ ink + `accent`).
-
-### Philosophy
-- Almost monochrome: ink and greys on near-white, one blue accent, cyan only on navy.
-- Hairlines and whitespace separate content, not heavy shadows.
-- Extra-bold headlines with tight negative tracking; small labels uppercase with wide tracking.
-- Two-digit numbering (01, 02…) and connecting lines carry the story.
-- No illustrations, stock photos or decorative shapes. Visuals come from real data and real UI.
-
-### Colours (`brand.*`)
-| Token | Value | Use |
-|---|---|---|
-| `ink` / `ink2` | `#0A0F16` / `#2C3641` | headings / card titles, strong body |
-| `muted` | `#5D6873` | body text (5.4:1 on `bg1`) |
-| `faint` | `#98A1AB` | icons and decoration only, never text |
-| `line` / `line2` / `lineHover` | `#E2E7EC` / `#CED6DE` / `#9AA7B3` | hairlines, card borders / chips, stronger borders / card hover border |
-| `bg1` / `bg2` | `#F7F8FA` / `#EFF1F3` | page canvas / alternate band |
-| `surface` / `surface2` / `surface3` | `#FFF` / `#FDFDFE` / `#F3F5F7` | cards / resting cards / inset areas, chips |
-| `accent` | `#0F8FC7` | borders, ticks, active nodes, large text. **Not small text** (3.6:1) |
-| `accentText` | `#0B6A94` | eyebrows, links and other small accent text (6.0:1) |
-| `accentInk` / `accentSoft` / `accentLine` | `#06364B` / `#F1F7FA` / `#D3E5EE` | deep accent / soft fill / soft border |
-| `ok` / `okSoft`, `danger` | `#12996B` / `#E4F8EF`, `#D92D20` | success, errors |
-| `navy` → `navy2` | `#03070C` → `#060D15` | dark section (`darkSection` gradient) |
-| `graphite` | `#0B1420` | number badges, selected chips, icon tiles on dark |
-| `cyan` | `#1FC8FF` | **on dark only**: numbers, progress line, glow, focus outline of the CTA |
-| `onDark.text` / `.body` / `.subtle` | white / 64% / 50% | headings / body / small meta. Nothing below 50% is text |
-| `onDark.bodyStrong` | white 78% | small text that can pass over the hero photo (the category slider's counts); 64% drops below 4.5:1 there |
-| `onDark.line` / `.border` / `.ring` | white 7% / 10% / 16% | hairlines and timeline track / panel borders / node rings |
-
-Backgrounds: `darkSection` (navy gradient + faint cyan radial), `darkPanel` (the dark CTA panel,
-radius 18px, border `darkPanelBorder`), `glow` (drifting cyan radial on dark sections, decorative).
-
-### Typography
-Font: **Plus Jakarta Sans** (variable, 500–800, self-hosted via `next/font`: `jakarta` in
-`src/app/fonts.js`, CSS variable `--font-jakarta`, set on the marketing layout root).
-`brand.fontFamily` refers to it.
-
-| Role | Size / line height | Weight | Tracking |
-|---|---|---|---|
-| Hero H1, chapter H2 | 48 / 1.08 (32 below 900px) | 800 | -1.8px (-0.8px below 900px) |
-| Step title | 28 / 1.2 (22 below 900px) | 800 | -0.8px |
-| Stat figure | 23 / 1.2 | 800 | -0.7px |
-| Lead | 16.5 / 1.65 | 500 | 0 |
-| Body | 15 / 1.65 | 500 | 0 |
-| Small, captions | 12.5 / 1.55 | 600 | 0 |
-| Eyebrow | 11 / 1, uppercase | 800 | 0.14em |
-| Step number | 13 (rail 11) | 800 | 0.17em |
-| Button | 15 (14 small) | 800 (ghost 700) | -0.2px |
-
-### Radii and shadows
-| Token | Value | Use |
-|---|---|---|
-| `radiusSm` | 10 | small tiles, rail items |
-| `radiusMd` | 16 | cards, stat blocks |
-| `radiusPanel` | 18 | dark CTA panel, mini steps |
-| `radiusLg` / `radiusXl` | 20 / 26 | door panels / large panels |
-| `radiusButton` | 14 | CTA (12 small), pills 999 |
-| `shadow1` / `shadow2` / `shadow3` | `0 1px 2px` / `0 8px 20px` / `0 18px 44px`, navy tint | resting card / hover / popovers |
-
-### Buttons (MUI variants in `theme.js`)
-- `variant="cta"`: gradient `ctaGradient`, white 15/800 text, radius 14, min-height 50. Pass
-  `endIcon={<FiArrowRight />}`: the end icon becomes a 28px round chip (white 18%). Hover:
-  lift 2px, chip moves 2px right and gets lighter (white 30%). Focus: 2px cyan outline,
-  3px offset. `size="small"` for the nav (40px). One `cta` per view area.
-- `variant="ghost"`: transparent, ink2 14/700 text, hover tint `rgba(13,42,66,.05)`. The
-  secondary action next to a `cta`.
-
-### Layout
-- Content max 1080px, reading column 820px, centred. Gutter 40px (16px below 900px).
-- Top nav 78px (64px below 900px), sticky, translucent white with blur, 1px bottom hairline.
-- One main breakpoint: **900px** (MUI `md`).
-
-### Motion
 Easing `brand.ease` = `cubic-bezier(0.16, 1, 0.3, 1)`.
 
 | What | Duration | Effect |
 |---|---|---|
-| Entrance (section, step) | 500ms | fade in from `translateY(22px)`, once, 60ms stagger |
-| Card hover | 280ms | `translateY(-1px)`, border `lineHover`, `shadow2` |
-| CTA hover | 280–300ms | lift 2px, arrow chip moves 2px |
-| Rail node / timeline node | 250ms | ring and fill colour |
-| Timeline line | follows scroll | `scaleY` fill, transform only |
-| Glow on dark sections | 18s alternate | slow drift, decorative |
+| Entrance (`Reveal`) | 500ms | fade in from `translateY(22px)`, once; siblings stagger by `STAGGER` (60ms) |
+| Card / chip hover | 280ms | lift 1px, border `lineHover`, `shadow2` |
+| `cta` hover | 280–300ms | lift 2px, chip moves 2px right |
+| Header hairline | 250ms | fades in after 8px of scroll |
+| Rail collapse | 200ms | width |
+| Glow on dark panels | 18s alternate | slow drift, decorative |
 
-Content is visible without JavaScript: entrance animations start only after a client-side class
-is set. `prefers-reduced-motion` turns all of it off (the rule in `MuiCssBaseline`).
+Content is visible without JavaScript: `useInView` hides a block only after JS has run and found
+it below the fold. `prefers-reduced-motion` turns all motion off (the `MuiCssBaseline` rule and
+the hooks).
+
+## 9. Accessibility
+
+- Contrast: body text ≥ 4.5:1, large text (≥ 18px, or 14px bold) ≥ 3:1. See the pairing rules
+  in §2.
+- One `h1` per page (the shell title, or the landing / auth H1). Section titles are `h2`;
+  `EmployerCta` is `h3` on the homepage and `h2` in the portal.
+- Every icon-only button has an `aria-label` and a `Tooltip`.
+- Visible focus everywhere (§6 Focus).
+- Hit targets ≥ 40×40; 44px for chips on phones.
+- Decorative numbers and glows are `aria-hidden`.
+
+## 10. Page rules
+
+- **Candidate list** (`/candidates`, `/fachkraefte`): the H1 is visually hidden; the desktop header
+  row is the search bar (portalled via `HeaderSlotContext`). Results line, active filter chips,
+  grid, pagination, then `GuestEmployerCta` for guests.
+- **Category and skill pages**: `LandingHeader` (eyebrow, landing H1, real figures in `StatBlock`s,
+  intro, hairline), the grid, numbered `LinkSection`s with chips, `GuestEmployerCta`.
+- **Candidate profile**: back arrow; hero card; sections in `Reveal` cards with numbered headings
+  and hairline rows; the dark enquiry panel; the phone action bar.
+- **Wishlist, recently viewed**: `PageIntro` + candidate grid; `EmptyState` when empty.
+- **My enquiries**: rows with `StatusPill` and `StatusProgress`.
+- **Guides and legal**: 820px reading column, eyebrow, 800 H1, hairline sections; guides end with
+  the dark CTA panel.
+- **Login, signup**: see §5 Auth.
+
+## 11. Do / Don't
+
+**Do**
+- Use `brand` and the theme variants; one `cta` per view area.
+- Reuse the blocks in §7 before writing new styles.
+- Keep the eyebrow → heading → lead pattern and hairline separation.
+- Check 390px and 1440px (plus 768 and 1024 for grids), DE and EN, before calling a page done.
+- Run `npm run lint` and `npm run build`.
+
+**Don't**
+- Don't use `tokens`, raw hex, Poppins or the old portal blue (`#2563EB`).
+- Don't put cyan on a light surface, or use `faint`, `accent` or `ok` for small text.
+- Don't add coloured page backgrounds, extra gradients on controls, or heavy shadows.
+- Don't use coloured status fills; status is a neutral pill with text.
+- Don't fabricate data (ratings, percentages, counts) to fill a slot.
+- Don't mix icon libraries or use filled icons.
+- Don't change routes, API calls, auth or URL-based filter state while restyling.

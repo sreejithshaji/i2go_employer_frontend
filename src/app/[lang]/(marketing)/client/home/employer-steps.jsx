@@ -23,7 +23,7 @@ const darkLinkSx = {
     ...textLinkSx,
     color: b.cyan,
     '&:hover': { color: b.onDark.text },
-    '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: 3 },
+    '&:focus-visible': b.focusRingDark,
 };
 
 /** 01: "{total} profiles live now" across the live categories, linking up to the category grid (#jobs). */

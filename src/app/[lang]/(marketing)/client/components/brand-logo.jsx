@@ -20,8 +20,8 @@ export default function BrandLogo({ href, onClick, dark = false, large = false, 
             onClick={onClick}
             aria-label="I2Go"
             sx={{
-                display: 'inline-flex', alignItems: 'center', gap: 1.25, flexShrink: 0, textDecoration: 'none', borderRadius: `${b.radiusSm}px`,
-                '&:focus-visible': { outline: `2px solid ${dark ? b.cyan : b.accent}`, outlineOffset: 4 },
+                display: 'flex', width: 'fit-content', alignItems: 'center', gap: 1.25, flexShrink: 0, textDecoration: 'none', borderRadius: `${b.radiusSm}px`,
+                '&:focus-visible': dark ? b.focusRingDark : b.focusRing,
                 ...sx,
             }}
         >

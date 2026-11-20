@@ -12,7 +12,7 @@ const headingSx = { fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', text
 const linkSx = {
     color: b.ink2, fontSize: 14, fontWeight: 600, textDecoration: 'none', width: 'fit-content', borderRadius: '4px',
     '&:hover': { color: b.ink, textDecoration: 'underline' },
-    '&:focus-visible': { outline: `2px solid ${b.accent}`, outlineOffset: 2 },
+    '&:focus-visible': b.focusRing,
 };
 
 /** Company, contact and legal links (Impressum one click from every page), then the copyright row. */
