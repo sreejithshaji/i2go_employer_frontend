@@ -17,6 +17,7 @@ import { pageMetadata, shortDescription } from '@/lib/seo/metadata';
 import CandidatesView from '../../client/candidates/candidates-view';
 import { JobLinks } from '../../client/components/seo-links';
 import LandingHeader, { LinkSection } from '../../client/seo/landing-header';
+import GuestEmployerCta from '../../client/components/guest-employer-cta';
 import { listCanonical, queryString, readFilters } from './shared';
 
 // /de/fachkraefte/[kategorie] and /en/candidates/[category] (PLAN.md 11.4).
@@ -112,14 +113,25 @@ export default async function CategoryPage({ params, searchParams, only }) {
         .map((c) => ({ id: c.id, name: localName(c, lang), href: p.category(c[`slug_${lang}`]), count: stats.categoryCount(c.id) }))
         .sort((a, b) => a.name.localeCompare(b.name, lang));
     const guides = guideList.slice(0, 3).map((g) => ({ id: g.key, name: g.title, href: p.guide(g.slug) }));
+    // 01, 02 … counted over the link sections actually shown.
+    const sectionNo = {};
+    let n = 0;
+    if (skillLinks.length > 0) sectionNo.skills = ++n;
+    if (otherJobs.length > 0) sectionNo.other = ++n;
+    if (guides.length > 0) sectionNo.guides = ++n;
 
     return (
         <>
             <JsonLd data={breadcrumbLd(crumbs.map((c) => ({ name: c.label, path: c.href })))} />
             <Breadcrumbs label={t.common.breadcrumb} items={crumbs} />
             <LandingHeader
+                eyebrow={t.nav.candidates}
                 title={name}
-                countLine={count > 0 ? plural(t.seo.countLine, count) : t.seo.noneYet}
+                stats={count > 0 ? [
+                    { value: count, label: plural(t.seo.statProfiles, count) },
+                    ...(skills.length > 0 ? [{ value: skills.length, label: plural(t.seo.statSkills, skills.length) }] : []),
+                ] : []}
+                emptyLine={t.seo.noneYet}
                 intro={category[`description_${lang}`]}
             />
             <CandidatesView
@@ -131,20 +143,21 @@ export default async function CategoryPage({ params, searchParams, only }) {
                 scoped
             />
             {skillLinks.length > 0 && (
-                <LinkSection title={t.seo.skillsInCategory}>
+                <LinkSection number={sectionNo.skills} title={t.seo.skillsInCategory}>
                     <JobLinks items={skillLinks} />
                 </LinkSection>
             )}
             {otherJobs.length > 0 && (
-                <LinkSection title={t.seo.otherCategories}>
+                <LinkSection number={sectionNo.other} title={t.seo.otherCategories}>
                     <JobLinks items={otherJobs} />
                 </LinkSection>
             )}
             {guides.length > 0 && (
-                <LinkSection title={t.seo.guidesTitle}>
+                <LinkSection number={sectionNo.guides} title={t.seo.guidesTitle}>
                     <JobLinks items={guides} />
                 </LinkSection>
             )}
+            <GuestEmployerCta />
         </>
     );
 }

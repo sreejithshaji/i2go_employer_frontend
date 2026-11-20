@@ -3,9 +3,10 @@
 import { useEffect, useState, useSyncExternalStore, useTransition } from 'react';
 import dynamic from 'next/dynamic';
 import NextLink from 'next/link';
+import CtaButton from '@/app/[lang]/(marketing)/client/components/cta-button';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-    Alert, Avatar, Box, Button, Card, Divider, Skeleton, Stack, Tooltip, Typography,
+    Alert, Avatar, Box, Button, Card, Skeleton, Stack, Tooltip, Typography,
 } from '@mui/material';
 import { FiAward, FiBookOpen, FiBriefcase, FiCheck, FiFileText, FiGlobe, FiLock, FiLogIn, FiSend } from 'react-icons/fi';
 import Badge from '@/components/badge';
@@ -20,41 +21,57 @@ import { loginHref, useAuth } from '@/features/auth';
 import { useI18n } from '@/features/i18n';
 import { format, localName } from '@/lib/i18n/config';
 import { initials, languageLevelLabel, monthLabel, yearsLabel } from '@/lib/portal/format';
-import { tokens } from '@/app/theme';
+import { brand as b, tokens } from '@/app/theme';
+import DriftGlow from '@/app/[lang]/(marketing)/client/components/drift-glow';
+import Reveal from '@/app/[lang]/(marketing)/client/components/reveal';
 import { CandidateDetailSkeleton } from '../components/page-skeletons';
 import { startNavigation } from '@/components/navigation-progress/progress-store';
 
 // Loaded after the page, not in its first bundle (PLAN.md 11.14.3): only signed-in employers open it.
 const EnquiryDialog = dynamic(() => import('./enquiry-modal'), { ssr: false });
 
-function Section({ title, children }) {
+/**
+ * Profile section card with a numbered heading (plan 14.4a): the two-digit
+ * number as a small eyebrow in `accentText`, then the title. The number is
+ * part of the heading text only visually (aria-hidden), so screen readers hear
+ * just the title. Rises in as it scrolls into view (plan 14.10).
+ */
+function Section({ number, title, children }) {
     return (
-        <Card component="section" sx={{ p: { xs: 2.5, md: 3 } }}>
-            <Typography variant="h6" component="h2" sx={{ mb: 2.5 }}>{title}</Typography>
-            {children}
-        </Card>
+        <Reveal component="section">
+            <Card sx={{ p: { xs: 2.5, md: 3 } }}>
+                <Typography variant="h6" component="h2" sx={{ mb: 2, display: 'flex', alignItems: 'baseline', gap: 1.25, fontWeight: 800 }}>
+                    <Box component="span" aria-hidden sx={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.14em', color: b.accentText, fontVariantNumeric: 'tabular-nums' }}>
+                        {String(number).padStart(2, '0')}
+                    </Box>
+                    {title}
+                </Typography>
+                {children}
+            </Card>
+        </Reveal>
     );
 }
 
+// One row of a hairline list (reference `.gitem`): 1px top line, faint icon, no box.
 function Entry({ icon, title, subtitle, meta }) {
     return (
-        <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start' }}>
+        <Box component="li" sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-start', py: 1.75, borderTop: `1px solid ${b.line}` }}>
             {icon && (
-                <Box sx={{ width: 36, height: 36, flexShrink: 0, borderRadius: `${tokens.radiusMd}px`, display: 'grid', placeItems: 'center', bgcolor: tokens.primarySoft, color: 'primary.main' }}>
+                <Box aria-hidden sx={{ display: 'flex', flexShrink: 0, mt: '3px', color: b.faint, '& svg': { width: 16, height: 16 } }}>
                     {icon}
                 </Box>
             )}
             <Box sx={{ minWidth: 0 }}>
-                <Typography sx={{ fontWeight: 600 }}>{title}</Typography>
-                {subtitle && <Typography variant="body2" color="text.secondary">{subtitle}</Typography>}
-                {meta && <Typography variant="body2" sx={{ color: 'text.disabled', mt: 0.25 }}>{meta}</Typography>}
+                <Typography sx={{ fontWeight: 700, color: b.ink2 }}>{title}</Typography>
+                {subtitle && <Typography variant="body2" sx={{ color: b.muted, mt: 0.25 }}>{subtitle}</Typography>}
+                {meta && <Typography variant="body2" sx={{ color: b.muted, fontSize: 12.5, fontWeight: 600, mt: 0.25 }}>{meta}</Typography>}
             </Box>
-        </Stack>
+        </Box>
     );
 }
 
 function EntryList({ children }) {
-    return <Stack spacing={2} divider={<Divider flexItem />}>{children}</Stack>;
+    return <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0, mb: -1.75 }}>{children}</Box>;
 }
 
 // The browser remembers recent enquiries (localStorage), which the server
@@ -108,7 +125,7 @@ export default function CandidateProfileView({ candidate, error }) {
             <EmptyState
                 title={t.profile.unavailableTitle}
                 message={t.profile.unavailableText}
-                action={<Button component={NextLink} href={p.hub} variant="contained">{t.common.browseCandidates}</Button>}
+                action={<CtaButton href={p.hub}>{t.common.browseCandidates}</CtaButton>}
             />
         );
     }
@@ -149,11 +166,17 @@ export default function CandidateProfileView({ candidate, error }) {
     );
 
     const firstName = c.name.split(' ')[0];
+    // Section numbers in reading order, counting only the sections shown.
+    const shown = [
+        c.bio && 'about', c.video_url && 'video', c.work_experience.length > 0 && 'work',
+        c.education.length > 0 && 'education', c.skills.length > 0 && 'skills', c.languages.length > 0 && 'languages',
+    ].filter(Boolean);
+    const num = (key) => shown.indexOf(key) + 1;
     const lockedPhoto = showsLockedPhoto(c);
     const linkSx = { color: 'primary.main', fontWeight: 600, textDecoration: 'none', '&:hover': { textDecoration: 'underline' } };
 
     return (
-        <Box sx={{ pb: { xs: 10, sm: 0 } }}>
+        <Box sx={{ pb: { xs: 'calc(88px + env(safe-area-inset-bottom, 0px))', sm: 0 } }}>
             <Card sx={{ p: { xs: 2.5, md: 4 }, mb: 3 }}>
                 <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 2, sm: 3 }} sx={{ alignItems: { xs: 'flex-start', sm: 'center' } }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
@@ -215,13 +238,13 @@ export default function CandidateProfileView({ candidate, error }) {
             <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1fr) 340px' }, alignItems: 'start' }}>
                 <Stack spacing={3} sx={{ minWidth: 0 }}>
                     {c.bio && (
-                        <Section title={t.profile.about}>
+                        <Section number={num('about')} title={t.profile.about}>
                             <Typography color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>{c.bio}</Typography>
                         </Section>
                     )}
 
                     {c.video_url && (
-                        <Section title={t.profile.video}>
+                        <Section number={num('video')} title={t.profile.video}>
                             <Box
                                 component="video"
                                 src={c.video_url}
@@ -234,7 +257,7 @@ export default function CandidateProfileView({ candidate, error }) {
                     )}
 
                     {c.work_experience.length > 0 && (
-                        <Section title={t.profile.work}>
+                        <Section number={num('work')} title={t.profile.work}>
                             <EntryList>
                                 {c.work_experience.map((w, i) => (
                                     <Entry
@@ -250,7 +273,7 @@ export default function CandidateProfileView({ candidate, error }) {
                     )}
 
                     {c.education.length > 0 && (
-                        <Section title={t.profile.education}>
+                        <Section number={num('education')} title={t.profile.education}>
                             <EntryList>
                                 {c.education.map((e, i) => (
                                     <Entry
@@ -268,7 +291,7 @@ export default function CandidateProfileView({ candidate, error }) {
 
                 <Stack spacing={3} sx={{ minWidth: 0 }}>
                     {c.skills.length > 0 && (
-                        <Section title={t.profile.skills}>
+                        <Section number={num('skills')} title={t.profile.skills}>
                             <Stack spacing={2}>
                                 {c.skills.map((s) => (
                                     <SkillBar
@@ -283,7 +306,7 @@ export default function CandidateProfileView({ candidate, error }) {
                     )}
 
                     {c.languages.length > 0 && (
-                        <Section title={t.profile.languages}>
+                        <Section number={num('languages')} title={t.profile.languages}>
                             <EntryList>
                                 {c.languages.map((l) => (
                                     <Entry
@@ -301,51 +324,68 @@ export default function CandidateProfileView({ candidate, error }) {
             </Box>
 
             {/* Enquiry call to action: one full-width row under the profile (stacks on phones) */}
-            <Card
+            {/* The reference dark panel: navy, hairline cyan edge, drifting cyan glow */}
+            <Reveal
                 component="section"
                 aria-label={format(t.profile.enquireAria, { name: firstName })}
-                sx={{ mt: 3, p: { xs: 2.5, md: 3 }, bgcolor: 'primary.main', color: '#fff', borderRadius: `${tokens.radiusXl}px`, boxShadow: 'none' }}
+                sx={{
+                    position: 'relative', overflow: 'hidden', isolation: 'isolate',
+                    mt: 3, p: { xs: 3, md: 4 }, borderRadius: `${b.radiusPanel}px`,
+                    background: b.darkPanelBase, border: `1px solid ${b.darkPanelBorder}`, boxShadow: b.shadowDarkPanel,
+                    '--focus-color': b.cyan,
+                }}
             >
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 2, md: 3 }} sx={{ alignItems: { xs: 'flex-start', md: 'center' } }}>
-                    <Box sx={{ width: 44, height: 44, flexShrink: 0, borderRadius: `${tokens.radiusMd}px`, display: 'grid', placeItems: 'center', bgcolor: 'rgba(255,255,255,0.15)' }}>
-                        <FiAward size={22} />
+                <DriftGlow color="rgba(31,200,255,0.14)" sx={{ zIndex: -1, top: -220, right: { xs: -280, md: -100 }, width: { xs: 560, md: 680 }, height: 440 }} />
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 2.5, md: 3 }} sx={{ alignItems: { xs: 'flex-start', md: 'center' } }}>
+                    <Box aria-hidden sx={{ width: 46, height: 46, flexShrink: 0, borderRadius: `${b.radiusButton}px`, display: 'grid', placeItems: 'center', bgcolor: 'rgba(255,255,255,0.05)', border: `1px solid ${b.onDark.border}`, color: b.cyan }}>
+                        <FiAward size={21} />
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="h6" component="h2" sx={{ color: '#fff' }}>{format(t.profile.interested, { name: firstName })}</Typography>
-                        <Typography sx={{ mt: 0.5, color: 'rgba(255,255,255,0.8)' }}>
+                        <Typography component="h2" sx={{ m: 0, fontSize: { xs: 22, md: 26 }, lineHeight: 1.15, fontWeight: 800, letterSpacing: '-0.7px', color: b.onDark.text }}>
+                            {format(t.profile.interested, { name: firstName })}
+                        </Typography>
+                        <Typography sx={{ mt: 1, maxWidth: 560, fontSize: 15, lineHeight: 1.6, fontWeight: 500, color: b.onDark.body }}>
                             {enquiry ? t.profile.ctaText : t.profile.ctaTextNoButton}
                         </Typography>
                     </Box>
                     {enquiry && (
                         <Button
-                            size="large"
-                            startIcon={enquiry.icon}
+                            variant="cta"
+                            endIcon={enquiry.icon}
                             disabled={enquiry.disabled}
                             onClick={enquiry.onClick}
-                            sx={{
-                                flexShrink: 0, minWidth: 200, width: { xs: '100%', md: 'auto' },
-                                bgcolor: '#fff', color: 'primary.main',
-                                '&:hover': { bgcolor: tokens.primarySoft },
-                                '&.Mui-disabled': { bgcolor: 'rgba(255,255,255,0.2)', color: '#fff' },
-                            }}
+                            sx={{ flexShrink: 0, width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'center' } }}
                         >
                             {enquiry.label}
                         </Button>
                     )}
                 </Stack>
-            </Card>
+            </Reveal>
 
-            {/* Sticky action bar on phones */}
+            {/* Sticky action bar on phones (14.13): the phone top bar's light frosted
+                glass and hairline, with the homepage cta for the enquiry. */}
             <Box
                 sx={{
                     display: { xs: 'flex', sm: 'none' }, position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 10,
-                    gap: 1, p: 1.5, alignItems: 'center', bgcolor: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(12px)',
-                    borderTop: `1px solid ${tokens.border}`,
-                    '& > button:last-of-type': { flex: 1 },
+                    gap: 1, alignItems: 'center',
+                    px: 2, pt: 1.5, pb: 'calc(12px + env(safe-area-inset-bottom, 0px))',
+                    bgcolor: 'rgba(255,255,255,0.86)',
+                    backdropFilter: 'blur(14px) saturate(180%)', WebkitBackdropFilter: 'blur(14px) saturate(180%)',
+                    borderTop: `1px solid ${b.line}`,
                 }}
             >
                 <WishlistButton candidateId={c.id} />
-                {enquireButton}
+                {enquiry && (
+                    <Button
+                        variant="cta"
+                        endIcon={enquiry.icon}
+                        disabled={enquiry.disabled}
+                        onClick={enquiry.onClick}
+                        sx={{ flex: 1, minWidth: 0, justifyContent: 'space-between', whiteSpace: 'nowrap' }}
+                    >
+                        {enquiry.label}
+                    </Button>
+                )}
             </Box>
 
             {enquiryOpen !== null && (

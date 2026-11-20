@@ -87,7 +87,7 @@ function StatCard({ stat, index, delay }) {
             sx={{
                 position: 'relative', overflow: 'hidden', minWidth: 0, flex: 1, display: 'block',
                 textDecoration: 'none', color: 'inherit',
-                '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: 3 },
+                '&:focus-visible': b.focusRingDark,
                 p: { xs: 2, md: 2.25 },
                 borderRadius: `${b.radiusMd}px`,
                 border: `1px solid ${b.darkPanelBorder}`,

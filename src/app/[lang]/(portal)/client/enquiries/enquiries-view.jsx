@@ -1,19 +1,17 @@
 'use client';
 
 import NextLink from 'next/link';
-import { Alert, Avatar, Box, Button, Card, Divider, Skeleton, Stack, Typography } from '@mui/material';
+import CtaButton from '@/app/[lang]/(marketing)/client/components/cta-button';
+import { Alert, Avatar, Box, Card, Divider, Skeleton, Stack, Typography } from '@mui/material';
 import { FiBriefcase, FiCalendar, FiInbox } from 'react-icons/fi';
-import Badge from '@/components/badge';
 import EmptyState from '@/components/empty-state';
 import PageIntro from '@/components/page-intro';
 import { useI18n } from '@/features/i18n';
 import { candidateHref } from '@/lib/i18n/routes';
 import { dateLabel, initials } from '@/lib/portal/format';
 import { useMyEnquiries } from './use-my-enquiries';
-import { tokens } from '@/app/theme';
-
-// my_enquiries() collapses internal statuses into these three; labels in t.enquiries.status.
-const STATUS_TONES = { received: 'warning', forwarded: 'primary', closed: 'neutral' };
+import { StatusPill, StatusProgress, enquiryStep } from './enquiry-status';
+import { brand as b, tokens } from '@/app/theme';
 
 /** The signed-in employer's enquiries and their status. */
 export default function EnquiriesView() {
@@ -43,19 +41,19 @@ export default function EnquiriesView() {
                     icon={<FiInbox size={28} />}
                     title={t.enquiries.emptyTitle}
                     message={t.enquiries.emptyText}
-                    action={<Button component={NextLink} href={p.hub} variant="contained">{t.common.browseCandidates}</Button>}
+                    action={<CtaButton href={p.hub}>{t.common.browseCandidates}</CtaButton>}
                 />
             ) : (
                 <Card component="ul" sx={{ m: 0, p: 0, listStyle: 'none' }}>
                     {enquiries.map((e, i) => {
                         const candidate = candidates[e.candidate_id];
-                        const statusKey = STATUS_TONES[e.status] ? e.status : 'received';
-                        const status = { ...t.enquiries.status[statusKey], tone: STATUS_TONES[statusKey] };
+                        const statusKey = enquiryStep(e.status);
+                        const status = t.enquiries.status[statusKey];
                         const sentOn = dateLabel(e.created_at, lang);
                         return (
                             <Box component="li" key={e.id}>
                                 {i > 0 && <Divider />}
-                                <Box sx={{ px: { xs: 2, md: 3 }, py: 2.5, transition: `background-color 150ms ${tokens.ease}`, '&:hover': { bgcolor: tokens.background } }}>
+                                <Box sx={{ px: { xs: 2, md: 3 }, py: 2.5, transition: `background-color 150ms ${tokens.ease}`, '&:hover': { bgcolor: b.surface2 } }}>
                                     <Stack direction="row" spacing={2} sx={{ alignItems: 'flex-start' }}>
                                         <Avatar src={candidate?.photo_url || undefined} sx={{ width: 44, height: 44, bgcolor: tokens.primarySoft, color: 'primary.main', fontWeight: 600, fontSize: 15 }}>
                                             {candidate ? initials(candidate.name) : '?'}
@@ -83,14 +81,21 @@ export default function EnquiriesView() {
                                                         </Stack>
                                                     </Stack>
                                                 </Box>
-                                                <Badge tone={status.tone} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' }, flexShrink: 0 }}>{status.label}</Badge>
+                                                <StatusPill status={statusKey} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' }, flexShrink: 0 }}>{status.label}</StatusPill>
                                             </Stack>
                                             <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', whiteSpace: 'pre-line' }}>
                                                 {e.message}
                                             </Typography>
-                                            <Typography variant="caption" sx={{ display: 'block', mt: 1, color: 'text.disabled' }}>{status.text}</Typography>
                                         </Box>
                                     </Stack>
+                                    <Box sx={{ mt: 2, ml: { xs: 0, sm: '60px' }, pt: 2, borderTop: `1px solid ${b.line}`, display: 'grid', gap: 1.25, gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 380px) 1fr' }, alignItems: { md: 'start' } }}>
+                                        <StatusProgress
+                                            status={statusKey}
+                                            label={t.enquiries.progressLabel}
+                                            labels={{ received: t.enquiries.status.received.label, forwarded: t.enquiries.status.forwarded.label, closed: t.enquiries.status.closed.label }}
+                                        />
+                                        <Typography variant="body2" sx={{ color: b.muted, fontSize: 13, pt: { md: '1px' } }}>{status.text}</Typography>
+                                    </Box>
                                 </Box>
                             </Box>
                         );

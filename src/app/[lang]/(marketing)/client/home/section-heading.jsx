@@ -33,5 +33,5 @@ export const textLinkSx = {
     '& svg': { transition: `transform 280ms ${b.ease}` },
     '&:hover': { color: b.accentInk },
     '&:hover svg': { transform: 'translateX(2px)' },
-    '&:focus-visible': { outline: `2px solid ${b.accent}`, outlineOffset: 3 },
+    '&:focus-visible': b.focusRing,
 };

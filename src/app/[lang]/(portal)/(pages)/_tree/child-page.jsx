@@ -15,6 +15,7 @@ import CandidateProfileView from '../../client/candidate-profile/candidate-profi
 import CandidatesView from '../../client/candidates/candidates-view';
 import { JobLinks } from '../../client/components/seo-links';
 import LandingHeader, { LinkSection } from '../../client/seo/landing-header';
+import GuestEmployerCta from '../../client/components/guest-employer-cta';
 import { listCanonical, queryString, readFilters } from './shared';
 
 // /de/fachkraefte/[kategorie]/[slug] and /en/candidates/[category]/[slug]:
@@ -159,8 +160,12 @@ async function SkillPage({ lang, categorySlug, slug, searchParams }) {
             <JsonLd data={breadcrumbLd(crumbs.map((c) => ({ name: c.label, path: c.href })))} />
             <Breadcrumbs label={t.common.breadcrumb} items={crumbs} />
             <LandingHeader
+                eyebrow={name}
                 title={format(t.meta.skillTitle, { name, skill: skillName })}
-                countLine={plural(t.seo.countLine, count)}
+                stats={[
+                    { value: count, label: plural(t.seo.statProfiles, count) },
+                    { value: name, label: t.seo.statCategory },
+                ]}
                 intro={format(t.seo.skillIntro, { category: name, skill: skillName })}
             />
             <CandidatesView
@@ -171,9 +176,10 @@ async function SkillPage({ lang, categorySlug, slug, searchParams }) {
                 error={result.error ? readErrorKind(result.error) : false}
                 scoped
             />
-            <LinkSection title={t.seo.skillsInCategory}>
+            <LinkSection number={1} title={t.seo.skillsInCategory}>
                 <JobLinks items={[{ id: 'category', name, href: categoryPath }, ...siblings]} />
             </LinkSection>
+            <GuestEmployerCta />
         </>
     );
 }

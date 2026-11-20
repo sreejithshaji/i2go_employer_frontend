@@ -95,6 +95,7 @@ export async function GuidePage({ params, only }) {
             <GuideView
                 guide={guide}
                 labels={{
+                    eyebrow: t.seo.guidesTitle,
                     updated: format(t.seo.updated, { date: dateLabel(guide.updated, lang) }),
                     onThisPage: t.seo.onThisPage,
                     faq: t.seo.faq,

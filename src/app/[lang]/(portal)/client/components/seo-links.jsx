@@ -2,15 +2,18 @@
 
 import NextLink from 'next/link';
 import { Box } from '@mui/material';
-import { tokens } from '@/app/theme';
+import { brand as b } from '@/app/theme';
 
+// The homepage hero's category chip (hero-search.jsx): hairline pill, lift on hover.
 const chipSx = {
-    display: 'inline-flex', alignItems: 'center', gap: 1, minHeight: 40, px: 2, borderRadius: 999,
-    bgcolor: tokens.surface, border: `1px solid ${tokens.border}`, color: 'text.primary',
-    fontSize: 14, fontWeight: 500, textDecoration: 'none',
-    transition: `border-color 150ms ${tokens.ease}, color 150ms ${tokens.ease}`,
-    '&:hover': { borderColor: 'primary.main', color: 'primary.main' },
-    '&:focus-visible': { outline: 'none', boxShadow: tokens.focusRing },
+    display: 'inline-flex', alignItems: 'center', gap: 0.75,
+    minHeight: { xs: 44, md: 38 }, px: 1.75, borderRadius: 999,
+    bgcolor: b.surface3, border: `1px solid ${b.line2}`,
+    fontSize: 13.5, fontWeight: 700, color: b.ink2, textDecoration: 'none',
+    transition: `border-color 280ms ${b.ease}, background-color 280ms ${b.ease}, transform 280ms ${b.ease}`,
+    '&:hover': { bgcolor: b.surface, borderColor: b.lineHover, transform: 'translateY(-1px)' },
+    '&:focus-visible': b.focusRing,
+    '@media (prefers-reduced-motion: reduce)': { transition: 'none', '&:hover': { transform: 'none' } },
 };
 
 /**
@@ -25,7 +28,7 @@ export function JobLinks({ items }) {
                     <Box component={NextLink} href={item.href} sx={chipSx}>
                         {item.name}
                         {item.count != null && (
-                            <Box component="span" sx={{ minWidth: 22, height: 22, px: 0.75, borderRadius: 999, display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 600, bgcolor: tokens.primarySoft, color: 'primary.main' }}>
+                            <Box component="span" sx={{ fontSize: 11.5, fontWeight: 800, color: b.accentText, fontVariantNumeric: 'tabular-nums' }}>
                                 {item.count}
                             </Box>
                         )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -22,8 +22,10 @@ import { usePendingPath } from './use-pending-path';
 import { startNavigation } from '@/components/navigation-progress/progress-store';
 import { useSidebarCollapsed } from './use-sidebar-collapsed';
 import { initials } from '@/lib/portal/format';
-import { COMPANY, legalLinks } from '@/lib/portal/legal';
-import { tokens } from '@/app/theme';
+import { legalLinks } from '@/lib/portal/legal';
+import MarketingFooter from '@/app/[lang]/(marketing)/client/components/marketing-footer';
+import Eyebrow from '@/app/[lang]/(marketing)/client/components/eyebrow';
+import { brand, tokens } from '@/app/theme';
 
 // Wishlist is shown to guests too (it leads to sign in); candidate accounts can't keep one.
 // Recently viewed (6.20) lives in the browser, so guests and employers both have it.
@@ -83,95 +85,100 @@ const pageIn = keyframes`
 `;
 
 const bg = tokens.background;
+const b = brand;
+
+// Scrolled past 8px, like the homepage nav (marketing-nav.jsx readTone): the
+// sticky header only draws its hairline once content slides under it.
+const subscribeScroll = (onChange) => {
+    window.addEventListener('scroll', onChange, { passive: true });
+    return () => window.removeEventListener('scroll', onChange);
+};
+const readScrolled = () => window.scrollY > 8;
+const readNotScrolled = () => false;
+
+// The homepage nav's light glass (marketing-nav.jsx `surfaces.light`).
+const navGlass = 'rgba(252,254,255,0.72)';
+const navBlur = 'blur(16px)';
+const navHairline = 'rgba(13,42,66,0.06)';
+
+// Light rail (your choice, 2026-11-19): white with a hairline edge, like the homepage's
+// light top bar. Dark navy stays for highlight panels; it shows up here only in the
+// active item, the reference's "selected" state (graphite pill, cyan icon, plan §1.7).
 const navItemSx = {
     position: 'relative',
     display: 'flex',
     alignItems: 'center',
     gap: 1.5,
-    height: 52,
-    pl: 2.5,
-    ml: 2,
-    borderRadius: '12px 0 0 12px',
-    color: tokens.sidebarText,
-    fontSize: 15,
-    fontWeight: 500,
+    minHeight: 48,
+    mx: 1.5,
+    px: 1,
+    borderRadius: `${b.radiusSm + 2}px`,
+    color: b.ink2,
+    fontSize: 13.5,
+    fontWeight: 700,
+    letterSpacing: '-0.1px',
     textDecoration: 'none',
-    transition: `background-color 150ms ${tokens.ease}, color 150ms ${tokens.ease}`,
-    '&:hover': { color: '#fff', bgcolor: tokens.sidebarHoverBg },
-    '&:focus-visible': { outline: '2px solid #fff', outlineOffset: -2 },
+    transition: `background-color 250ms ${b.ease}, color 250ms ${b.ease}`,
+    '& .nav-tile': {
+        width: 34, height: 34, flexShrink: 0, borderRadius: '10px', display: 'grid', placeItems: 'center',
+        bgcolor: b.surface3, border: `1px solid ${b.line}`, color: b.muted,
+        transition: `background-color 250ms ${b.ease}, color 250ms ${b.ease}, border-color 250ms ${b.ease}`,
+    },
+    // Decorative two-digit numbers (aria-hidden), as on the reference rail.
+    '& .nav-num': {
+        ml: 'auto', pr: 0.5, fontSize: 9, fontWeight: 800, letterSpacing: '0.17em', color: b.faint,
+        fontVariantNumeric: 'tabular-nums',
+    },
+    '&:hover': { color: b.ink, bgcolor: 'rgba(13,42,66,0.05)' },
+    '&:hover .nav-tile': { color: b.ink, borderColor: b.line2, bgcolor: b.surface },
+    '&:focus-visible': b.focusRing,
     '& .nav-badge': {
-        ml: 'auto', mr: 2, minWidth: 22, height: 22, px: 0.75, borderRadius: 999,
-        display: 'grid', placeItems: 'center', fontSize: 12, fontWeight: 600,
-        bgcolor: 'rgba(255,255,255,0.18)', color: '#fff',
+        ml: 'auto', minWidth: 22, height: 20, px: 0.75, borderRadius: 999,
+        display: 'grid', placeItems: 'center', fontSize: 11, fontWeight: 800,
+        bgcolor: b.accentSoft, color: b.accentText, border: `1px solid ${b.accentLine}`,
     },
-    '&.active .nav-badge': { bgcolor: tokens.primarySoftHover, color: 'primary.main' },
-    // The active item takes the canvas colour and "cuts into" the sidebar,
-    // with inverted corners above and below it (as in UI_UX.md → Navigation).
-    '&.active': {
-        bgcolor: bg,
-        color: 'primary.main',
-        fontWeight: 600,
-        borderRadius: '999px 0 0 999px',
-        '&::before, &::after': {
-            content: '""', position: 'absolute', right: 0, width: 20, height: 20, pointerEvents: 'none',
-        },
-        '&::before': { top: -20, borderBottomRightRadius: 20, boxShadow: `6px 6px 0 6px ${bg}` },
-        '&::after': { bottom: -20, borderTopRightRadius: 20, boxShadow: `6px -6px 0 6px ${bg}` },
-    },
+    '& .nav-badge + .nav-num': { ml: 1 },
+    '&.active, &.active:hover': { color: '#fff', bgcolor: b.graphite, boxShadow: b.shadow2 },
+    '&.active .nav-tile': { bgcolor: 'rgba(31,200,255,0.10)', color: b.cyan, borderColor: 'rgba(31,200,255,0.28)' },
+    '&.active .nav-num': { color: b.cyan },
+    '&.active .nav-badge': { bgcolor: 'rgba(31,200,255,0.14)', color: b.cyan, borderColor: 'rgba(31,200,255,0.28)' },
 };
 
 // Labels fade out when the sidebar is collapsed to icons; a count badge moves onto the icon.
-const fadeSx = { whiteSpace: 'nowrap', transition: `opacity 150ms ${tokens.ease}` };
+const fadeSx = { whiteSpace: 'nowrap', transition: `opacity 150ms ${b.ease}` };
 const collapsedSx = {
-    '& .fade': { opacity: 0 },
-    '& .nav-badge': { position: 'absolute', top: 6, left: 30, ml: 0, mr: 0, minWidth: 18, height: 18, px: 0.5, fontSize: 11 },
+    '& .fade, & .nav-num': { opacity: 0 },
+    '& .nav-badge': { position: 'absolute', top: 2, left: 30, ml: 0, minWidth: 18, height: 18, px: 0.5, fontSize: 10 },
 };
 
 function Brand() {
     const { t, p } = useI18n();
     return (
-        <Box component={NextLink} href={p.home} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, textDecoration: 'none', px: 2.5 }}>
-            <Box sx={{ width: 44, height: 44, borderRadius: `${tokens.radiusMd}px`, bgcolor: '#fff', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-                <Image src="/images/i2go_mark.png" alt="" width={38} height={22} style={{ objectFit: 'contain' }} />
-            </Box>
-            <Box className="fade" sx={fadeSx}>
-                <Typography sx={{ color: '#fff', fontSize: 20, fontWeight: 700, lineHeight: '24px' }}>I2Go</Typography>
-                <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>{t.common.brandTag}</Typography>
-            </Box>
-        </Box>
-    );
-}
-
-/** One-line site footer under the page content (wraps on narrow screens), with the legal links (10.10.3). */
-function PageFooter() {
-    const { lang, t } = useI18n();
-    const linkSx = { color: 'text.secondary', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } };
-    const parts = [
-        <Box key="name" component="span" sx={{ color: 'text.secondary', fontWeight: 600 }}>{t.common.footerName}</Box>,
-        `© ${new Date().getFullYear()} ${COMPANY.name}`,
-        t.common.footerCandidates,
-        ...legalLinks(lang).map((link) => (
-            <Box key={link.href} component={NextLink} href={link.href} sx={linkSx}>
-                {t.legal[link.key]}
-            </Box>
-        )),
-        <LanguageSwitcher key="language" showIcon={false} sx={linkSx} />,
-    ];
-    return (
         <Box
-            component="footer"
+            component={NextLink}
+            href={p.home}
             sx={{
-                mt: 3,
-                display: 'flex', flexWrap: 'wrap', justifyContent: 'center', textAlign: 'center',
-                columnGap: 1, fontSize: 12, lineHeight: '18px', color: 'text.disabled',
+                display: 'flex', alignItems: 'center', gap: 1.5, textDecoration: 'none', mx: 2.25,
+                borderRadius: `${b.radiusSm}px`, '&:focus-visible': b.focusRing,
             }}
         >
-            {parts.map((part, i) => (
-                <Box key={i} component="span" sx={{ display: 'inline-flex', gap: 1 }}>
-                    {i > 0 && <Box component="span" aria-hidden>·</Box>}
-                    {part}
-                </Box>
-            ))}
+            {/* White badge tile with the reference's cyan hairline along the bottom edge */}
+            <Box
+                sx={{
+                    position: 'relative', width: 44, height: 44, borderRadius: '13px', bgcolor: '#fff', overflow: 'hidden', border: `1px solid ${b.line}`,
+                    display: 'grid', placeItems: 'center', flexShrink: 0, boxShadow: b.shadow1,
+                    '&::after': {
+                        content: '""', position: 'absolute', left: 6, right: 6, bottom: 0, height: 1.5,
+                        background: `linear-gradient(90deg, transparent, ${brand.cyan}, transparent)`,
+                    },
+                }}
+            >
+                <Image src="/images/i2go_mark.png" alt="" width={36} height={21} style={{ objectFit: 'contain' }} />
+            </Box>
+            <Box className="fade" sx={fadeSx}>
+                <Typography sx={{ color: b.ink, fontFamily: 'inherit', fontSize: 18, fontWeight: 800, letterSpacing: '-0.4px', lineHeight: '22px' }}>I2Go</Typography>
+                <Typography sx={{ color: b.muted, fontFamily: 'inherit', fontSize: 11, fontWeight: 600 }}>{t.common.brandTag}</Typography>
+            </Box>
         </Box>
     );
 }
@@ -199,45 +206,66 @@ function pendingSkeleton(path) {
 function SidebarContent({ items, pathname, onNavigate, account, collapsed = false }) {
     const { lang, t } = useI18n();
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', bgcolor: tokens.sidebarBg, color: '#fff', pt: 4, pb: 3, overflowY: 'auto', overflowX: 'hidden', ...(collapsed && collapsedSx) }}>
-            <Brand />
-            <Box component="nav" aria-label={t.common.mainNav} sx={{ mt: 5, display: 'flex', flexDirection: 'column', gap: 1, py: 2.5 }}>
-                {items.map((item) => (
-                    <Tooltip key={item.to} title={collapsed ? item.label : ''} placement="right">
+        <Box
+            sx={{
+                position: 'relative', height: '100%', color: b.ink2, fontFamily: b.fontFamily,
+                bgcolor: b.surface, borderRight: `1px solid ${b.line}`,
+                ...(collapsed && collapsedSx),
+            }}
+        >
+            <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', pt: 3.5, pb: 3, overflowY: 'auto', overflowX: 'hidden' }}>
+                <Brand />
+                <Box sx={{ mx: 2.25, mt: 3.5, mb: 1.5, height: '1px', bgcolor: b.line }} />
+                <Box component="nav" aria-label={t.common.mainNav} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, py: 1 }}>
+                    {items.map((item, i) => (
+                        <Tooltip key={item.to} title={collapsed ? item.label : ''} placement="right">
+                            <Box
+                                component={NextLink}
+                                href={item.to}
+                                className={isActive(pathname, item) ? 'active' : undefined}
+                                aria-current={isActive(pathname, item) ? 'page' : undefined}
+                                onClick={onNavigate}
+                                sx={navItemSx}
+                            >
+                                <Box component="span" className="nav-tile">{item.icon}</Box>
+                                <Box component="span" className="fade" sx={fadeSx}>{item.label}</Box>
+                                {item.badge != null && (
+                                    <Box component="span" className="nav-badge" aria-label={format(t.nav.wishlistBadge, { count: item.badge })}>
+                                        {item.badge}
+                                    </Box>
+                                )}
+                                <Box component="span" className="nav-num" aria-hidden>{String(i + 1).padStart(2, '0')}</Box>
+                            </Box>
+                        </Tooltip>
+                    ))}
+                </Box>
+                {/* The site footer lives under the page content (MarketingFooter); the drawer adds the account card here */}
+                {account && <Box sx={{ mt: 'auto', px: 2.25, pt: 4 }}>{account}</Box>}
+                {/* Legal links, one click from every page (Impressum: §5 DDG); collapsed, the page footer still has them */}
+                <Box
+                    component="nav"
+                    aria-label={t.common.legalNav}
+                    sx={{
+                        mt: account ? 2 : 'auto', mx: 2.25, pt: account ? 0 : 2.5,
+                        borderTop: account ? 'none' : `1px solid ${b.line}`,
+                        display: collapsed ? 'none' : 'flex', flexWrap: 'wrap', columnGap: 1.5, rowGap: 0.5,
+                    }}
+                >
+                    {legalLinks(lang).map((link) => (
                         <Box
+                            key={link.href}
                             component={NextLink}
-                            href={item.to}
-                            className={isActive(pathname, item) ? 'active' : undefined}
-                            aria-current={isActive(pathname, item) ? 'page' : undefined}
+                            href={link.href}
                             onClick={onNavigate}
-                            sx={navItemSx}
+                            sx={{
+                                color: b.muted, fontSize: 11.5, fontWeight: 600, textDecoration: 'none', borderRadius: '4px',
+                                '&:hover': { color: b.ink, textDecoration: 'underline' }, '&:focus-visible': b.focusRing,
+                            }}
                         >
-                            {item.icon}
-                            <Box component="span" className="fade" sx={fadeSx}>{item.label}</Box>
-                            {item.badge != null && (
-                                <Box component="span" className="nav-badge" aria-label={format(t.nav.wishlistBadge, { count: item.badge })}>
-                                    {item.badge}
-                                </Box>
-                            )}
+                            {t.legal[link.key]}
                         </Box>
-                    </Tooltip>
-                ))}
-            </Box>
-            {/* The site footer lives under the page content (PageFooter); the drawer adds the account card here */}
-            {account && <Box sx={{ mt: 'auto', px: 2.5, pt: 4 }}>{account}</Box>}
-            {/* Legal links, one click from every page (Impressum: §5 DDG); collapsed, the page footer still has them */}
-            <Box component="nav" aria-label={t.common.legalNav} sx={{ mt: account ? 2 : 'auto', px: 2.5, pt: account ? 0 : 4, display: collapsed ? 'none' : 'flex', flexWrap: 'wrap', columnGap: 1.5, rowGap: 0.5 }}>
-                {legalLinks(lang).map((link) => (
-                    <Box
-                        key={link.href}
-                        component={NextLink}
-                        href={link.href}
-                        onClick={onNavigate}
-                        sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 12, textDecoration: 'none', '&:hover': { color: '#fff', textDecoration: 'underline' } }}
-                    >
-                        {t.legal[link.key]}
-                    </Box>
-                ))}
+                    ))}
+                </Box>
             </Box>
         </Box>
     );
@@ -261,6 +289,7 @@ export default function AppShell({ children }) {
 
     const items = navItems({ user, isEmployer, wishlistCount: savedIds.length, t, p });
     const meta = routeMeta(shownPath, lang, t, p);
+    const scrolled = useSyncExternalStore(subscribeScroll, readScrolled, readNotScrolled);
     const displayName = profile?.full_name || user?.email || '';
 
     // Home first, then the session ends (AuthProvider: home is outside this shell).
@@ -289,45 +318,49 @@ export default function AppShell({ children }) {
         }
     };
 
+    const railButtonSx = {
+        color: b.ink2, fontWeight: 700, border: `1px solid ${b.line2}`, bgcolor: b.surface, borderRadius: `${b.radiusButton}px`,
+        '&:hover': { bgcolor: b.surface, borderColor: b.lineHover }, '&:focus-visible': b.focusRing,
+    };
     const drawerAccount = (
-        <Box sx={{ p: 2, borderRadius: `${tokens.radiusLg}px`, bgcolor: 'rgba(255,255,255,0.10)' }}>
+        <Box sx={{ p: 2, borderRadius: `${b.radiusMd}px`, bgcolor: b.surface3, border: `1px solid ${b.line}` }}>
             {user ? (
                 <>
                     <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1.5 }}>
-                        <Avatar sx={{ width: 36, height: 36, bgcolor: '#fff', color: 'primary.main', fontSize: 14, fontWeight: 600 }}>
+                        <Avatar sx={{ width: 36, height: 36, bgcolor: b.graphite, color: b.cyan, border: '1px solid rgba(31,200,255,0.28)', fontSize: 13, fontWeight: 800 }}>
                             {initials(displayName) || '?'}
                         </Avatar>
-                        <Typography noWrap sx={{ color: '#fff', fontWeight: 600, minWidth: 0 }}>{displayName}</Typography>
+                        <Typography noWrap sx={{ color: b.ink, fontFamily: 'inherit', fontWeight: 700, minWidth: 0 }}>{displayName}</Typography>
                     </Stack>
-                    <Button fullWidth onClick={handleSignOut} startIcon={<FiLogOut />} sx={{ color: '#fff', bgcolor: 'rgba(255,255,255,0.12)', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
+                    <Button fullWidth onClick={handleSignOut} startIcon={<FiLogOut />} sx={railButtonSx}>
                         {t.common.signOut}
                     </Button>
                 </>
             ) : (
                 <Stack spacing={1}>
-                    <Button component={NextLink} href={p.signup} onClick={() => setDrawerOpen(false)} sx={{ bgcolor: '#fff', color: 'primary.main', '&:hover': { bgcolor: tokens.primarySoft } }}>
+                    <Button variant="cta" size="small" component={NextLink} href={p.signup} onClick={() => setDrawerOpen(false)}>
                         {t.common.createAccount}
                     </Button>
-                    <SignInButton onClick={() => setDrawerOpen(false)} sx={{ color: '#fff', bgcolor: 'rgba(255,255,255,0.12)', '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' } }}>
+                    <SignInButton onClick={() => setDrawerOpen(false)} sx={railButtonSx}>
                         {t.common.signIn}
                     </SignInButton>
                 </Stack>
             )}
             <LanguageSwitcher
                 onNavigate={() => setDrawerOpen(false)}
-                sx={{ mt: 1.5, color: 'rgba(255,255,255,0.85)', fontSize: 14, fontWeight: 500, '&:hover': { color: '#fff' } }}
+                sx={{ mt: 1.5, color: b.muted, fontSize: 13, fontWeight: 600, '&:hover': { color: b.ink } }}
             />
         </Box>
     );
 
     return (
-        <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: { xs: bg, md: tokens.sidebarBg } }}>
+        <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: bg }}>
             <Box
                 component="aside"
                 sx={{
                     display: { xs: 'none', md: 'block' }, flexShrink: 0, position: 'sticky', top: 0, height: '100vh',
                     width: collapsed ? tokens.sidebarCollapsedWidth : tokens.sidebarWidth,
-                    transition: animateCollapse ? `width 200ms ${tokens.ease}` : 'none',
+                    transition: animateCollapse ? `width 200ms ${b.ease}` : 'none',
                 }}
             >
                 <SidebarContent items={items} pathname={shownPath} collapsed={collapsed} />
@@ -336,27 +369,32 @@ export default function AppShell({ children }) {
             <Drawer
                 open={drawerOpen}
                 onClose={() => setDrawerOpen(false)}
-                slotProps={{ paper: { sx: { width: 280, border: 0, bgcolor: tokens.sidebarBg, borderRadius: 0 } } }}
+                slotProps={{ paper: { sx: { width: 288, border: 0, bgcolor: b.surface, borderRadius: 0 } } }}
                 sx={{ display: { md: 'none' } }}
             >
                 <SidebarContent items={items} pathname={shownPath} onNavigate={() => setDrawerOpen(false)} account={drawerAccount} />
             </Drawer>
 
-            <Box sx={{ flex: 1, minWidth: 0, bgcolor: bg, borderTopLeftRadius: { md: tokens.radius2xl }, display: 'flex', flexDirection: 'column' }}>
+            <Box sx={{ flex: 1, minWidth: 0, bgcolor: bg, display: 'flex', flexDirection: 'column' }}>
                 <Box
                     component="header"
                     sx={{
                         position: { xs: 'sticky', md: meta.headerSearch ? 'sticky' : 'static' }, top: 0, zIndex: 10,
                         display: 'flex', alignItems: { xs: 'center', md: meta.headerSearch ? 'flex-start' : 'center' },
                         gap: { xs: 1, md: 2 },
-                        minHeight: { xs: 64, md: 88 }, px: { xs: 2, md: 4, lg: 5 }, py: { md: meta.headerSearch ? 2 : 0 },
+                        minHeight: { xs: 64, md: meta.headerSearch ? 88 : 112 }, px: { xs: 2, md: 4, lg: 5 }, py: { md: meta.headerSearch ? 2 : 0 },
                         // Frosted glass behind the sticky search row; the blur lives here (not on the
                         // search card) because a nested backdrop-filter can't see past its parent.
-                        bgcolor: { xs: 'rgba(255,255,255,0.9)', md: meta.headerSearch ? tokens.glassBg : 'transparent' },
-                        borderTopLeftRadius: { md: meta.headerSearch ? tokens.radius2xl : 0 },
-                        backdropFilter: { xs: 'blur(12px)', md: meta.headerSearch ? tokens.glassBlur : 'none' },
-                        WebkitBackdropFilter: { xs: 'blur(12px)', md: meta.headerSearch ? tokens.glassBlur : 'none' },
-                        borderBottom: { xs: `1px solid ${tokens.border}`, md: 'none' },
+                        // Phones: the homepage's light frosted top bar (matches the light rail, 13.1b).
+                        // Desktop: the homepage nav's white glass, hairline only after scrolling (14.12).
+                        bgcolor: { xs: 'rgba(255,255,255,0.86)', md: meta.headerSearch ? navGlass : 'transparent' },
+                        backdropFilter: { xs: 'blur(14px) saturate(180%)', md: meta.headerSearch ? navBlur : 'none' },
+                        WebkitBackdropFilter: { xs: 'blur(14px) saturate(180%)', md: meta.headerSearch ? navBlur : 'none' },
+                        borderBottom: {
+                            xs: `1px solid ${b.line}`,
+                            md: `1px solid ${meta.headerSearch && scrolled ? navHairline : 'transparent'}`,
+                        },
+                        transition: `border-color 250ms ${b.ease}`,
                     }}
                 >
                     <Tooltip title={collapsed ? t.common.expandMenu : t.common.collapseMenu}>
@@ -364,7 +402,7 @@ export default function AppShell({ children }) {
                             onClick={toggleCollapsed}
                             aria-label={collapsed ? t.common.expandMenu : t.common.collapseMenu}
                             aria-expanded={!collapsed}
-                            sx={{ display: { xs: 'none', md: 'inline-flex' }, color: 'text.secondary', ml: -1, mt: { md: meta.headerSearch ? 0.5 : 0 } }}
+                            sx={{ display: { xs: 'none', md: 'inline-flex' }, color: b.muted, ml: -1, mt: { md: meta.headerSearch ? 0.5 : 0 }, '&:hover': { color: b.ink } }}
                         >
                             <FiSidebar size={20} />
                         </IconButton>
@@ -376,22 +414,27 @@ export default function AppShell({ children }) {
                             </IconButton>
                         </Tooltip>
                     )}
-                    <Typography
-                        variant="h1"
-                        component={meta.titleAs ?? 'h1'}
-                        noWrap
-                        sx={meta.hideTitle ? visuallyHidden : { fontSize: { xs: 20, md: 26 }, minWidth: 0 }}
-                    >
-                        {meta.title}
-                    </Typography>
+                    {/* Homepage heading pattern (14.2c): eyebrow, then a heavy, tight title.
+                        The lead line under it is each page's PageIntro. */}
+                    <Box sx={meta.hideTitle ? visuallyHidden : { minWidth: 0 }}>
+                        <Eyebrow sx={{ display: { xs: 'none', md: 'block' }, mb: 0.75 }}>{t.common.brandTag}</Eyebrow>
+                        <Typography
+                            variant="h1"
+                            component={meta.titleAs ?? 'h1'}
+                            noWrap
+                            sx={{ fontSize: { xs: 20, md: 32 }, lineHeight: { xs: '26px', md: '38px' }, letterSpacing: { xs: '-0.4px', md: '-1px' } }}
+                        >
+                            {meta.title}
+                        </Typography>
+                    </Box>
                     {meta.headerSearch && (
                         <>
                             <Box ref={setHeaderSlot} sx={{ display: { xs: 'none', md: 'block' }, flex: 1, minWidth: 0 }} />
                             <Box component={NextLink} href={p.home} sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', gap: 1.25, textDecoration: 'none' }}>
-                                <Box sx={{ width: 36, height: 36, borderRadius: `${tokens.radiusMd}px`, bgcolor: '#fff', border: `1px solid ${tokens.border}`, display: 'grid', placeItems: 'center' }}>
+                                <Box sx={{ width: 36, height: 36, borderRadius: '11px', bgcolor: '#fff', border: `1px solid ${b.line}`, boxShadow: b.shadow1, display: 'grid', placeItems: 'center' }}>
                                     <Image src="/images/i2go_mark.png" alt="" width={32} height={19} style={{ objectFit: 'contain' }} />
                                 </Box>
-                                <Typography sx={{ fontSize: 18, fontWeight: 700, color: 'text.primary' }}>I2Go</Typography>
+                                <Typography sx={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.4px', color: b.ink }}>I2Go</Typography>
                             </Box>
                         </>
                     )}
@@ -407,8 +450,8 @@ export default function AppShell({ children }) {
                     >
                         <LanguageSwitcher
                             sx={{
-                                height: 40, px: 1.25, borderRadius: 999, color: 'text.secondary', fontSize: 14, fontWeight: 500,
-                                '&:hover': { color: 'primary.main', bgcolor: tokens.surface, boxShadow: tokens.shadowXs },
+                                height: 40, px: 1.25, borderRadius: 999, color: b.muted, fontSize: 14, fontWeight: 700,
+                                '&:hover': { color: b.ink, bgcolor: b.surface, boxShadow: b.shadow1 },
                                 '&:focus-visible': { outline: 'none', boxShadow: tokens.focusRing },
                             }}
                         />
@@ -420,12 +463,12 @@ export default function AppShell({ children }) {
                                     aria-haspopup="menu"
                                     sx={{
                                         gap: 1.5, py: 0.75, pl: 0.75, pr: 1.5, borderRadius: 999, textAlign: 'left',
-                                        transition: `background-color 150ms ${tokens.ease}`,
-                                        '&:hover': { bgcolor: tokens.surface, boxShadow: tokens.shadowXs },
+                                        transition: `background-color 150ms ${b.ease}`,
+                                        '&:hover': { bgcolor: b.surface, boxShadow: b.shadow1 },
                                         '&:focus-visible': { boxShadow: tokens.focusRing },
                                     }}
                                 >
-                                    <Avatar sx={{ width: 40, height: 40, bgcolor: 'primary.main', color: '#fff', fontSize: 15, fontWeight: 600 }}>
+                                    <Avatar sx={{ width: 40, height: 40, bgcolor: b.graphite, color: b.cyan, border: '1px solid rgba(31,200,255,0.28)', fontSize: 15, fontWeight: 800 }}>
                                         {initials(displayName) || '?'}
                                     </Avatar>
                                     {/* Avatar only at laptop widths when the search bar shares the row */}
@@ -436,10 +479,10 @@ export default function AppShell({ children }) {
                                             '@media (min-width:1360px)': { display: 'block' },
                                         }}
                                     >
-                                        <Typography noWrap sx={{ fontWeight: 600, lineHeight: '20px' }}>{displayName}</Typography>
+                                        <Typography noWrap sx={{ fontWeight: 700, color: b.ink, lineHeight: '20px' }}>{displayName}</Typography>
                                         <Typography variant="caption" color="text.secondary">{isEmployer ? t.common.employer : t.common.signedIn}</Typography>
                                     </Box>
-                                    <FiChevronDown color={tokens.textSecondary} />
+                                    <FiChevronDown color={b.muted} />
                                 </ButtonBase>
                                 <Menu
                                     anchorEl={menuAnchor}
@@ -450,7 +493,7 @@ export default function AppShell({ children }) {
                                     slotProps={{ paper: { sx: { mt: 1 } } }}
                                 >
                                     <Box sx={{ px: 1.5, py: 1 }}>
-                                        <Typography variant="body2" sx={{ fontWeight: 600 }}>{displayName}</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, color: b.ink }}>{displayName}</Typography>
                                         {profile?.full_name && (
                                             <Typography variant="caption" color="text.secondary">{user.email}</Typography>
                                         )}
@@ -465,13 +508,13 @@ export default function AppShell({ children }) {
                         ) : (
                             <>
                                 <SignInButton>{t.common.signIn}</SignInButton>
-                                <Button component={NextLink} href={p.signup} variant="contained">{t.common.createAccount}</Button>
+                                <Button component={NextLink} href={p.signup} variant="cta">{t.common.createAccount}</Button>
                             </>
                         )}
                     </Box>
 
                     <IconButton
-                        sx={{ display: { xs: 'inline-flex', md: 'none' }, color: 'text.primary', mr: -1 }}
+                        sx={{ display: { xs: 'inline-flex', md: 'none' }, color: b.ink, mr: -1 }}
                         onClick={() => setDrawerOpen(true)}
                         aria-label={t.common.openMenu}
                     >
@@ -479,7 +522,7 @@ export default function AppShell({ children }) {
                     </IconButton>
                 </Box>
 
-                <Box component="main" sx={{ flex: 1, px: { xs: 2, md: 4, lg: 5 }, pt: { xs: 2, md: 0 }, pb: 3, width: '100%', maxWidth: 1440 }}>
+                <Box component="main" sx={{ flex: 1, px: { xs: 2, md: 4, lg: 5 }, pt: { xs: 2.5, md: 0.5 }, pb: { xs: 5, md: 8 }, width: '100%', maxWidth: 1440 }}>
                     {meta.crumbs && (
                         <Breadcrumbs
                             label={t.common.breadcrumb}
@@ -504,15 +547,18 @@ export default function AppShell({ children }) {
                     {skeleton ? (
                         <Box key={pendingPath} aria-busy="true">{skeleton}</Box>
                     ) : (
-                        <Box key={pathname} sx={{ animation: `${pageIn} 200ms ${tokens.ease}` }}>
+                        <Box key={pathname} sx={{ animation: `${pageIn} 240ms ${b.ease}` }}>
                             <HeaderSlotContext.Provider value={meta.headerSearch ? headerSlot : null}>
                                 {children}
                             </HeaderSlotContext.Provider>
                         </Box>
                     )}
 
-                    <PageFooter />
                 </Box>
+
+                {/* The homepage footer. Outside <main>, which grows (flex: 1), so it sits at
+                    the bottom of the window on short pages. */}
+                <MarketingFooter />
             </Box>
         </Box>
     );

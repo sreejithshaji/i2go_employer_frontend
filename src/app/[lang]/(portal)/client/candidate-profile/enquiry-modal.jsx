@@ -7,14 +7,14 @@ import {
     Stack, TextField, Typography, useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { FiCheckCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiSend } from 'react-icons/fi';
 import { useAuth } from '@/features/auth';
 import { useI18n } from '@/features/i18n';
 import { format } from '@/lib/i18n/config';
 import { getFormToken, submitEnquiry } from './submit-enquiry';
 import { markEnquired } from './enquiry-storage';
 import { TURNSTILE_SITE_KEY } from '@/lib/config';
-import { tokens } from '@/app/theme';
+import { brand as b } from '@/app/theme';
 import Turnstile from './turnstile';
 
 // Matches the limits in the submit-enquiry edge function.
@@ -53,6 +53,32 @@ function validate(form, t) {
         if (form[field].trim().length > max) errors[field] = format(t.enquiry.errTooLong, { max });
     }
     return errors;
+}
+
+/**
+ * One numbered group of fields: a 26px graphite circle with a cyan numeral
+ * (as in the homepage's "What happens next"), then the group title. A fieldset,
+ * so screen readers announce the title with each field; the number is visual only.
+ */
+function FieldGroup({ number, title, children }) {
+    return (
+        <Box component="fieldset" sx={{ border: 0, m: 0, p: 0, minWidth: 0 }}>
+            <Box component="legend" sx={{ p: 0, mb: 1.5, display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                <Box
+                    component="span"
+                    aria-hidden
+                    sx={{
+                        width: 26, height: 26, flexShrink: 0, borderRadius: '50%', display: 'grid', placeItems: 'center',
+                        bgcolor: b.graphite, color: b.cyan, fontSize: 11.5, fontWeight: 800, lineHeight: 1, fontVariantNumeric: 'tabular-nums',
+                    }}
+                >
+                    {String(number).padStart(2, '0')}
+                </Box>
+                <Box component="span" sx={{ fontSize: 15, fontWeight: 800, letterSpacing: '-0.2px', color: b.ink }}>{title}</Box>
+            </Box>
+            <Stack spacing={2}>{children}</Stack>
+        </Box>
+    );
 }
 
 /**
@@ -157,16 +183,16 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
             {sent ? (
                 <>
                     <DialogContent sx={{ textAlign: 'center', py: 6 }}>
-                        <Box sx={{ width: 72, height: 72, mx: 'auto', mb: 2, borderRadius: '50%', display: 'grid', placeItems: 'center', bgcolor: tokens.successSoft, color: 'success.main' }}>
-                            <FiCheckCircle size={36} />
+                        <Box sx={{ width: 72, height: 72, mx: 'auto', mb: 2, borderRadius: '50%', display: 'grid', placeItems: 'center', bgcolor: b.okSoft, color: b.ok }}>
+                            <FiCheckCircle size={36} aria-hidden />
                         </Box>
-                        <Typography variant="h5" gutterBottom>{t.enquiry.sentTitle}</Typography>
+                        <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 800, letterSpacing: '-0.4px' }}>{t.enquiry.sentTitle}</Typography>
                         <Typography color="text.secondary" sx={{ maxWidth: 400, mx: 'auto' }}>
                             {format(t.enquiry.sentText, { name: firstName, email: form.email.trim() })}
                         </Typography>
                     </DialogContent>
                     <DialogActions sx={{ justifyContent: 'center', pb: 4 }}>
-                        <Button variant="contained" onClick={onClose}>{t.enquiry.done}</Button>
+                        <Button variant="cta" onClick={onClose} sx={{ minWidth: 140 }}>{t.enquiry.done}</Button>
                     </DialogActions>
                 </>
             ) : (
@@ -177,29 +203,35 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
                             {t.enquiry.intro}{' '}
                             {t.enquiry.privacyPrefix} <Link component={NextLink} href={`${p.privacy}#enquiries`} target="_blank">{t.enquiry.privacyLink}</Link>.
                         </Typography>
-                        <Stack spacing={2}>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                                <TextField label={t.enquiry.name} required value={form.employer_name} onChange={set('employer_name')} error={!!errors.employer_name} helperText={errors.employer_name} autoComplete="name" />
-                                <TextField label={t.enquiry.company} value={form.company_name} onChange={set('company_name')} error={!!errors.company_name} helperText={errors.company_name} autoComplete="organization" />
-                            </Stack>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                                <TextField label={t.enquiry.email} type="email" required value={form.email} onChange={set('email')} error={!!errors.email} helperText={errors.email} autoComplete="email" />
-                                <TextField label={t.enquiry.phone} type="tel" value={form.phone} onChange={set('phone')} error={!!errors.phone} helperText={errors.phone} autoComplete="tel" />
-                            </Stack>
-                            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                                <TextField label={t.enquiry.jobTitle} value={form.job_title} onChange={set('job_title')} error={!!errors.job_title} helperText={errors.job_title} />
-                                <TextField label={t.enquiry.location} value={form.location} onChange={set('location')} error={!!errors.location} helperText={errors.location} placeholder={t.enquiry.locationPlaceholder} />
-                            </Stack>
-                            <TextField
-                                label={t.enquiry.message}
-                                required
-                                multiline
-                                minRows={4}
-                                value={form.message}
-                                onChange={set('message')}
-                                error={!!errors.message}
-                                helperText={errors.message || t.enquiry.messageHelp}
-                            />
+                        <Stack spacing={3}>
+                            <FieldGroup number={1} title={t.enquiry.groupYou}>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                    <TextField label={t.enquiry.name} required value={form.employer_name} onChange={set('employer_name')} error={!!errors.employer_name} helperText={errors.employer_name} autoComplete="name" />
+                                    <TextField label={t.enquiry.company} value={form.company_name} onChange={set('company_name')} error={!!errors.company_name} helperText={errors.company_name} autoComplete="organization" />
+                                </Stack>
+                            </FieldGroup>
+                            <FieldGroup number={2} title={t.enquiry.groupContact}>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                    <TextField label={t.enquiry.email} type="email" required value={form.email} onChange={set('email')} error={!!errors.email} helperText={errors.email} autoComplete="email" />
+                                    <TextField label={t.enquiry.phone} type="tel" value={form.phone} onChange={set('phone')} error={!!errors.phone} helperText={errors.phone} autoComplete="tel" />
+                                </Stack>
+                            </FieldGroup>
+                            <FieldGroup number={3} title={t.enquiry.groupRole}>
+                                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                                    <TextField label={t.enquiry.jobTitle} value={form.job_title} onChange={set('job_title')} error={!!errors.job_title} helperText={errors.job_title} />
+                                    <TextField label={t.enquiry.location} value={form.location} onChange={set('location')} error={!!errors.location} helperText={errors.location} placeholder={t.enquiry.locationPlaceholder} />
+                                </Stack>
+                                <TextField
+                                    label={t.enquiry.message}
+                                    required
+                                    multiline
+                                    minRows={4}
+                                    value={form.message}
+                                    onChange={set('message')}
+                                    error={!!errors.message}
+                                    helperText={errors.message || t.enquiry.messageHelp}
+                                />
+                            </FieldGroup>
                             {/* Honeypot: hidden from people and screen readers; bots that fill every field give themselves away */}
                             <Box aria-hidden sx={{ position: 'absolute', left: -10000, top: 'auto', width: 1, height: 1, overflow: 'hidden' }}>
                                 <label htmlFor="enquiry-website">Website</label>
@@ -210,12 +242,12 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
                         </Stack>
                     </DialogContent>
                     <DialogActions>
-                        <Button onClick={onClose} disabled={submitting} variant="outlined">{t.enquiry.cancel}</Button>
+                        <Button onClick={onClose} disabled={submitting} variant="ghost">{t.enquiry.cancel}</Button>
                         <Button
                             type="submit"
-                            variant="contained"
+                            variant="cta"
                             disabled={submitting}
-                            startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : null}
+                            endIcon={submitting ? <CircularProgress size={14} color="inherit" /> : <FiSend aria-hidden />}
                         >
                             {submitting ? t.enquiry.sending : t.enquiry.send}
                         </Button>

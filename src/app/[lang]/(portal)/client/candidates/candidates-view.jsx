@@ -4,10 +4,10 @@ import { useContext, useEffect, useMemo, useState, useTransition } from 'react';
 import { createPortal } from 'react-dom';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
-    Alert, Autocomplete, Box, Button, Card, Checkbox, Collapse, FormControlLabel, InputAdornment, MenuItem, Stack, TextField, Typography, useMediaQuery,
+    Alert, Autocomplete, Box, Button, Card, Checkbox, Chip, Collapse, FormControlLabel, InputAdornment, MenuItem, Stack, TextField, Typography, useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { FiBriefcase, FiSearch, FiSliders, FiX } from 'react-icons/fi';
+import { FiArrowRight, FiBriefcase, FiSearch, FiSliders, FiX } from 'react-icons/fi';
 import CandidateCard from '@/app/[lang]/(portal)/client/components/candidate-card';
 import { HeaderSlotContext } from '@/components/app-shell/header-slot';
 import CandidateGrid, { GridSkeleton } from '@/app/[lang]/(portal)/client/components/candidate-grid';
@@ -17,20 +17,34 @@ import { useI18n } from '@/features/i18n';
 import { format, localName, plural } from '@/lib/i18n/config';
 import { PAGE_SIZE } from '@/lib/portal/constants';
 import { parseFilters } from '@/lib/portal/filters';
-import { tokens } from '@/app/theme';
+import { brand as b } from '@/app/theme';
 import { startNavigation } from '@/components/navigation-progress/progress-store';
 
 const EXPERIENCE_YEARS = [1, 2, 5, 10];
 
-// Fields inside the search bar: borderless on desktop (the bar is the field),
-// soft grey on phones so they still read as inputs.
+// Fields inside the search bar, like the hero search (plan 14.3b): borderless
+// on desktop (the bar is the field), white with a hairline on phones.
+// Placeholders use `muted`, not `faint` (faint is 2.6:1, icons only).
 const barFieldSx = {
     '& .MuiOutlinedInput-root': {
-        minHeight: { xs: 48, md: 40 },
-        bgcolor: { xs: tokens.surfaceMuted, md: 'transparent' },
+        minHeight: { xs: 52, md: 40 },
+        fontSize: 15, fontWeight: 500, color: b.ink,
+        bgcolor: b.surface,
+        borderRadius: `${b.radiusButton}px`,
         '&.Mui-focused': { boxShadow: { md: 'none' } },
+        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: { xs: b.accent } },
     },
-    '& .MuiOutlinedInput-notchedOutline': { border: { md: 0 } },
+    '& .MuiOutlinedInput-notchedOutline': { borderColor: b.line, border: { md: 0 } },
+    '& .MuiInputBase-input::placeholder': { color: b.muted, opacity: 1 },
+    '& .MuiInputAdornment-root': { color: b.faint },
+};
+
+// Active-filter chip: the theme's graphite chip, clickable (Enter removes it too).
+const filterChipSx = {
+    height: 34, fontSize: 13, pl: 0.5,
+    '& .MuiChip-deleteIcon': { fontSize: 15, mr: 1 },
+    '&:hover, &.Mui-focusVisible': { bgcolor: b.ink2 },
+    '&.Mui-focusVisible': b.focusRing,
 };
 
 // From this width the header row has room for the Filters/Search labels; between md and
@@ -75,9 +89,11 @@ export default function CandidatesView({ candidates, total, categories, language
     // Desktop renders the search bar into the header slot that AppShell provides.
     const headerSlot = useContext(HeaderSlotContext);
     const theme = useTheme();
-    const isDesktop = useMediaQuery(theme.breakpoints.up('md'), { noSsr: true });
-    const isWide = useMediaQuery(LABELS_QUERY, { noSsr: true });
+    const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+    const isWide = useMediaQuery(LABELS_QUERY);
     const searchInHeader = isDesktop && !!headerSlot;
+    // Laptop widths: icon-only bar buttons so the bar fits beside the account controls.
+    const compact = searchInHeader && !isWide;
 
     // Once the page scrolls under the sticky header, the bar gets a stronger shadow.
     const [searchStuck, setSearchStuck] = useState(false);
@@ -131,8 +147,37 @@ export default function CandidatesView({ candidates, total, categories, language
     const otherLanguage = otherLanguages.find((l) => l.id === filters.languageId);
     const levelName = (level) => localName(level, lang);
     // The URL keeps the English level name; match it case-insensitively.
-    const levelValue = (language, name) => language?.levels.find((l) => l.name.toLowerCase() === (name ?? '').toLowerCase())?.name ?? '';
+    const findLevel = (language, name) => language?.levels.find((l) => l.name.toLowerCase() === (name ?? '').toLowerCase());
+    const levelValue = (language, name) => findLevel(language, name)?.name ?? '';
     const anyFilter = hiddenFilterCount > 0 || filters.categoryIds.length > 0 || !!filters.q;
+
+    // Selected filters as removable graphite chips above the list (plan 14.3b).
+    const levelLabel = (language, name) => {
+        const level = findLevel(language, name);
+        return format(t.list.levelMin, { level: level ? levelName(level) : name });
+    };
+    const activeChips = [
+        filters.q && { key: 'q', label: format(t.list.searchFor, { q: filters.q }), clear: () => { setSearch(''); update({ q: '' }); } },
+        ...(scoped ? [] : selectedCategories.map((c) => ({
+            key: `cat-${c.id}`,
+            label: localName(c, lang),
+            clear: () => update({ categories: filters.categoryIds.filter((id) => id !== c.id) }),
+        }))),
+        filters.minExperience && { key: 'exp', label: format(t.list.withLevel, { language: t.list.experience, level: format(t.list.experienceMin, { count: filters.minExperience }) }), clear: () => update({ exp: '' }) },
+        filters.germanLevel && german && {
+            key: 'de',
+            label: format(t.list.withLevel, { language: localName(german, lang), level: levelLabel(german, filters.germanLevel) }),
+            clear: () => update({ de: '' }),
+        },
+        filters.germanCertified && { key: 'cert', label: t.list.germanCertified, clear: () => update({ cert: '' }) },
+        otherLanguage && {
+            key: 'lang',
+            label: filters.languageLevel
+                ? format(t.list.withLevel, { language: localName(otherLanguage, lang), level: levelLabel(otherLanguage, filters.languageLevel) })
+                : localName(otherLanguage, lang),
+            clear: () => update({ lang: '', lvl: '' }),
+        },
+    ].filter(Boolean);
 
     const clearAll = () => {
         setSearch('');
@@ -151,24 +196,22 @@ export default function CandidatesView({ candidates, total, categories, language
             role="search"
             onSubmit={submitSearch}
             sx={{
-                p: { xs: 2, md: 1 }, pl: { md: 1.5 }, borderRadius: `${tokens.radiusXl}px`,
-                transition: `box-shadow 200ms ${tokens.ease}, background-color 200ms ${tokens.ease}`,
-                // In the header: a translucent glass panel over the header's blur.
-                ...(searchInHeader
-                    ? {
-                        bgcolor: tokens.glassSurface,
-                        border: `1px solid ${tokens.glassBorder}`,
-                        boxShadow: searchStuck
-                            ? `0 0 0 1px rgba(226,232,240,0.6), ${tokens.shadowPopover}`
-                            : `inset 0 1px 0 rgba(255,255,255,0.6), ${tokens.shadowCard}`,
-                    }
-                    : { boxShadow: tokens.shadowCard }),
+                // The hero search panel: white, hairline, soft shadow; accent edge while focused (desktop).
+                p: { xs: 2, md: '6px' }, pl: { md: 1 },
+                borderRadius: { xs: `${b.radiusMd}px`, md: `${b.radiusButton + 4}px` },
+                bgcolor: b.surface,
+                border: `1px solid ${b.line}`,
+                boxShadow: searchStuck ? b.shadow2 : b.shadow1,
+                transition: `border-color 200ms ${b.ease}, box-shadow 200ms ${b.ease}`,
+                '@media (min-width: 900px)': {
+                    '&:focus-within': { borderColor: b.accent, boxShadow: b.shadow2 },
+                },
             }}
         >
             <Stack
                 direction={{ xs: 'column', md: 'row' }}
                 spacing={1.5}
-                divider={<Box sx={{ display: { xs: 'none', md: 'block' }, width: '1px', height: 24, bgcolor: 'divider', alignSelf: 'center' }} />}
+                divider={<Box sx={{ display: { xs: 'none', md: 'block' }, width: '1px', height: 24, bgcolor: b.line, alignSelf: 'center' }} />}
                 sx={{ alignItems: { md: 'center' } }}
             >
                 <TextField
@@ -177,7 +220,7 @@ export default function CandidatesView({ candidates, total, categories, language
                     onChange={(e) => setSearch(e.target.value)}
                     sx={{ ...barFieldSx, flex: { md: '1 1 0' }, minWidth: 0 }}
                     slotProps={{
-                        input: { startAdornment: <InputAdornment position="start"><FiSearch size={18} color={tokens.primary} /></InputAdornment> },
+                        input: { startAdornment: <InputAdornment position="start"><FiSearch size={19} aria-hidden /></InputAdornment> },
                         htmlInput: { 'aria-label': t.list.searchPlaceholder },
                     }}
                 />
@@ -197,7 +240,7 @@ export default function CandidatesView({ candidates, total, categories, language
                                     ...props.InputProps,
                                     startAdornment: (
                                         <>
-                                            <InputAdornment position="start"><FiBriefcase size={18} color={tokens.primary} /></InputAdornment>
+                                            <InputAdornment position="start"><FiBriefcase size={18} aria-hidden /></InputAdornment>
                                             {props.InputProps.startAdornment}
                                         </>
                                     ),
@@ -211,7 +254,7 @@ export default function CandidatesView({ candidates, total, categories, language
                     limitTags={isWide ? 2 : 1}
                 />}
                 {/* Laptop widths (md only): icon-only buttons so the bar fits beside the account controls */}
-                <Stack direction="row" spacing={1.5} sx={{ flexShrink: 0 }}>
+                <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
                     <Button
                         variant="soft"
                         startIcon={<FiSliders />}
@@ -219,30 +262,36 @@ export default function CandidatesView({ candidates, total, categories, language
                         aria-expanded={showFilters}
                         aria-label={hiddenFilterCount > 0 ? format(t.list.filtersActive, { count: hiddenFilterCount }) : t.list.filters}
                         sx={{
-                            minHeight: { xs: 48, md: 40 }, minWidth: { md: 40 }, px: { xs: 2.5, md: 1.25 },
+                            minHeight: { xs: 50, md: 40 }, minWidth: { md: 40 }, px: { xs: 2.5, md: 1.25 },
+                            borderRadius: '12px', fontWeight: 700,
                             flex: { xs: 1, md: 'none' }, ...compactIconSx,
-                            [LABELS_MEDIA]: { ...compactIconSx[LABELS_MEDIA], px: 2.5 },
-                            ...(showFilters && { bgcolor: tokens.primarySoftHover }),
+                            '& .MuiButton-startIcon': { ...compactIconSx['& .MuiButton-startIcon'], color: b.muted },
+                            [LABELS_MEDIA]: { ...compactIconSx[LABELS_MEDIA], px: 2 },
+                            ...(showFilters && { bgcolor: b.surface, borderColor: b.lineHover }),
                         }}
                     >
-                        <Box component="span" sx={barLabelSx}>{t.list.filters}{hiddenFilterCount > 0 ? ' ·' : ''}</Box>
+                        <Box component="span" sx={barLabelSx}>{t.list.filters}</Box>
                         {hiddenFilterCount > 0 && (
-                            // Flex items drop trailing spaces, so the gap after "Filters ·" is a margin.
-                            <Box component="span" sx={{ ml: { xs: 0.5, md: 0.75 }, [LABELS_MEDIA]: { ml: 0.5 } }}>{hiddenFilterCount}</Box>
+                            // Count as a graphite badge with a cyan numeral.
+                            <Box component="span" aria-hidden sx={countBadgeSx}>{hiddenFilterCount}</Box>
                         )}
                     </Button>
+                    {/* The hero's `cta` Search; on laptop widths only its round chip, with a search icon */}
                     <Button
                         type="submit"
-                        variant="contained"
-                        startIcon={<FiSearch />}
+                        variant="cta"
+                        size={isDesktop ? 'small' : 'medium'}
+                        endIcon={compact ? <FiSearch aria-hidden /> : <FiArrowRight aria-hidden />}
                         aria-label={t.list.search}
                         sx={{
-                            minHeight: { xs: 48, md: 40 }, minWidth: { md: 40 }, px: { xs: 3, md: 1.25 },
-                            flex: { xs: 1, md: 'none' }, ...compactIconSx,
-                            [LABELS_MEDIA]: { ...compactIconSx[LABELS_MEDIA], px: 3 },
+                            flex: { xs: 1, md: 'none' },
+                            ...(compact && {
+                                minWidth: 40, px: '8px',
+                                '& .MuiButton-endIcon': { ml: 0 },
+                            }),
                         }}
                     >
-                        <Box component="span" sx={barLabelSx}>{t.list.search}</Box>
+                        {!compact && t.list.search}
                     </Button>
                 </Stack>
             </Stack>
@@ -250,7 +299,7 @@ export default function CandidatesView({ candidates, total, categories, language
                 <Box
                     sx={{
                         display: 'grid', gap: 1.5, mt: 1.5, pt: 2, px: { md: 1 }, pb: { md: 1 },
-                        borderTop: `1px solid ${tokens.border}`,
+                        borderTop: `1px solid ${b.line}`,
                         gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
                     }}
                 >
@@ -294,7 +343,7 @@ export default function CandidatesView({ candidates, total, categories, language
             {/* Before hydration (server HTML) the desktop copy stays hidden until it moves into the header, so the list doesn't jump */}
             {searchInHeader ? createPortal(searchCard, headerSlot) : <Box sx={{ mb: 3, display: { md: 'none' } }}>{searchCard}</Box>}
 
-            <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between', mb: 3, mt: { md: 1 }, minHeight: 44 }}>
+            <Stack direction="row" spacing={2} sx={{ alignItems: 'center', justifyContent: 'space-between', mb: activeChips.length ? 2 : 3, mt: { md: 1 }, minHeight: 44 }}>
                 <Box>
                     <Typography variant="subtitle1" component="h2" aria-live="polite">
                         {loading ? t.list.loading : plural(t.list.showing, total)}
@@ -308,6 +357,23 @@ export default function CandidatesView({ candidates, total, categories, language
                 )}
             </Stack>
 
+            {activeChips.length > 0 && (
+                <Box component="ul" aria-label={t.list.activeFilters} sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, m: 0, mb: 3, p: 0, listStyle: 'none' }}>
+                    {activeChips.map((chip) => (
+                        <li key={chip.key}>
+                            <Chip
+                                label={chip.label}
+                                onClick={chip.clear}
+                                onDelete={chip.clear}
+                                deleteIcon={<FiX aria-hidden />}
+                                aria-label={format(t.list.removeFilter, { name: chip.label })}
+                                sx={filterChipSx}
+                            />
+                        </li>
+                    ))}
+                </Box>
+            )}
+
             {error && !loading ? (
                 <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => startTransition(() => router.refresh())}>{t.common.retry}</Button>}>
                     {error === 'readLimit' ? t.list.readLimit : t.list.loadError}
@@ -318,7 +384,7 @@ export default function CandidatesView({ candidates, total, categories, language
                 <EmptyState
                     title={t.list.emptyTitle}
                     message={anyFilter ? t.list.emptyFiltered : t.list.emptyNone}
-                    action={anyFilter ? <Button variant="contained" onClick={clearAll}>{t.common.clearFilters}</Button> : null}
+                    action={anyFilter ? <Button variant="soft" startIcon={<FiX />} onClick={clearAll}>{t.common.clearFilters}</Button> : null}
                 />
             ) : (
                 <>
@@ -342,3 +408,9 @@ export default function CandidatesView({ candidates, total, categories, language
         </>
     );
 }
+
+const countBadgeSx = {
+    display: 'grid', placeItems: 'center', ml: { xs: 1, md: 0.5 }, [LABELS_MEDIA]: { ml: 1 },
+    minWidth: 20, height: 20, px: 0.5, borderRadius: 999,
+    bgcolor: b.graphite, color: b.cyan, fontSize: 11.5, fontWeight: 800, lineHeight: 1,
+};

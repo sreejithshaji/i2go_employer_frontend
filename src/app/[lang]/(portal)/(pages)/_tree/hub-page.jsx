@@ -10,6 +10,7 @@ import { pageMetadata } from '@/lib/seo/metadata';
 import CandidatesView from '../../client/candidates/candidates-view';
 import { JobLinks } from '../../client/components/seo-links';
 import { LinkSection } from '../../client/seo/landing-header';
+import GuestEmployerCta from '../../client/components/guest-employer-cta';
 import { listCanonical, readFilters } from './shared';
 
 // All candidates (/de/fachkraefte, /en/candidates; PLAN.md 11.1). `only` is the
@@ -62,10 +63,11 @@ export default async function HubPage({ params, searchParams, only }) {
                 error={result.error ? readErrorKind(result.error) : false}
             />
             {jobs.length > 0 && (
-                <LinkSection title={t.seo.allCategories}>
+                <LinkSection number={1} title={t.seo.allCategories}>
                     <JobLinks items={jobs} />
                 </LinkSection>
             )}
+            <GuestEmployerCta />
         </>
     );
 }

@@ -46,11 +46,14 @@ export default function ProgressStrip({ count, active = 0, idPrefix, label }) {
                                     aria-current={current ? 'step' : undefined}
                                     sx={{
                                         width: 44, height: 44, display: 'grid', placeItems: 'center', textDecoration: 'none', borderRadius: '50%',
+                                        '&:hover .strip-pill': current ? {} : { borderColor: 'rgba(31,200,255,0.5)', color: b.onDark.text },
+                                        // Inset: the 44px targets touch, so an outer ring would overlap the neighbours.
                                         '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: -2 },
                                     }}
                                 >
                                     <Box
                                         component="span"
+                                        className="strip-pill"
                                         sx={{
                                             minWidth: 30, height: 24, px: 0.75, borderRadius: 999, display: 'grid', placeItems: 'center',
                                             fontSize: 11, fontWeight: 800, letterSpacing: '0.08em',

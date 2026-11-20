@@ -3,9 +3,13 @@
 import { useEffect, useRef } from 'react';
 import { Box, Typography } from '@mui/material';
 import { brand as b } from '@/app/theme';
+import Reveal from './reveal';
+import { useActiveStep } from './use-active-step';
 import { useScrollProgress } from './use-scroll-progress';
 
 const NODE = { xs: 28, md: 36 };
+/** The line the fill and the node states follow (× viewport height). */
+const ANCHOR = 0.55;
 
 /**
  * Vertical timeline on the light candidate section (plan §5.2): white ring
@@ -14,13 +18,16 @@ const NODE = { xs: 28, md: 36 };
  * line (`transform: scaleY`, no layout work), so it's full exactly when the
  * last node is reached. The line ends at the last node's centre
  * (`--timeline-end`, measured); without JS it runs to the end of the list and
- * the fill is complete. Step text sits on the light surface; `children` of a step (its action or
+ * the fill is complete. A node's ring turns accent when the fill reaches it
+ * (250ms) and back when you scroll above it. Step text sits on the light surface; `children` of a step (its action or
  * note) goes under its text.
  *
  * steps: [{ key, title, text, extra? }]
  */
 export default function Timeline({ steps, idPrefix, label }) {
-    const trackRef = useScrollProgress({ anchor: 0.55 });
+    const trackRef = useScrollProgress({ anchor: ANCHOR });
+    // Last node the fill has reached: a step's top is its node's top. Without JS all are reached, like the line.
+    const reached = useActiveStep(steps.map((_, i) => `${idPrefix}-${i + 1}`), { anchor: ANCHOR, initial: steps.length - 1 });
     const listRef = useRef(null);
 
     useEffect(() => {
@@ -75,13 +82,16 @@ export default function Timeline({ steps, idPrefix, label }) {
                             sx={{
                                 position: 'relative', zIndex: 1, width: NODE, height: NODE, borderRadius: '50%',
                                 display: 'grid', placeItems: 'center', bgcolor: b.surface,
-                                border: `1.5px solid ${b.line2}`, boxSizing: 'border-box', boxShadow: b.shadow1,
+                                border: `1.5px solid ${i <= reached ? b.accent : b.line2}`, boxSizing: 'border-box',
+                                boxShadow: i <= reached ? `${b.shadow1}, 0 0 0 4px ${b.accentLine}` : `${b.shadow1}, 0 0 0 4px transparent`,
+                                transition: `border-color 250ms ${b.ease}, box-shadow 250ms ${b.ease}`,
                                 color: b.accentText, fontSize: { xs: 10.5, md: 12 }, fontWeight: 800, letterSpacing: '0.06em',
                             }}
                         >
                             {String(i + 1).padStart(2, '0')}
                         </Box>
-                        <Box sx={{ minWidth: 0, pt: { xs: '2px', md: '5px' } }}>
+                        {/* The text comes in on scroll (plan §10); node and line stay put. */}
+                        <Reveal sx={{ minWidth: 0, pt: { xs: '2px', md: '5px' } }}>
                             <Typography component="h3" sx={{ m: 0, fontSize: { xs: 19, md: 22 }, lineHeight: 1.25, fontWeight: 800, letterSpacing: '-0.5px', color: b.ink }}>
                                 <Box component="span" sx={visuallyHidden}>{String(i + 1).padStart(2, '0')} </Box>
                                 {step.title}
@@ -90,7 +100,7 @@ export default function Timeline({ steps, idPrefix, label }) {
                                 {step.text}
                             </Typography>
                             {step.extra && <Box sx={{ mt: 2.5 }}>{step.extra}</Box>}
-                        </Box>
+                        </Reveal>
                     </Box>
                 );
             })}

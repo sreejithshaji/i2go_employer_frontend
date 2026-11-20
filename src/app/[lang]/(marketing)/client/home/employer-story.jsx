@@ -5,7 +5,9 @@ import { useI18n } from '@/features/i18n';
 import { brand as b } from '@/app/theme';
 import Container from '../components/container';
 import CtaButton from '../components/cta-button';
+import DriftGlow from '../components/drift-glow';
 import Eyebrow from '../components/eyebrow';
+import Reveal, { STAGGER } from '../components/reveal';
 import ProgressStrip, { PROGRESS_STRIP_HEIGHT } from '../components/progress-strip';
 import StepChapter from '../components/step-chapter';
 import StepRail from '../components/step-rail';
@@ -14,6 +16,8 @@ import EmployerCta, { useEmployerCta } from './employer-cta';
 import { ExploreVisual, ManageVisual, MeetVisual, PoolVisual, ShortlistVisual, WelcomeVisual } from './employer-steps';
 
 const ID = 'employer-step';
+/** How far below the sticky bars a chapter's top must come to be the active step (px). */
+const RAIL_REACH = 220;
 
 /**
  * "For employers" (plan §4, §6 rows 5–6), the dark navy section: opening, then from 900px a sticky
@@ -25,7 +29,8 @@ const ID = 'employer-step';
 export default function EmployerStory({ total = 0, jobs = [] }) {
     const { t } = useI18n();
     const e = t.landing.employer;
-    const active = useActiveStep(e.steps.map((_, i) => `${ID}-${i + 1}`));
+    // Step 01 stays marked above the first chapter. `reach`: the shortest chapter (03, ~266px) plus the gap is ≥ 314px.
+    const active = Math.max(0, useActiveStep(e.steps.map((_, i) => `${ID}-${i + 1}`), { reach: RAIL_REACH }));
     const railCta = useEmployerCta();
 
     const visuals = [
@@ -43,28 +48,41 @@ export default function EmployerStory({ total = 0, jobs = [] }) {
             component="section"
             id="employers"
             aria-labelledby="employers-title"
+            data-nav-tone="dark"
             sx={{
+                position: 'relative', isolation: 'isolate',
                 scrollMarginTop: { xs: b.navHeightMobile, md: b.navHeight },
-                background: b.darkSection, color: b.onDark.text,
+                background: `linear-gradient(180deg, ${b.navy} 0%, ${b.navy2} 100%)`, color: b.onDark.text,
+                '--focus-color': b.cyan,
                 py: { xs: 7, md: 12 },
             }}
         >
+            {/* The glow is clipped by its own layer: the section itself has no overflow, so the rail and strip can stick. */}
+            <Box aria-hidden sx={{ position: 'absolute', inset: 0, zIndex: -1, overflow: 'hidden', pointerEvents: 'none' }}>
+                <DriftGlow color="rgba(31,200,255,0.07)" sx={{ top: { xs: -220, md: -300 }, left: { xs: -200, md: '4%' }, width: { xs: 520, md: 820 }, height: { xs: 420, md: 600 } }} />
+            </Box>
             <Container>
-                <Eyebrow tone="dark">{e.eyebrow}</Eyebrow>
-                <Typography
-                    id="employers-title"
-                    component="h2"
-                    sx={{
-                        m: 0, mt: 1.5, maxWidth: 820,
-                        fontSize: { xs: 32, md: 48 }, lineHeight: 1.08, fontWeight: 800,
-                        letterSpacing: { xs: '-0.8px', md: '-1.8px' }, color: b.onDark.text,
-                    }}
-                >
-                    {e.title}
-                </Typography>
-                <Typography component="p" sx={{ m: 0, mt: 2.25, maxWidth: 680, fontSize: 16.5, lineHeight: 1.65, fontWeight: 500, color: b.onDark.body }}>
-                    {e.lead}
-                </Typography>
+                <Reveal>
+                    <Eyebrow tone="dark">{e.eyebrow}</Eyebrow>
+                </Reveal>
+                <Reveal delay={STAGGER}>
+                    <Typography
+                        id="employers-title"
+                        component="h2"
+                        sx={{
+                            m: 0, mt: 1.5, maxWidth: 820,
+                            fontSize: { xs: 32, md: 48 }, lineHeight: 1.08, fontWeight: 800,
+                            letterSpacing: { xs: '-0.8px', md: '-1.8px' }, color: b.onDark.text,
+                        }}
+                    >
+                        {e.title}
+                    </Typography>
+                </Reveal>
+                <Reveal delay={2 * STAGGER}>
+                    <Typography component="p" sx={{ m: 0, mt: 2.25, maxWidth: 680, fontSize: 16.5, lineHeight: 1.65, fontWeight: 500, color: b.onDark.body }}>
+                        {e.lead}
+                    </Typography>
+                </Reveal>
 
                 <Box
                     sx={{

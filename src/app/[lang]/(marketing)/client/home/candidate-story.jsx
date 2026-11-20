@@ -6,7 +6,9 @@ import { brand as b } from '@/app/theme';
 import ContactPills, { mailtoHref } from '../components/contact-pills';
 import Container from '../components/container';
 import CtaButton from '../components/cta-button';
+import DriftGlow from '../components/drift-glow';
 import Eyebrow from '../components/eyebrow';
+import Reveal, { STAGGER } from '../components/reveal';
 import Timeline from '../components/timeline';
 
 /**
@@ -42,21 +44,27 @@ export default function CandidateStory() {
         >
             <Backdrop />
             <Container sx={{ position: 'relative', maxWidth: b.readingMax + 80 }}>
-                <Eyebrow>{c.eyebrow}</Eyebrow>
-                <Typography
-                    id="candidates-title"
-                    component="h2"
-                    sx={{
-                        m: 0, mt: 1.5,
-                        fontSize: { xs: 32, md: 48 }, lineHeight: 1.08, fontWeight: 800,
-                        letterSpacing: { xs: '-0.8px', md: '-1.8px' }, color: b.ink,
-                    }}
-                >
-                    {c.title}
-                </Typography>
-                <Typography component="p" sx={{ m: 0, mt: 2.25, maxWidth: 680, fontSize: 16.5, lineHeight: 1.65, fontWeight: 500, color: b.muted }}>
-                    {c.lead}
-                </Typography>
+                <Reveal>
+                    <Eyebrow>{c.eyebrow}</Eyebrow>
+                </Reveal>
+                <Reveal delay={STAGGER}>
+                    <Typography
+                        id="candidates-title"
+                        component="h2"
+                        sx={{
+                            m: 0, mt: 1.5,
+                            fontSize: { xs: 32, md: 48 }, lineHeight: 1.08, fontWeight: 800,
+                            letterSpacing: { xs: '-0.8px', md: '-1.8px' }, color: b.ink,
+                        }}
+                    >
+                        {c.title}
+                    </Typography>
+                </Reveal>
+                <Reveal delay={2 * STAGGER}>
+                    <Typography component="p" sx={{ m: 0, mt: 2.25, maxWidth: 680, fontSize: 16.5, lineHeight: 1.65, fontWeight: 500, color: b.muted }}>
+                        {c.lead}
+                    </Typography>
+                </Reveal>
 
                 <Box sx={{ mt: { xs: 5, md: 7 } }}>
                     <Timeline steps={steps} idPrefix="candidate-step" label={c.railLabel} />
@@ -101,7 +109,7 @@ function CandidateCta({ subject }) {
     const { t } = useI18n();
     const cta = t.landing.candidate.cta;
     return (
-        <Box component="section" aria-labelledby="candidate-cta-title" sx={{ mt: { xs: 7, md: 10 }, pt: { xs: 5, md: 7 }, borderTop: `1px solid ${b.line}` }}>
+        <Reveal component="section" aria-labelledby="candidate-cta-title" sx={{ mt: { xs: 7, md: 10 }, pt: { xs: 5, md: 7 }, borderTop: `1px solid ${b.line}` }}>
             <Typography
                 id="candidate-cta-title"
                 component="h3"
@@ -121,7 +129,7 @@ function CandidateCta({ subject }) {
             <Typography component="p" sx={{ m: 0, mt: 2.5, fontSize: 13, lineHeight: 1.55, fontWeight: 600, color: b.muted }}>
                 {cta.paidBy}
             </Typography>
-        </Box>
+        </Reveal>
     );
 }
 
@@ -137,13 +145,13 @@ const CONTOURS = Array.from({ length: 9 }, (_, k) => {
     return `M${points.join('L')}Z`;
 });
 
-/** Decoration of the section: soft accent glow top-left, contour lines bottom-left fading upward. */
+/** Decoration of the section: soft accent glow top-left (drifting, plan 10.3), contour lines bottom-left fading upward. */
 function Backdrop() {
     return (
         <Box aria-hidden sx={{ position: 'absolute', inset: 0, zIndex: -1, pointerEvents: 'none' }}>
-            <Box
-                className="candidate-glow"
-                sx={{ position: 'absolute', top: { xs: -160, md: -220 }, left: { xs: -160, md: -120 }, width: { xs: 420, md: 640 }, height: { xs: 420, md: 640 }, background: 'radial-gradient(closest-side, rgba(15,143,199,0.08), transparent 72%)' }}
+            <DriftGlow
+                color="rgba(15,143,199,0.08)"
+                sx={{ top: { xs: -160, md: -220 }, left: { xs: -160, md: -120 }, width: { xs: 420, md: 640 }, height: { xs: 420, md: 640 } }}
             />
             <Box
                 component="svg"

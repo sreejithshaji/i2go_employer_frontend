@@ -3,75 +3,94 @@
 import Image from 'next/image';
 import NextLink from 'next/link';
 import { Box, Stack, Typography } from '@mui/material';
-import { FiHeart, FiMessageCircle, FiSearch, FiUserCheck } from 'react-icons/fi';
 import { LanguageSwitcher, useI18n } from '@/features/i18n';
-import { tokens } from '@/app/theme';
+import { brand as b } from '@/app/theme';
 import { COMPANY } from '@/lib/portal/legal';
-
-const BENEFIT_ICONS = [<FiSearch key="search" size={20} />, <FiHeart key="heart" size={20} />, <FiMessageCircle key="message" size={20} />, <FiUserCheck key="check" size={20} />];
+import Eyebrow from '@/app/[lang]/(marketing)/client/components/eyebrow';
+import HeroBackground from '@/app/[lang]/(marketing)/client/home/hero-background';
 
 function LogoMark({ size = 44 }) {
     return (
-        <Box sx={{ width: size, height: size, borderRadius: `${tokens.radiusMd}px`, bgcolor: '#fff', display: 'grid', placeItems: 'center', boxShadow: tokens.shadowXs, flexShrink: 0 }}>
+        <Box sx={{ width: size, height: size, borderRadius: `${Math.round(size * 0.3)}px`, bgcolor: '#fff', border: `1px solid ${b.line}`, display: 'grid', placeItems: 'center', boxShadow: b.shadow1, flexShrink: 0 }}>
             <Image src="/images/i2go_mark.png" alt="" width={Math.round(size * 0.86)} height={Math.round(size * 0.5)} style={{ objectFit: 'contain' }} />
         </Box>
     );
 }
 
-/** Split screen: blue brand panel (desktop) and the form. */
+/**
+ * Split screen (14.6): the homepage hero's navy panel with its animated
+ * background on the left (from 900px), the form on the right. The benefits are
+ * a numbered hairline list, like the employer steps.
+ */
 export default function AuthCard({ title, subtitle, children }) {
     const { t, p } = useI18n();
     return (
-        <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: 'background.paper' }}>
+        <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: b.surface }}>
             <Box
                 sx={{
+                    '--focus-color': b.cyan,
                     display: { xs: 'none', md: 'flex' }, flexDirection: 'column', width: '45%', maxWidth: 640,
-                    bgcolor: tokens.sidebarBg, color: '#fff', p: { md: 5, lg: 7 }, position: 'relative', overflow: 'hidden',
+                    color: b.onDark.text, p: { md: 5, lg: 7 }, position: 'relative', overflow: 'hidden', isolation: 'isolate',
                 }}
             >
-                <Box aria-hidden sx={{ position: 'absolute', right: -140, bottom: -140, width: 460, height: 460, borderRadius: '50%', border: '70px solid rgba(255,255,255,0.06)' }} />
-                <Box component={NextLink} href={p.home} sx={{ display: 'flex', alignItems: 'center', gap: 1.5, textDecoration: 'none', color: '#fff' }}>
+                <Box sx={{ position: 'absolute', inset: 0, zIndex: -1 }}><HeroBackground /></Box>
+
+                <Box
+                    component={NextLink}
+                    href={p.home}
+                    sx={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: 1.5, textDecoration: 'none', color: b.onDark.text, borderRadius: '12px', '&:focus-visible': b.focusRingDark }}
+                >
                     <LogoMark />
                     <Box>
-                        <Typography sx={{ color: '#fff', fontSize: 20, fontWeight: 700, lineHeight: '24px' }}>I2Go</Typography>
-                        <Typography sx={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>{t.common.brandTag}</Typography>
+                        <Typography sx={{ color: b.onDark.text, fontSize: 20, fontWeight: 800, letterSpacing: '-0.4px', lineHeight: '24px' }}>I2Go</Typography>
+                        <Typography sx={{ color: b.onDark.bodyStrong, fontSize: 12, fontWeight: 600 }}>{t.common.brandTag}</Typography>
                     </Box>
                 </Box>
-                <Box sx={{ my: 'auto', py: 6, position: 'relative', maxWidth: 440 }}>
-                    <Typography variant="h2" sx={{ color: '#fff', fontSize: { md: 32, lg: 40 }, lineHeight: { md: '40px', lg: '48px' } }}>
+
+                <Box sx={{ my: 'auto', py: 6, maxWidth: 460 }}>
+                    <Typography component="h2" sx={{ color: b.onDark.text, fontWeight: 800, fontSize: { md: 32, lg: 40 }, lineHeight: { md: '38px', lg: '46px' }, letterSpacing: { md: '-1px', lg: '-1.4px' } }}>
                         {t.auth.panelTitle}
                     </Typography>
-                    <Stack spacing={2.5} sx={{ mt: 5 }}>
-                        {t.auth.benefits.map((b, i) => (
-                            <Stack key={b.title} direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-                                <Box sx={{ width: 40, height: 40, borderRadius: `${tokens.radiusMd}px`, bgcolor: 'rgba(255,255,255,0.12)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-                                    {BENEFIT_ICONS[i]}
+                    <Box component="ol" sx={{ listStyle: 'none', m: 0, mt: 5, p: 0 }}>
+                        {t.auth.benefits.map((item, i) => (
+                            <Box component="li" key={item.title} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', py: 2, borderTop: `1px solid ${b.onDark.border}` }}>
+                                <Box
+                                    aria-hidden
+                                    sx={{
+                                        width: 30, height: 30, flexShrink: 0, borderRadius: '50%', display: 'grid', placeItems: 'center',
+                                        border: `1px solid ${b.onDark.ring}`, bgcolor: 'rgba(31,200,255,0.06)',
+                                        color: b.cyan, fontSize: 11.5, fontWeight: 800, letterSpacing: '0.04em', fontVariantNumeric: 'tabular-nums',
+                                    }}
+                                >
+                                    {String(i + 1).padStart(2, '0')}
                                 </Box>
-                                <Box>
-                                    <Typography sx={{ color: '#fff', fontWeight: 600 }}>{b.title}</Typography>
-                                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.75)' }}>{b.text}</Typography>
+                                <Box sx={{ pt: '3px' }}>
+                                    <Typography sx={{ color: b.onDark.text, fontSize: 15, fontWeight: 700, lineHeight: 1.4 }}>{item.title}</Typography>
+                                    <Typography sx={{ mt: 0.25, color: b.onDark.bodyStrong, fontSize: 13.5, lineHeight: 1.55 }}>{item.text}</Typography>
                                 </Box>
-                            </Stack>
+                            </Box>
                         ))}
-                    </Stack>
+                    </Box>
                 </Box>
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', position: 'relative' }}>
+
+                <Typography sx={{ color: b.onDark.bodyStrong, fontSize: 12, fontWeight: 600 }}>
                     © {new Date().getFullYear()} {COMPANY.name}
                 </Typography>
             </Box>
 
-            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2, py: { xs: 5, md: 8 }, bgcolor: { xs: 'background.default', sm: 'background.paper' } }}>
+            <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', px: 2, py: { xs: 5, md: 8 }, bgcolor: { xs: b.bg1, sm: b.surface } }}>
                 <Box sx={{ width: '100%', maxWidth: 400 }}>
                     {/* Logo on phones (the brand panel is hidden there) and the language link */}
                     <Stack direction="row" sx={{ alignItems: 'center', justifyContent: { xs: 'space-between', md: 'flex-end' }, mb: { xs: 4, md: 2 } }}>
-                        <Box component={NextLink} href={p.home} sx={{ display: { xs: 'inline-flex', md: 'none' }, alignItems: 'center', gap: 1.25, textDecoration: 'none', color: 'text.primary' }}>
+                        <Box component={NextLink} href={p.home} sx={{ display: { xs: 'inline-flex', md: 'none' }, alignItems: 'center', gap: 1.25, textDecoration: 'none', color: b.ink, borderRadius: '12px', '&:focus-visible': b.focusRing }}>
                             <LogoMark size={40} />
-                            <Typography sx={{ fontSize: 18, fontWeight: 700 }}>I2Go</Typography>
+                            <Typography sx={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.4px' }}>I2Go</Typography>
                         </Box>
-                        <LanguageSwitcher sx={{ color: 'text.secondary', fontSize: 14, fontWeight: 500, '&:hover': { color: 'primary.main' } }} />
+                        <LanguageSwitcher sx={{ color: b.muted, fontSize: 14, fontWeight: 600, '&:hover': { color: b.accentText } }} />
                     </Stack>
-                    <Typography variant="h4" component="h1">{title}</Typography>
-                    <Typography color="text.secondary" sx={{ mt: 0.5, mb: 4 }}>{subtitle}</Typography>
+                    <Eyebrow sx={{ mb: 1 }}>{t.common.brandTag}</Eyebrow>
+                    <Typography component="h1" sx={{ fontSize: { xs: 28, md: 32 }, lineHeight: 1.2, fontWeight: 800, letterSpacing: { xs: '-0.6px', md: '-1px' }, color: b.ink }}>{title}</Typography>
+                    <Typography sx={{ mt: 1, mb: 4, fontSize: 15.5, lineHeight: 1.6, color: b.muted }}>{subtitle}</Typography>
                     {children}
                 </Box>
             </Box>

@@ -1,71 +1,17 @@
 'use client';
 
 import NextLink from 'next/link';
-import { Avatar, Box, Typography } from '@mui/material';
-import { FiArrowUpRight, FiBriefcase, FiCheck, FiGlobe } from 'react-icons/fi';
+import { Box, Typography } from '@mui/material';
+import { FiArrowUpRight, FiBriefcase, FiGlobe } from 'react-icons/fi';
 import { useI18n } from '@/features/i18n';
 import { localName } from '@/lib/i18n/config';
 import { candidateHref } from '@/lib/i18n/routes';
-import { initials, shortYearsLabel } from '@/lib/portal/format';
+import { shortYearsLabel } from '@/lib/portal/format';
 import { brand as b } from '@/app/theme';
 import LinkPendingOverlay from '@/components/link-pending-overlay';
-import LockedPhoto, { showsLockedPhoto } from '@/app/[lang]/(portal)/client/components/locked-photo';
+import { CandidateAvatar, LanguageChip, MAX_LANGUAGES, sortedLanguages } from '@/app/[lang]/(portal)/client/components/candidate-card-parts';
 
-const MAX_LANGUAGES = 3;
-
-/** Photo (or locked blurhash / initials for guests) with a small verified tick. */
-export function CandidateAvatar({ candidate, size = 44 }) {
-    const locked = showsLockedPhoto(candidate);
-    return (
-        <Box sx={{ position: 'relative', flexShrink: 0 }}>
-            <Avatar
-                src={candidate.photo_url || undefined}
-                alt=""
-                sx={{ width: size, height: size, fontSize: size * 0.36, fontWeight: 700, bgcolor: b.accentSoft, color: b.accentText }}
-            >
-                {locked ? <LockedPhoto hash={candidate.photo_blurhash} iconSize={Math.round(size * 0.28)} /> : initials(candidate.name)}
-            </Avatar>
-            {candidate.is_verified && (
-                <Box
-                    component="span"
-                    aria-hidden
-                    sx={{
-                        position: 'absolute', right: -2, bottom: -2, width: 16, height: 16, borderRadius: 999,
-                        display: 'grid', placeItems: 'center', bgcolor: b.ok, color: '#fff', boxShadow: '0 0 0 2px #fff',
-                    }}
-                >
-                    <FiCheck size={10} strokeWidth={3.5} />
-                </Box>
-            )}
-        </Box>
-    );
-}
-
-/** German first (what employers filter on), then the strongest level. */
-function sortedLanguages(languages = []) {
-    return [...languages].sort((x, y) => (y.code === 'de') - (x.code === 'de') || (y.level_rank ?? 0) - (x.level_rank ?? 0));
-}
-
-function LanguageChip({ entry, lang }) {
-    const level = lang === 'de' && entry.level_de ? entry.level_de : entry.level;
-    const german = entry.code === 'de';
-    return (
-        <Box
-            component="li"
-            sx={{
-                display: 'inline-flex', alignItems: 'center', gap: 0.5, minWidth: 0, maxWidth: '100%',
-                height: 24, px: 1, borderRadius: 999, fontSize: 11.5, lineHeight: '16px', whiteSpace: 'nowrap',
-                bgcolor: german ? b.accentSoft : b.surface3,
-                border: `1px solid ${german ? b.accentLine : b.line}`,
-                color: german ? b.accentText : b.ink2,
-            }}
-        >
-            <Box component="span" sx={{ fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis' }}>{localName(entry, lang)}</Box>
-            {level && <Box component="span" sx={{ color: german ? b.accentText : b.muted, fontWeight: 500 }}>· {level}</Box>}
-            {entry.certified && <FiCheck size={11} strokeWidth={3} aria-hidden style={{ color: b.ok, flexShrink: 0 }} />}
-        </Box>
-    );
-}
+export { CandidateAvatar };
 
 /**
  * Candidate card for the homepage strip: photo, name, job category, current
@@ -91,10 +37,11 @@ export default function CompactCandidateCard({ candidate }) {
                 p: 1.75, borderRadius: `${b.radiusMd}px`,
                 bgcolor: b.surface, border: `1px solid ${b.line}`, boxShadow: b.shadow1,
                 color: 'inherit', textDecoration: 'none',
-                transition: `border-color 200ms ${b.ease}, box-shadow 200ms ${b.ease}, transform 200ms ${b.ease}`,
-                '&:hover': { borderColor: b.accentLine, boxShadow: b.shadow2, transform: 'translateY(-2px)' },
+                // Card hover of the marketing pages (plan §10).
+                transition: `border-color 280ms ${b.ease}, box-shadow 280ms ${b.ease}, transform 280ms ${b.ease}`,
+                '&:hover': { borderColor: b.lineHover, boxShadow: b.shadow2, transform: 'translateY(-1px)' },
                 '&:hover .card-arrow': { color: b.accent, transform: 'translate(2px, -2px)' },
-                '&:focus-visible': { outline: `2px solid ${b.accent}`, outlineOffset: 2 },
+                '&:focus-visible': b.focusRing,
             }}
         >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
@@ -112,7 +59,7 @@ export default function CompactCandidateCard({ candidate }) {
                         </Typography>
                     )}
                     {candidate.is_verified && (
-                        <Typography noWrap sx={{ fontSize: 11.5, fontWeight: 600, lineHeight: '16px', color: b.ok }}>
+                        <Typography noWrap sx={{ fontSize: 11.5, fontWeight: 600, lineHeight: '16px', color: b.okText }}>
                             {t.card.verifiedBy}
                         </Typography>
                     )}
