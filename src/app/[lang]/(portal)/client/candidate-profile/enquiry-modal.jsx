@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import NextLink from 'next/link';
 import {
-    Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Link,
-    Stack, TextField, Typography, useMediaQuery,
+    Alert, Box, Button, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel,
+    FormHelperText, Link, Stack, TextField, Typography, useMediaQuery,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { FiCheckCircle, FiSend } from 'react-icons/fi';
@@ -14,6 +14,7 @@ import { format } from '@/lib/i18n/config';
 import { getFormToken, submitEnquiry } from './submit-enquiry';
 import { markEnquired } from './enquiry-storage';
 import { TURNSTILE_SITE_KEY } from '@/lib/config';
+import { TERMS_VERSION } from '@/lib/portal/legal';
 import { brand as b } from '@/app/theme';
 import Turnstile from './turnstile';
 
@@ -43,8 +44,9 @@ function initialForm(profile, user) {
     };
 }
 
-function validate(form, t) {
+function validate(form, t, { guest, acceptTerms }) {
     const errors = {};
+    if (guest && !acceptTerms) errors.terms = t.enquiry.errTerms;
     if (!form.employer_name.trim()) errors.employer_name = t.enquiry.errName;
     if (!form.email.trim()) errors.email = t.enquiry.errEmail;
     else if (!EMAIL_RE.test(form.email.trim())) errors.email = t.enquiry.errEmailInvalid;
@@ -82,9 +84,11 @@ function FieldGroup({ number, title, children }) {
 }
 
 /**
- * The "Send enquiry" form, for signed-in employers who accepted the terms
- * (the profile page only opens it for them; submit-enquiry checks again). The
- * I2Go team reviews each enquiry before anything reaches the candidate.
+ * The "Send enquiry" form, for guests and for signed-in employers who accepted
+ * the terms (the profile page only opens it for them; submit-enquiry checks
+ * again). A guest must tick the employer terms (guest-enquiry-plan.md, G1);
+ * the function stores the version with the enquiry. The I2Go team reviews
+ * each enquiry before anything reaches the candidate.
  */
 export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
     const { profile, user } = useAuth();
@@ -98,6 +102,10 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
     const [submitting, setSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState(null); // { message, severity }
     const [sent, setSent] = useState(false);
+    // Guest: no session. Decided when the form opens (see below), so signing in
+    // in another tab doesn't switch the form halfway through.
+    const [guest, setGuest] = useState(!user);
+    const [acceptTerms, setAcceptTerms] = useState(false);
     // Signed "form opened at" token (fetched on open) and the honeypot input.
     const formToken = useRef(null);
     const honeypot = useRef(null);
@@ -126,6 +134,8 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
             setSubmitError(null);
             setSent(false);
             setToken(null);
+            setGuest(!user);
+            setAcceptTerms(false);
         }
     }
 
@@ -136,7 +146,7 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const nextErrors = validate(form, t);
+        const nextErrors = validate(form, t, { guest, acceptTerms });
         setErrors(nextErrors);
         if (Object.keys(nextErrors).length > 0) return;
         if (TURNSTILE_SITE_KEY && !token) {
@@ -155,6 +165,7 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
                 candidate_id: candidate.id,
                 form_token: formToken.current,
                 website: honeypot.current?.value ?? '',
+                ...(guest ? { accept_terms: true, terms_version: TERMS_VERSION } : {}),
                 ...(token ? { turnstile_token: token } : {}),
             });
             markEnquired(candidate.id);
@@ -200,6 +211,7 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
                     <DialogTitle sx={{ pb: 0.5 }}>{format(t.enquiry.title, { name: candidate?.name })}</DialogTitle>
                     <DialogContent>
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+                            {guest && <>{t.enquiry.guestNote}{' '}</>}
                             {t.enquiry.intro}{' '}
                             {t.enquiry.privacyPrefix} <Link component={NextLink} href={`${p.privacy}#enquiries`} target="_blank">{t.enquiry.privacyLink}</Link>.
                         </Typography>
@@ -237,6 +249,32 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
                                 <label htmlFor="enquiry-website">Website</label>
                                 <input ref={honeypot} id="enquiry-website" name="website" type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
                             </Box>
+                            {guest && (
+                                <Box>
+                                    <FormControlLabel
+                                        sx={{ alignItems: 'flex-start', mr: 0 }}
+                                        control={(
+                                            <Checkbox
+                                                checked={acceptTerms}
+                                                onChange={(event) => {
+                                                    setAcceptTerms(event.target.checked);
+                                                    if (errors.terms) setErrors((e) => ({ ...e, terms: undefined }));
+                                                }}
+                                                required
+                                                sx={{ mt: -0.75 }}
+                                                slotProps={{ input: { 'aria-describedby': errors.terms ? 'enquiry-terms-error' : undefined, 'aria-invalid': !!errors.terms } }}
+                                            />
+                                        )}
+                                        label={(
+                                            <Typography variant="body2" component="span">
+                                                {t.enquiry.termsPrefix}{' '}
+                                                <Link component={NextLink} href={p.terms} target="_blank" onClick={(event) => event.stopPropagation()}>{t.enquiry.termsLink}</Link>.
+                                            </Typography>
+                                        )}
+                                    />
+                                    {errors.terms && <FormHelperText id="enquiry-terms-error" error sx={{ ml: 4 }}>{errors.terms}</FormHelperText>}
+                                </Box>
+                            )}
                             <Turnstile onToken={setToken} />
                             {submitError && <Alert severity={submitError.severity}>{submitError.message}</Alert>}
                         </Stack>

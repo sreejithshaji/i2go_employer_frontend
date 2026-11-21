@@ -221,6 +221,11 @@ export function PrivacyDe({ lang }) {
                     Adresse selbst (Art. 6 Abs. 1 lit. f DSGVO). Der Kandidat sieht weder Ihren Namen noch Ihr Unternehmen oder Ihre
                     Kontaktdaten.
                 </p>
+                <p>
+                    Sie können eine Anfrage mit oder ohne Arbeitgeberkonto senden. Mit Konto verknüpfen wir sie mit Ihrem Konto, damit Sie
+                    sie unter „Meine Anfragen“ sehen. Ohne Konto speichern wir zusätzlich, dass Sie die Nutzungsbedingungen für Arbeitgeber
+                    akzeptiert haben, mit Fassung und Zeitpunkt, um den Vertragsschluss nachweisen zu können (Art. 6 Abs. 1 lit. b DSGVO).
+                </p>
             </LegalSection>
 
             <LegalSection id="contact" title="11. Kontakt per E-Mail oder Formular">
@@ -445,6 +450,11 @@ export function PrivacyEn({ lang }) {
                     and the time, so i2go can review it and arrange contact (Art. 6(1)(b) GDPR). To limit abuse we store a one-way hash of
                     your IP address, never the address itself (Art. 6(1)(f) GDPR). The candidate never sees your name, company or contact
                     details.
+                </p>
+                <p>
+                    You can send an enquiry with or without an employer account. With an account, we link it to your account so you can
+                    see it under My enquiries. Without one, we also store that you accepted the terms for employers, with the version and
+                    time, so we can show that the contract was concluded (Art. 6(1)(b) GDPR).
                 </p>
             </LegalSection>
 
