@@ -51,6 +51,12 @@ export default async function HubPage({ params, searchParams, only }) {
             .filter((c) => c.count > 0)
             .sort((a, b) => a.name.localeCompare(b.name, lang))
         : [];
+    // The category filter offers only categories with at least one live
+    // candidate, plus any already selected in the URL so their chip still
+    // shows. Without stats it falls back to every active category.
+    const filterCategories = stats
+        ? categories.filter((c) => stats.categoryCount(c.id) > 0 || filters.categoryIds.includes(c.id))
+        : categories;
 
     return (
         <>
@@ -58,7 +64,7 @@ export default async function HubPage({ params, searchParams, only }) {
             <CandidatesView
                 candidates={result.candidates ?? []}
                 total={result.total ?? 0}
-                categories={categories}
+                categories={filterCategories}
                 languages={languages}
                 error={result.error ? readErrorKind(result.error) : false}
             />
