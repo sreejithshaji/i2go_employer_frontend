@@ -7,7 +7,7 @@ import {
     Avatar, Box, Button, ButtonBase, Divider, Drawer, IconButton, ListItemIcon, Menu, MenuItem, Stack, Typography,
 } from '@mui/material';
 import { FiArrowRight, FiChevronDown, FiHeart, FiInbox, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
-import { SignInButton, useAuth } from '@/features/auth';
+import { SignInButton, SignUpButton, useAuth } from '@/features/auth';
 import { LanguageSwitcher, useI18n } from '@/features/i18n';
 import { initials } from '@/lib/portal/format';
 import { brand as b } from '@/app/theme';
@@ -221,9 +221,9 @@ function MobileMenu({ open, onClose, fontClass }) {
                     </Stack>
                 ) : (
                     <Stack spacing={1}>
-                        <Button variant="cta" component={NextLink} href={p.signup} onClick={onClose} endIcon={<FiArrowRight />} sx={{ justifyContent: 'space-between' }}>
+                        <SignUpButton variant="cta" onClick={onClose} endIcon={<FiArrowRight />} sx={{ justifyContent: 'space-between' }}>
                             {t.landing.nav.register}
-                        </Button>
+                        </SignUpButton>
                         <SignInButton variant="ghost" onClick={onClose} sx={{ border: `1px solid ${b.line}` }}>
                             {t.common.signIn}
                         </SignInButton>
@@ -294,9 +294,9 @@ export default function MarketingNav({ fontClass, overlay = false }) {
                                 >
                                     {t.common.signIn}
                                 </SignInButton>
-                                <Button variant="cta" size="small" component={NextLink} href={p.signup} endIcon={<FiArrowRight />}>
+                                <SignUpButton variant="cta" size="small" endIcon={<FiArrowRight />}>
                                     {t.landing.nav.register}
-                                </Button>
+                                </SignUpButton>
                             </>
                         )}
                     </Box>

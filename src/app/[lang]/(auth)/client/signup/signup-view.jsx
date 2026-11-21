@@ -11,6 +11,7 @@ import { useI18n } from '@/features/i18n';
 import { format } from '@/lib/i18n/config';
 import { TERMS_VERSION } from '@/lib/portal/legal';
 import AuthCard from '../components/auth-card';
+import PasswordField from '@/components/password-field';
 import { startNavigation } from '@/components/navigation-progress/progress-store';
 
 /** Employer signup form. `next` is the safe return path; `keepNext` keeps it on the link to sign in. */
@@ -74,8 +75,8 @@ export default function SignupView({ next, keepNext }) {
                 <Stack spacing={2}>
                     <TextField label={t.auth.yourName} required value={form.fullName} onChange={set('fullName')} error={!!errors.fullName} helperText={errors.fullName} autoComplete="name" size="medium" />
                     <TextField label={t.auth.workEmail} type="email" required value={form.email} onChange={set('email')} autoComplete="email" size="medium" />
-                    <TextField label={t.auth.password} type="password" required value={form.password} onChange={set('password')} error={!!errors.password} helperText={errors.password || t.auth.passwordHelp} autoComplete="new-password" size="medium" />
-                    <TextField label={t.auth.confirmPassword} type="password" required value={form.confirm} onChange={set('confirm')} error={!!errors.confirm} helperText={errors.confirm} autoComplete="new-password" size="medium" />
+                    <PasswordField label={t.auth.password} showLabel={t.auth.showPassword} hideLabel={t.auth.hidePassword} required value={form.password} onChange={set('password')} error={!!errors.password} helperText={errors.password || t.auth.passwordHelp} autoComplete="new-password" size="medium" />
+                    <PasswordField label={t.auth.confirmPassword} showLabel={t.auth.showPassword} hideLabel={t.auth.hidePassword} required value={form.confirm} onChange={set('confirm')} error={!!errors.confirm} helperText={errors.confirm} autoComplete="new-password" size="medium" />
                     <FormControl error={!!errors.terms}>
                         <FormControlLabel
                             control={<Checkbox checked={form.terms} onChange={(e) => setForm((f) => ({ ...f, terms: e.target.checked }))} />}

@@ -41,6 +41,8 @@ export function paths(lang) {
         guide: (slug) => `${guides}/${slug}`,
         login: `${base}/login`,
         signup: `${base}/signup`,
+        forgotPassword: `${base}/forgot-password`,
+        resetPassword: `${base}/reset-password`,
         wishlist: `${base}/wishlist`,
         recentlyViewed: `${base}/recently-viewed`,
         enquiries: `${base}/enquiries`,

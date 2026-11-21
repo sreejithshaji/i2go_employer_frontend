@@ -43,6 +43,20 @@ export function signUp({ email, password, fullName, termsVersion, redirectTo }) 
     });
 }
 
+/**
+ * Emails a password reset link (Supabase Auth, custom SMTP). The link opens
+ * redirectTo with a PKCE code; loading this client there exchanges it for a
+ * recovery session. Supabase answers the same whether or not the account exists.
+ */
+export function requestPasswordReset(email, redirectTo) {
+    return supabase.auth.resetPasswordForEmail(email, { redirectTo });
+}
+
+/** Sets a new password for the signed-in (or recovering) user. */
+export function updatePassword(password) {
+    return supabase.auth.updateUser({ password });
+}
+
 export function signOut() {
     return supabase.auth.signOut();
 }
