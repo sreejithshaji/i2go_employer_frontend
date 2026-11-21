@@ -8,7 +8,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
     Alert, Avatar, Box, Button, Card, Skeleton, Stack, Tooltip, Typography,
 } from '@mui/material';
-import { FiAward, FiBookOpen, FiBriefcase, FiCheck, FiFileText, FiGlobe, FiLock, FiLogIn, FiSend } from 'react-icons/fi';
+import { FiAward, FiBookOpen, FiBriefcase, FiCheck, FiFileText, FiGlobe, FiLock, FiSend } from 'react-icons/fi';
 import Badge from '@/components/badge';
 import { VerifiedBadge } from '@/app/[lang]/(portal)/client/components/candidate-card';
 import LockedPhoto, { showsLockedPhoto } from '@/app/[lang]/(portal)/client/components/locked-photo';
@@ -136,16 +136,19 @@ export default function CandidateProfileView({ candidate, error }) {
         c.experience != null && format(t.profile.experienceFact, { years: yearsLabel(c.experience, t, lang) }),
     ].filter(Boolean);
 
-    // Only signed-in employers who accepted the terms can send an enquiry
-    // (submit-enquiry enforces the same). Guests are sent to sign in and back,
-    // employers without terms to the terms page; candidate accounts get no button.
+    // Who can send an enquiry (submit-enquiry enforces the same):
+    // guests, through the form with the terms checkbox (guest-enquiry-plan.md);
+    // signed-in employers who accepted the terms. Employers without terms go
+    // to the terms page; candidate accounts get no button. Disabled until the
+    // session is known, so a signed-in employer never gets the guest form.
     const loginLink = loginHref(pathname);
+    const isGuest = ready && !user;
     const enquiry = enquired
         ? { label: t.profile.enquirySent, icon: <FiCheck />, disabled: true }
-        : !user
-            ? { label: t.profile.signInToEnquire, icon: <FiLogIn />, onClick: () => { startNavigation(loginLink); router.push(loginLink); } }
-            : !ready
-                ? { label: t.profile.sendEnquiry, icon: <FiSend />, disabled: true }
+        : !ready
+            ? { label: t.profile.sendEnquiry, icon: <FiSend />, disabled: true }
+            : isGuest
+                ? { label: t.profile.sendEnquiry, icon: <FiSend />, onClick: () => setEnquiryOpen(true) }
                 : needsTerms
                     ? { label: t.profile.acceptTermsToEnquire, icon: <FiFileText />, onClick: () => { startNavigation(p.terms); router.push(p.terms); } }
                     : isEmployer
@@ -347,6 +350,20 @@ export default function CandidateProfileView({ candidate, error }) {
                         <Typography sx={{ mt: 1, maxWidth: 560, fontSize: 15, lineHeight: 1.6, fontWeight: 500, color: b.onDark.body }}>
                             {enquiry ? t.profile.ctaText : t.profile.ctaTextNoButton}
                         </Typography>
+                        {isGuest && !enquired && (
+                            <Typography sx={{ mt: 1, maxWidth: 560, fontSize: 14, lineHeight: 1.6, fontWeight: 500, color: b.onDark.body }}>
+                                {t.profile.guestSignInPrefix}{' '}
+                                <Box
+                                    component={NextLink}
+                                    href={loginLink}
+                                    onClick={() => startNavigation(loginLink)}
+                                    sx={{ color: b.cyan, fontWeight: 700, textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                >
+                                    {t.profile.guestSignInLink}
+                                </Box>
+                                {t.profile.guestSignInRest}
+                            </Typography>
+                        )}
                     </Box>
                     {enquiry && (
                         <Button

@@ -23,7 +23,10 @@
  * Version 3 (2026-11-18): the contracting party is now the Dubai FZCO. On
  * 20 Nov 2026 I2Go decided that no governing law or jurisdiction clause is
  * needed (P7), so § 12 keeps only the severability clause. Not yet
- * lawyer-reviewed.
+ * lawyer-reviewed. On 21 Nov 2026 § 1(4) and § 8 gained enquiries without an
+ * account (guest-enquiry-plan.md); kept as version 3 like the P7 edit, since
+ * the text is still pre-review. Bump this (and TERMS_VERSION in the
+ * submit-enquiry edge function) once the lawyer has approved a final text.
  */
 export const TERMS_VERSION = '3';
 /** "As of" dates shown on the pages, per language. */

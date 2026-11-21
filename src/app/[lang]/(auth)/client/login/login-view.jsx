@@ -7,6 +7,7 @@ import { Alert, Box, Button, CircularProgress, Link, Stack, TextField, Typograph
 import { Redirect, signIn, useAuth } from '@/features/auth';
 import { useI18n } from '@/features/i18n';
 import AuthCard from '../components/auth-card';
+import PasswordField from '@/components/password-field';
 import { startNavigation } from '@/components/navigation-progress/progress-store';
 
 /** Sign-in form. `next` is the safe return path; `keepNext` keeps it on the link to signup. */
@@ -41,7 +42,10 @@ export default function LoginView({ next, keepNext }) {
             <Box component="form" onSubmit={handleSubmit}>
                 <Stack spacing={2}>
                     <TextField label={t.auth.email} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" size="medium" />
-                    <TextField label={t.auth.password} type="password" required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" size="medium" />
+                    <PasswordField label={t.auth.password} showLabel={t.auth.showPassword} hideLabel={t.auth.hidePassword} required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" size="medium" />
+                    <Link component={NextLink} href={p.forgotPassword} variant="body2" sx={{ alignSelf: 'flex-end' }}>
+                        {t.auth.forgotLink}
+                    </Link>
                     {error && <Alert severity="error">{error}</Alert>}
                     <Button type="submit" variant="contained" size="large" disabled={loading} startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}>
                         {loading ? t.auth.signingIn : t.common.signIn}

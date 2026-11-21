@@ -49,3 +49,11 @@ export async function signIn(email, password) {
 export async function signUp(details) {
     return (await loadAuthApi()).signUp(details);
 }
+
+export async function requestPasswordReset(email, redirectTo) {
+    return (await loadAuthApi()).requestPasswordReset(email, redirectTo);
+}
+
+export async function updatePassword(password) {
+    return (await loadAuthApi()).updatePassword(password);
+}

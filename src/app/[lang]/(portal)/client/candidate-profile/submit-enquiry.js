@@ -2,7 +2,9 @@ import { FunctionsHttpError } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase/browser';
 
 // Sent from the browser: the submit-enquiry edge function reads the employer's
-// session token to link the enquiry to their account. Spam protection is our
+// session token to link the enquiry to their account. A guest has no session,
+// so supabase-js sends only the publishable key, and the function takes the
+// guest path (accept_terms and terms_version in the body). Spam protection is our
 // own (no third party): a signed form token fetched when the form opens, and
 // a hidden honeypot field (see the function's header).
 

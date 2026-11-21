@@ -13,7 +13,7 @@ import { keyframes } from '@emotion/react';
 import { FiArrowLeft, FiBookOpen, FiChevronDown, FiClock, FiHeart, FiHome, FiInbox, FiLogOut, FiMenu, FiSidebar, FiUsers } from 'react-icons/fi';
 import Breadcrumbs from '@/components/breadcrumbs';
 import ScrollToTop from '@/components/scroll-to-top';
-import { SignInButton, useAuth } from '@/features/auth';
+import { SignInButton, SignUpButton, useAuth } from '@/features/auth';
 import { LanguageSwitcher, useI18n } from '@/features/i18n';
 import { format, isLocale } from '@/lib/i18n/config';
 import { guidesSegment, hubSegment, parseCandidateSegment } from '@/lib/i18n/routes';
@@ -339,9 +339,9 @@ export default function AppShell({ children }) {
                 </>
             ) : (
                 <Stack spacing={1}>
-                    <Button variant="cta" size="small" component={NextLink} href={p.signup} onClick={() => setDrawerOpen(false)}>
+                    <SignUpButton variant="cta" size="small" onClick={() => setDrawerOpen(false)}>
                         {t.common.createAccount}
-                    </Button>
+                    </SignUpButton>
                     <SignInButton onClick={() => setDrawerOpen(false)} sx={railButtonSx}>
                         {t.common.signIn}
                     </SignInButton>
@@ -509,7 +509,7 @@ export default function AppShell({ children }) {
                         ) : (
                             <>
                                 <SignInButton>{t.common.signIn}</SignInButton>
-                                <Button component={NextLink} href={p.signup} variant="cta">{t.common.createAccount}</Button>
+                                <SignUpButton variant="cta">{t.common.createAccount}</SignUpButton>
                             </>
                         )}
                     </Box>

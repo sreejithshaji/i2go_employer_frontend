@@ -11,7 +11,8 @@ import { LegalSection } from './legal-document';
 //   §3     the document shows employers only anonymous profiles; the portal
 //          shows signed-in employers name, photo and video (10.2);
 //   §7     the document covers job ads; the portal has enquiries instead;
-//   §5, §10 the portal's own rules (limits, logging, new versions) are added.
+//   §5, §10 the portal's own rules (limits, logging, new versions) are added;
+//   §1(4), §8 enquiries without an account (guest-enquiry-plan.md, 2026-11-21).
 // The German text is binding (TermsDe); TermsEn is a translation.
 //
 // Version 3 (2026-11-18): the contracting party is the Dubai FZCO
@@ -37,6 +38,10 @@ export function TermsDe({ lang }) {
                 </p>
                 <p>(2) Das Portal richtet sich ausschließlich an Unternehmer im Sinne des § 14 BGB.</p>
                 <p>(3) Für die Vermittlungsleistung und deren Vergütung gilt der gesonderte Vermittlungsvertrag zwischen i2go und dem Arbeitgeber.</p>
+                <p>
+                    (4) Diese Bedingungen gelten auch, wenn ein Arbeitgeber ohne Konto eine Anfrage sendet (§ 8). Mit dem Häkchen im
+                    Anfrageformular bestätigt der Absender, für ein Unternehmen zu handeln, und akzeptiert diese Bedingungen.
+                </p>
             </LegalSection>
 
             <LegalSection id="account" title="§ 2 Registrierung und Prüfung">
@@ -113,6 +118,8 @@ export function TermsDe({ lang }) {
                 <p>
                     Der Arbeitgeber ist für die Richtigkeit und Rechtmäßigkeit seiner Anfragen verantwortlich (Stellenbezeichnung,
                     Einsatzort, Nachricht). i2go kann rechtswidrige oder irreführende Anfragen ohne Vorankündigung ablehnen oder löschen.
+                    Anfragen können mit oder ohne Konto gesendet werden; ohne Konto speichert i2go mit der Anfrage, welche Fassung dieser
+                    Bedingungen wann akzeptiert wurde.
                 </p>
             </LegalSection>
 
@@ -157,6 +164,10 @@ export function TermsEn({ lang }) {
                 </p>
                 <p>(2) The portal is only for businesses within the meaning of § 14 BGB (German Civil Code).</p>
                 <p>(3) The placement service and its fee are governed by the separate placement agreement between i2go and the employer.</p>
+                <p>
+                    (4) These terms also apply when an employer sends an enquiry without an account (§ 8). By ticking the box in the enquiry
+                    form, the sender confirms that they are acting for a company and accepts these terms.
+                </p>
             </LegalSection>
 
             <LegalSection id="account" title="§ 2 Registration and checks">
@@ -231,7 +242,8 @@ export function TermsEn({ lang }) {
             <LegalSection id="enquiries" title="§ 8 Enquiries">
                 <p>
                     The employer is responsible for the accuracy and lawfulness of its enquiries (job title, place of work, message). i2go
-                    may reject or delete unlawful or misleading enquiries without notice.
+                    may reject or delete unlawful or misleading enquiries without notice. Enquiries can be sent with or without an account;
+                    without one, i2go stores with the enquiry which version of these terms was accepted and when.
                 </p>
             </LegalSection>
 
