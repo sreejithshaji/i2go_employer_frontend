@@ -6,9 +6,9 @@ import NextLink from 'next/link';
 import CtaButton from '@/app/[lang]/(marketing)/client/components/cta-button';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-    Alert, Avatar, Box, Button, Card, Skeleton, Stack, Tooltip, Typography,
+    Alert, Avatar, Box, Button, Card, Collapse, Skeleton, Stack, Tooltip, Typography,
 } from '@mui/material';
-import { FiAward, FiBookOpen, FiBriefcase, FiCheck, FiFileText, FiGlobe, FiLock, FiSend } from 'react-icons/fi';
+import { FiAward, FiBookOpen, FiBriefcase, FiCheck, FiChevronUp, FiFileText, FiGlobe, FiLock, FiSend } from 'react-icons/fi';
 import Badge from '@/components/badge';
 import { VerifiedBadge } from '@/app/[lang]/(portal)/client/components/candidate-card';
 import LockedPhoto, { showsLockedPhoto } from '@/app/[lang]/(portal)/client/components/locked-photo';
@@ -22,13 +22,28 @@ import { useI18n } from '@/features/i18n';
 import { format, localName } from '@/lib/i18n/config';
 import { initials, languageLevelLabel, monthLabel, yearsLabel } from '@/lib/portal/format';
 import { brand as b, tokens } from '@/app/theme';
-import DriftGlow from '@/app/[lang]/(marketing)/client/components/drift-glow';
 import Reveal from '@/app/[lang]/(marketing)/client/components/reveal';
 import { CandidateDetailSkeleton } from '../components/page-skeletons';
 import { startNavigation } from '@/components/navigation-progress/progress-store';
 
-// Loaded after the page, not in its first bundle (PLAN.md 11.14.3): only signed-in employers open it.
-const EnquiryDialog = dynamic(() => import('./enquiry-modal'), { ssr: false });
+// Loaded after the page, not in its first bundle (PLAN.md 11.14.3), and only
+// once someone opens it: it unfolds inside the enquiry panel at the bottom.
+const EnquiryForm = dynamic(() => import('./enquiry-modal'), { ssr: false });
+const FORM_ID = 'enquiry-form';
+
+// Scrolls to the enquiry panel and focuses the form's first field (once the
+// form has loaded and unfolded).
+function scrollToForm(tries = 20) {
+    const el = document.getElementById(FORM_ID);
+    if (!el) return;
+    const input = el.querySelector('input');
+    if (!input && tries > 0) {
+        setTimeout(() => scrollToForm(tries - 1), 100);
+        return;
+    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    input?.focus({ preventScroll: true });
+}
 
 /**
  * Profile section card with a numbered heading (plan 14.4a): the two-digit
@@ -92,9 +107,10 @@ export default function CandidateProfileView({ candidate, error }) {
     const { lang, t, p } = useI18n();
     const [retrying, startRetry] = useTransition();
 
-    // null until first opened: the dialog's code (and the Supabase client it
-    // sends with) only loads then. Kept mounted afterwards for the close animation.
-    const [enquiryOpen, setEnquiryOpen] = useState(null);
+    // null until first opened: the form's code (and the Supabase client it
+    // sends with) only loads then. Kept mounted afterwards, so hiding it keeps
+    // what was typed and the fold animation can run.
+    const [formOpen, setFormOpen] = useState(null);
     const [sentNow, setSentNow] = useState(false);
     const sentBefore = useSyncExternalStore(
         noSubscribe,
@@ -141,6 +157,10 @@ export default function CandidateProfileView({ candidate, error }) {
     // signed-in employers who accepted the terms. Employers without terms go
     // to the terms page; candidate accounts get no button. Disabled until the
     // session is known, so a signed-in employer never gets the guest form.
+    const openForm = () => {
+        setFormOpen(true);
+        scrollToForm();
+    };
     const loginLink = loginHref(pathname);
     const isGuest = ready && !user;
     const enquiry = enquired
@@ -148,12 +168,21 @@ export default function CandidateProfileView({ candidate, error }) {
         : !ready
             ? { label: t.profile.sendEnquiry, icon: <FiSend />, disabled: true }
             : isGuest
-                ? { label: t.profile.sendEnquiry, icon: <FiSend />, onClick: () => setEnquiryOpen(true) }
+                ? { label: t.profile.sendEnquiry, icon: <FiSend />, onClick: openForm }
                 : needsTerms
                     ? { label: t.profile.acceptTermsToEnquire, icon: <FiFileText />, onClick: () => { startNavigation(p.terms); router.push(p.terms); } }
                     : isEmployer
-                        ? { label: t.profile.sendEnquiry, icon: <FiSend />, onClick: () => setEnquiryOpen(true) }
+                        ? { label: t.profile.sendEnquiry, icon: <FiSend />, onClick: openForm }
                         : null;
+
+    // The panel button shows and hides the form (guests and employers who
+    // accepted the terms). After a send from this page the form stays open with
+    // its own "sent" message, and the button becomes the disabled "Enquiry sent".
+    const canEnquire = ready && (isGuest || (isEmployer && !needsTerms));
+    const showForm = canEnquire && (!sentBefore || sentNow);
+    const panelButton = enquiry && (formOpen && !enquired
+        ? { label: t.profile.hideEnquiryForm, icon: <FiChevronUp />, onClick: () => setFormOpen(false) }
+        : enquiry);
 
     const enquireButton = enquiry && (
         <Button
@@ -326,38 +355,35 @@ export default function CandidateProfileView({ candidate, error }) {
                 </Stack>
             </Box>
 
-            {/* Enquiry call to action: one full-width row under the profile (stacks on phones) */}
-            {/* The reference dark panel: navy, hairline cyan edge, drifting cyan glow */}
+            {/* Enquiry panel: a light card under the profile, with the form inline */}
             <Reveal
                 component="section"
+                id={FORM_ID}
                 aria-label={format(t.profile.enquireAria, { name: firstName })}
                 sx={{
-                    position: 'relative', overflow: 'hidden', isolation: 'isolate',
-                    mt: 3, p: { xs: 3, md: 4 }, borderRadius: `${b.radiusPanel}px`,
-                    background: b.darkPanelBase, border: `1px solid ${b.darkPanelBorder}`, boxShadow: b.shadowDarkPanel,
-                    '--focus-color': b.cyan,
+                    mt: 3, p: { xs: 2.5, md: 4 }, borderRadius: `${b.radiusPanel}px`, scrollMarginTop: 96,
+                    bgcolor: b.surface, border: `1px solid ${b.line}`, boxShadow: tokens.shadowCard,
                 }}
             >
-                <DriftGlow color="rgba(31,200,255,0.14)" sx={{ zIndex: -1, top: -220, right: { xs: -280, md: -100 }, width: { xs: 560, md: 680 }, height: 440 }} />
-                <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 2.5, md: 3 }} sx={{ alignItems: { xs: 'flex-start', md: 'center' } }}>
-                    <Box aria-hidden sx={{ width: 46, height: 46, flexShrink: 0, borderRadius: `${b.radiusButton}px`, display: 'grid', placeItems: 'center', bgcolor: 'rgba(255,255,255,0.05)', border: `1px solid ${b.onDark.border}`, color: b.cyan }}>
+                <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 2, md: 2.5 }} sx={{ alignItems: { xs: 'flex-start', md: 'center' } }}>
+                    <Box aria-hidden sx={{ width: 46, height: 46, flexShrink: 0, borderRadius: `${b.radiusButton}px`, display: 'grid', placeItems: 'center', bgcolor: b.accentSoft, border: `1px solid ${b.line}`, color: b.accentText }}>
                         <FiAward size={21} />
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography component="h2" sx={{ m: 0, fontSize: { xs: 22, md: 26 }, lineHeight: 1.15, fontWeight: 800, letterSpacing: '-0.7px', color: b.onDark.text }}>
+                        <Typography component="h2" sx={{ m: 0, fontSize: { xs: 22, md: 26 }, lineHeight: 1.15, fontWeight: 800, letterSpacing: '-0.7px', color: b.ink }}>
                             {format(t.profile.interested, { name: firstName })}
                         </Typography>
-                        <Typography sx={{ mt: 1, maxWidth: 560, fontSize: 15, lineHeight: 1.6, fontWeight: 500, color: b.onDark.body }}>
+                        <Typography sx={{ mt: 1, maxWidth: 560, fontSize: 15, lineHeight: 1.6, fontWeight: 500, color: b.muted }}>
                             {enquiry ? t.profile.ctaText : t.profile.ctaTextNoButton}
                         </Typography>
                         {isGuest && !enquired && (
-                            <Typography sx={{ mt: 1, maxWidth: 560, fontSize: 14, lineHeight: 1.6, fontWeight: 500, color: b.onDark.body }}>
+                            <Typography sx={{ mt: 1, maxWidth: 560, fontSize: 14, lineHeight: 1.6, fontWeight: 500, color: b.muted }}>
                                 {t.profile.guestSignInPrefix}{' '}
                                 <Box
                                     component={NextLink}
                                     href={loginLink}
                                     onClick={() => startNavigation(loginLink)}
-                                    sx={{ color: b.cyan, fontWeight: 700, textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                    sx={linkSx}
                                 >
                                     {t.profile.guestSignInLink}
                                 </Box>
@@ -365,18 +391,32 @@ export default function CandidateProfileView({ candidate, error }) {
                             </Typography>
                         )}
                     </Box>
-                    {enquiry && (
+                    {panelButton && (
                         <Button
-                            variant="cta"
-                            endIcon={enquiry.icon}
-                            disabled={enquiry.disabled}
-                            onClick={enquiry.onClick}
+                            variant={formOpen && !enquired ? 'ghost' : 'cta'}
+                            endIcon={panelButton.icon}
+                            disabled={panelButton.disabled}
+                            onClick={panelButton.onClick}
+                            aria-expanded={canEnquire ? !!formOpen : undefined}
+                            aria-controls={canEnquire ? `${FORM_ID}-body` : undefined}
                             sx={{ flexShrink: 0, width: { xs: '100%', md: 'auto' }, justifyContent: { xs: 'space-between', md: 'center' } }}
                         >
-                            {enquiry.label}
+                            {panelButton.label}
                         </Button>
                     )}
                 </Stack>
+                {showForm && formOpen !== null && (
+                    <Collapse in={formOpen} id={`${FORM_ID}-body`}>
+                        <Box sx={{ mt: 3, pt: 3, borderTop: `1px solid ${b.line}` }}>
+                            <EnquiryForm
+                                key={user?.id ?? 'guest'}
+                                inline
+                                candidate={c}
+                                onSent={() => setSentNow(true)}
+                            />
+                        </Box>
+                    </Collapse>
+                )}
             </Reveal>
 
             {/* Sticky action bar on phones (14.13): the phone top bar's light frosted
@@ -405,14 +445,6 @@ export default function CandidateProfileView({ candidate, error }) {
                 )}
             </Box>
 
-            {enquiryOpen !== null && (
-                <EnquiryDialog
-                    open={enquiryOpen}
-                    onClose={() => setEnquiryOpen(false)}
-                    candidate={c}
-                    onSent={() => setSentNow(true)}
-                />
-            )}
         </Box>
     );
 }

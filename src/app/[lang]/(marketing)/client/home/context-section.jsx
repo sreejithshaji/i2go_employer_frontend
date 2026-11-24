@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import { Box, Typography } from '@mui/material';
 import { keyframes } from '@mui/material/styles';
@@ -12,23 +12,25 @@ import PortalButton from '../components/portal-button';
 import Eyebrow from '../components/eyebrow';
 import Reveal, { STAGGER } from '../components/reveal';
 import SectionHeading from './section-heading';
-import { EUROPE_PATHS, INDIA_PATH } from './map-outlines';
+import { EUROPE_PATHS } from './map-outlines';
 
 /**
  * "Why it matters" (plan §6 row 3). No cards: the section itself is the
  * picture. Its background runs from a cool blue wash with a Europe map outline
- * (left) to a warm saffron wash with an India map outline (right). The
- * challenge and the opportunity sit straight on it, joined in the middle by a
- * medallion where a handshake turns into the i2GO mark as you scroll. Below
- * 900px the wash runs top to bottom, Europe above India, and the columns
- * stack with the medallion between them.
+ * (left) to a warm gold wash with an abstract field of talent (right): dots
+ * with arcs flowing towards Europe from origins that aren't labelled
+ * (global-talent-plan.md). The challenge and the opportunity sit straight on
+ * it, joined in the middle by a medallion where a handshake turns into the
+ * i2GO mark as you scroll. Below 900px the wash runs top to bottom, Europe
+ * above the talent field, and the columns stack with the medallion between
+ * them.
  */
 export default function ContextSection() {
     const { t } = useI18n();
     const c = t.landing.context;
     const sectionRef = useRef(null);
     const europeDot = useRef(null);
-    const indiaDot = useRef(null);
+    const talentDot = useRef(null);
     // The rings, dot flashes and border glow share one timeline: they all
     // start paused and play together while the section is on screen, so the
     // glow stays in step with the ring hits.
@@ -62,15 +64,15 @@ export default function ContextSection() {
                 '&[data-beat="off"] .ctx-ring': { opacity: 0 },
                 position: 'relative', overflow: 'hidden', isolation: 'isolate',
                 background: {
-                    xs: `linear-gradient(180deg, ${EUROPE.wash} 0%, #F4F7F9 46%, #F8F5F1 54%, ${INDIA.wash} 100%)`,
-                    md: `linear-gradient(90deg, ${EUROPE.wash} 0%, #F4F7F9 42%, #F8F5F1 58%, ${INDIA.wash} 100%)`,
+                    xs: `linear-gradient(180deg, ${EUROPE.wash} 0%, #F4F7F9 46%, #F8F5F1 54%, ${TALENT.wash} 100%)`,
+                    md: `linear-gradient(90deg, ${EUROPE.wash} 0%, #F4F7F9 42%, #F8F5F1 58%, ${TALENT.wash} 100%)`,
                 },
                 borderTop: `1px solid ${b.line}`, borderBottom: `1px solid ${b.line}`,
                 py: { xs: 6, md: 10 },
             }}
         >
-            <MapLayer side="europe" dotRef={europeDot} />
-            <MapLayer side="india" dotRef={indiaDot} />
+            <EuropeLayer dotRef={europeDot} />
+            <TalentLayer dotRef={talentDot} />
             <Container>
                 <Box sx={{ textAlign: 'center', maxWidth: 640, mx: 'auto' }}>
                     <Reveal>
@@ -96,10 +98,10 @@ export default function ContextSection() {
                         text={c.challengeText}
                         points={c.challengePoints}
                     />
-                    <Bridge label={c.bridgeLabel} startRef={europeDot} endRef={indiaDot} onLogo={setLogo} />
+                    <Bridge label={c.bridgeLabel} startRef={europeDot} endRef={talentDot} onLogo={setLogo} />
                     <Column
                         delay={3 * STAGGER}
-                        theme={INDIA}
+                        theme={TALENT}
                         icon={<FiTrendingUp size={18} />}
                         label={c.opportunityLabel}
                         title={c.opportunityTitle}
@@ -116,7 +118,8 @@ export default function ContextSection() {
 }
 
 /**
- * Palettes. Europe is a cool blue (the brand accent), India a warm saffron.
+ * Palettes. Europe is a cool blue (the brand accent), the talent side a warm
+ * gold (the brand's goldText family).
  * Small text keeps ≥ 4.5:1 on the wash.
  */
 const EUROPE = {
@@ -130,16 +133,15 @@ const EUROPE = {
     node: b.accentLine,
     glow: '#1AA9E6',
 };
-const INDIA = {
-    wash: '#FFE9D2',
-    label: '#9A4A07',
-    badgeBg: 'rgba(232,134,42,0.16)',
-    badge: '#B45309',
-    rule: 'rgba(232,134,42,0.24)',
-    map: '#E8862A',
-    mapFill: 'rgba(232,134,42,0.07)',
-    node: '#F2D7BA',
-    glow: '#FF9A3C',
+const TALENT = {
+    wash: '#FBF0D6',
+    label: b.goldText,
+    badgeBg: 'rgba(154,103,0,0.12)',
+    badge: b.goldText,
+    rule: 'rgba(154,103,0,0.2)',
+    map: '#C9971E',
+    node: '#F1E0B5',
+    glow: '#F2B632',
 };
 
 /** Slow float of the background maps: a small drift, tilt and breath. */
@@ -221,18 +223,12 @@ function useGlowAnchors(svgRef, dotRef) {
 }
 
 /**
- * A large, faint map outline in the section background: Europe hugging the
- * left edge, India the right (top and bottom on phones). Edges fade out.
- * Each ring hit on the bridge dot sends a glow along the borders.
+ * Shared frame of the two background layers: a large square SVG hugging one
+ * edge of the section (Europe left, talent right; top and bottom on phones),
+ * fading out at its edges and drifting slowly.
  */
-function MapLayer({ side, dotRef }) {
+const LayerFrame = ({ side, svgRef, children }) => {
     const europe = side === 'europe';
-    const theme = europe ? EUROPE : INDIA;
-    const svgRef = useRef(null);
-    useGlowAnchors(svgRef, dotRef);
-    const glowPaths = europe ? EUROPE_GLOW : [INDIA_PATH];
-    // Once per 2.6s cycle: only the first (strong) ring sends the glow.
-    const run = (name) => `${name} 2.6s linear calc(var(--hit) + var(--d, 0s)) infinite`;
     const place = europe
         ? { top: { xs: '-2%', md: '50%' }, left: { xs: 'auto', md: 'max(-80px, calc(50% - 800px))' }, right: { xs: '-28%', md: 'auto' } }
         : { top: { xs: 'auto', md: '50%' }, bottom: { xs: '-2%', md: 'auto' }, right: { xs: '-24%', md: 'max(-40px, calc(50% - 760px))' } };
@@ -269,37 +265,208 @@ function MapLayer({ side, dotRef }) {
                         <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
                     </filter>
                 </defs>
-                <Box
-                    component="g"
-                    sx={{
-                        fill: theme.mapFill, stroke: theme.map, strokeWidth: 1,
-                        opacity: { xs: 0.35, md: 0.5 },
-                        '& path': { vectorEffect: 'non-scaling-stroke' },
-                    }}
-                >
-                    {europe ? EUROPE_PATHS.map((d, i) => <path key={i} d={d} />) : <path d={INDIA_PATH} />}
-                </Box>
-                <Box
-                    component="g"
-                    className="glow-layer"
-                    sx={{
-                        fill: 'none', stroke: theme.glow, strokeWidth: { xs: 1.15, md: 1 }, strokeLinecap: 'round',
-                        filter: { xs: 'none', md: `url(#map-glow-${side})` },
-                        '& path': { opacity: 0 },
-                        '& .fwd': { animation: run(traceFwd) },
-                        '& .bwd': { animation: run(traceBwd) },
-                        '@media (prefers-reduced-motion: reduce)': { display: 'none' },
-                    }}
-                >
-                    {glowPaths.map((d, i) => (
-                        <g key={i} data-glow="">
-                            <path className="ctx-anim fwd" d={d} />
-                            <path className="ctx-anim bwd" d={d} />
-                        </g>
-                    ))}
-                </Box>
+                {children}
             </Box>
         </Box>
+    );
+};
+
+/**
+ * Europe's map outline. Each strong ring hit on the bridge dot sends a glow
+ * along the borders.
+ */
+function EuropeLayer({ dotRef }) {
+    const svgRef = useRef(null);
+    useGlowAnchors(svgRef, dotRef);
+    // Once per 2.6s cycle: only the first (strong) ring sends the glow.
+    const run = (name) => `${name} 2.6s linear calc(var(--hit) + var(--d, 0s)) infinite`;
+    return (
+        <LayerFrame side="europe" svgRef={svgRef}>
+            <Box
+                component="g"
+                sx={{
+                    fill: EUROPE.mapFill, stroke: EUROPE.map, strokeWidth: 1,
+                    opacity: { xs: 0.35, md: 0.5 },
+                    '& path': { vectorEffect: 'non-scaling-stroke' },
+                }}
+            >
+                {EUROPE_PATHS.map((d, i) => <path key={i} d={d} />)}
+            </Box>
+            <Box
+                component="g"
+                className="glow-layer"
+                sx={{
+                    fill: 'none', stroke: EUROPE.glow, strokeWidth: { xs: 1.15, md: 1 }, strokeLinecap: 'round',
+                    filter: { xs: 'none', md: 'url(#map-glow-europe)' },
+                    '& path': { opacity: 0 },
+                    '& .fwd': { animation: run(traceFwd) },
+                    '& .bwd': { animation: run(traceBwd) },
+                    '@media (prefers-reduced-motion: reduce)': { display: 'none' },
+                }}
+            >
+                {EUROPE_GLOW.map((d, i) => (
+                    <g key={i} data-glow="">
+                        <path className="ctx-anim fwd" d={d} />
+                        <path className="ctx-anim bwd" d={d} />
+                    </g>
+                ))}
+            </Box>
+        </LayerFrame>
+    );
+}
+
+/*
+ * Talent field: a halftone dot cloud with no country shape. A cheap,
+ * deterministic wave mix decides which grid dots stay, so the cloud has soft
+ * clusters that hint at land without drawing any real coastline.
+ */
+const C = 200; // centre of the 400×400 box
+const wave = (x, y) => Math.sin(x * 0.045 + 1.3) * Math.cos(y * 0.052 - 0.7)
+    + 0.6 * Math.sin((x + y) * 0.031 + 2.1) + 0.35 * Math.cos((x - y) * 0.07);
+const TALENT_DOTS = (() => {
+    const dots = [];
+    for (let row = 0, y = 26; y <= 374; row += 1, y += 12) {
+        for (let x = 26 + (row % 2) * 6; x <= 374; x += 12) {
+            if (Math.hypot(x - C, y - C) <= 170 && wave(x, y) > -0.15) dots.push([x, y]);
+        }
+    }
+    return dots;
+})();
+/** Origins the arcs start from; only those far enough from the landing point are used. */
+const ORIGINS = [[286, 96], [332, 170], [318, 262], [262, 330], [176, 318], [226, 226], [268, 160], [120, 268], [200, 92], [150, 150], [340, 226]];
+/** How far from the centre the arcs land, towards the bridge dot (inside the fade-out). */
+const LAND_R = 128;
+const MIN_ARC = 110;
+
+/**
+ * A flight-path arc from an origin to the landing point. It bows upwards on
+ * horizontal runs (desktop) and outwards on vertical runs (phones).
+ */
+function arcPath([ox, oy], { x: tx, y: ty }) {
+    const dx = tx - ox;
+    const dy = ty - oy;
+    const d = Math.hypot(dx, dy);
+    const nx = -dy / d;
+    const ny = dx / d;
+    const s = Math.abs(ny) > 0.3 ? (ny < 0 ? 1 : -1) : (Math.sign(ox - tx) * Math.sign(nx) || 1);
+    const k = 0.24 * d * s;
+    const cx = (ox + tx) / 2 + nx * k;
+    const cy = (oy + ty) / 2 + ny * k;
+    return `M${ox} ${oy}Q${cx.toFixed(1)} ${cy.toFixed(1)} ${tx} ${ty}`;
+}
+
+/**
+ * Finds the landing point: on the line from the field's centre towards the
+ * bridge dot, LAND_R from the centre. Reruns on resize (the layout changes at
+ * the breakpoint).
+ */
+function useLanding(svgRef, dotRef) {
+    const [land, setLand] = useState(null);
+    useEffect(() => {
+        const svg = svgRef.current;
+        if (!svg) return undefined;
+        let frame = 0;
+        const place = () => {
+            const dot = dotRef.current;
+            const ctm = svg.getScreenCTM();
+            if (!dot || !ctm) return;
+            const r = dot.getBoundingClientRect();
+            const p = new DOMPoint(r.left + r.width / 2, r.top + r.height / 2).matrixTransform(ctm.inverse());
+            const dx = p.x - C;
+            const dy = p.y - C;
+            const d = Math.hypot(dx, dy) || 1;
+            const x = Math.round(C + (dx / d) * LAND_R);
+            const y = Math.round(C + (dy / d) * LAND_R);
+            setLand((prev) => (prev && prev.x === x && prev.y === y ? prev : { x, y }));
+        };
+        const onResize = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(place); };
+        place();
+        window.addEventListener('resize', onResize);
+        return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', onResize); };
+    }, [svgRef, dotRef]);
+    return land;
+}
+
+/**
+ * A bright streak along an arc (pathLength 1, streak 0.22 long). It runs from
+ * the origin and reaches the landing point at 40% of the 2.6s cycle, so the
+ * delay `--hit - 1.04s` lands it as the strong ring hits the bridge dot.
+ */
+const inflow = keyframes`
+    0% { stroke-dashoffset: 0.22; opacity: 0; }
+    8% { opacity: 0.9; }
+    40% { stroke-dashoffset: -0.78; opacity: 0.9; }
+    50%, 100% { stroke-dashoffset: -1; opacity: 0; }
+`;
+/** The landing point flashes when the streaks arrive. */
+const landFlash = keyframes`
+    0% { transform: scale(1); opacity: 0.9; }
+    30%, 100% { transform: scale(2.6); opacity: 0; }
+`;
+
+/**
+ * The talent side: the dot cloud, faint dashed arcs from a few origins to
+ * the landing point facing the bridge, and on every strong beat a streak
+ * along each arc flowing in towards Europe. Under reduced motion only the
+ * still dots and arcs show.
+ */
+function TalentLayer({ dotRef }) {
+    const svgRef = useRef(null);
+    const land = useLanding(svgRef, dotRef);
+    const arcs = useMemo(
+        () => (land ? ORIGINS.filter(([x, y]) => Math.hypot(x - land.x, y - land.y) > MIN_ARC).map((o) => ({ o, d: arcPath(o, land) })) : []),
+        [land],
+    );
+    return (
+        <LayerFrame side="talent" svgRef={svgRef}>
+            <Box component="g" sx={{ opacity: { xs: 0.35, md: 0.5 } }}>
+                <g fill={TALENT.map} opacity={0.55}>
+                    {TALENT_DOTS.map(([x, y]) => <circle key={`${x}-${y}`} cx={x} cy={y} r={1.5} />)}
+                </g>
+                <g fill="none" stroke={TALENT.map} strokeWidth={0.9} strokeDasharray="2 3" strokeLinecap="round">
+                    {arcs.map(({ d }) => <path key={d} d={d} />)}
+                </g>
+                <g fill={TALENT.map}>
+                    {arcs.map(({ o: [x, y] }) => (
+                        <g key={`${x}-${y}`}>
+                            <circle cx={x} cy={y} r={5.5} fill="none" stroke={TALENT.map} strokeWidth={0.8} opacity={0.6} />
+                            <circle cx={x} cy={y} r={2.6} />
+                        </g>
+                    ))}
+                    {land && <circle cx={land.x} cy={land.y} r={3.4} stroke="#fff" strokeWidth={1} />}
+                </g>
+            </Box>
+            {land && (
+                <Box
+                    component="g"
+                    sx={{
+                        '@media (prefers-reduced-motion: reduce)': { display: 'none' },
+                        '& .streak': {
+                            opacity: 0,
+                            animation: `${inflow} 2.6s cubic-bezier(0.45, 0, 0.3, 1) calc(var(--hit) - 1.04s + var(--d, 0s)) infinite`,
+                        },
+                        '& .land': {
+                            opacity: 0, transformBox: 'fill-box', transformOrigin: 'center',
+                            animation: `${landFlash} 2.6s ease-out var(--hit) infinite`,
+                        },
+                    }}
+                >
+                    <g
+                        fill="none" stroke={TALENT.glow} strokeWidth={1.4} strokeLinecap="round"
+                        filter="url(#map-glow-talent)"
+                    >
+                        {arcs.map(({ d }, i) => (
+                            <path
+                                key={d} d={d} pathLength={1} strokeDasharray="0.22 2"
+                                className="ctx-anim streak"
+                                style={{ '--d': `${((((i * 37) % 7) / 7) * 0.24 - 0.12).toFixed(2)}s` }}
+                            />
+                        ))}
+                    </g>
+                    <circle className="ctx-anim land" cx={land.x} cy={land.y} r={3.4} fill={TALENT.glow} />
+                </Box>
+            )}
+        </LayerFrame>
     );
 }
 
@@ -376,8 +543,8 @@ const dotFlash = keyframes`
 `;
 
 /**
- * Handshake medallion between the columns: Europe (left/top) and India
- * (right/bottom) joined by a dashed line with a node at each end, two soft
+ * Handshake medallion between the columns: Europe (left/top) and the talent
+ * field (right/bottom) joined by a dashed line with a node at each end, two soft
  * rings pulsing out from the middle (static under reduced motion), a strong
  * one and a soft one. Both spark the dots, but only the strong ring sends the
  * glow into the maps. On
@@ -396,14 +563,14 @@ function Bridge({ label, startRef, endRef, onLogo }) {
     };
     const nodeSx = (side) => ({
         position: 'absolute', zIndex: 0, width: 10, height: 10, borderRadius: '50%',
-        bgcolor: side === 'start' ? EUROPE.map : INDIA.map,
-        boxShadow: `0 0 0 4px ${side === 'start' ? EUROPE.node : INDIA.node}`,
+        bgcolor: side === 'start' ? EUROPE.map : TALENT.map,
+        boxShadow: `0 0 0 4px ${side === 'start' ? EUROPE.node : TALENT.node}`,
         ...(side === 'start'
             ? { top: { xs: -27, md: 'calc(50% - 5px)' }, left: { xs: 'calc(50% - 5px)', md: -41 } }
             : { bottom: { xs: -27, md: 'auto' }, top: { md: 'calc(50% - 5px)' }, left: { xs: 'calc(50% - 5px)', md: 'auto' }, right: { md: -41 } }),
         '&::after': {
             content: '""', position: 'absolute', inset: 0, borderRadius: '50%',
-            bgcolor: side === 'start' ? EUROPE.glow : INDIA.glow, opacity: 0,
+            bgcolor: side === 'start' ? EUROPE.glow : TALENT.glow, opacity: 0,
             animation: `${dotFlash} 2.6s ease-out var(--hit) infinite`,
             animationPlayState: 'inherit',
             '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
@@ -427,7 +594,7 @@ function Bridge({ label, startRef, endRef, onLogo }) {
                     sx={{
                         position: 'relative', width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden',
                         border: '3px solid transparent',
-                        background: `linear-gradient(${VIDEO_BG}, ${VIDEO_BG}) padding-box, linear-gradient(90deg, ${EUROPE.map}, ${INDIA.map}) border-box`,
+                        background: `linear-gradient(${VIDEO_BG}, ${VIDEO_BG}) padding-box, linear-gradient(90deg, ${EUROPE.map}, ${TALENT.map}) border-box`,
                         boxShadow: '0 0 0 6px rgba(255,255,255,0.9), 0 14px 30px rgba(10,15,22,0.18)',
                     }}
                 >

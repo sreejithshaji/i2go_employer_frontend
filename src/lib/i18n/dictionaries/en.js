@@ -7,11 +7,11 @@ const en = {
         siteName: 'I2Go',
         defaultTitle: 'I2Go · Find candidates',
         description: 'Browse candidate profiles and send an enquiry. The I2Go team connects you with the right people.',
-        homeTitle: 'Skilled Indian professionals for European employers',
-        homeDescription: 'I2Go connects European employers with eligible, skilled Indian professionals. Explore profiles, shortlist and request interviews; we handle the rest.',
-        hubTitle: 'Find skilled candidates from India',
+        homeTitle: 'Skilled international professionals for European employers',
+        homeDescription: 'I2Go connects European employers with eligible, skilled international professionals. Explore profiles, shortlist and request interviews; we handle the rest.',
+        hubTitle: 'Find skilled international candidates',
         hubDescription: 'Profiles of international candidates with skills, work history and languages. Filter by job category and experience.',
-        hubPageTitle: 'Candidates from India, page {page}',
+        hubPageTitle: 'International candidates, page {page}',
         categoryTitle: '{name}: candidates',
         categoryPageTitle: '{name}: candidates, page {page}',
         skillTitle: '{name} with {skill}',
@@ -99,12 +99,12 @@ const en = {
             skipToContent: 'Skip to content',
         },
         hero: {
-            eyebrow: 'India to Europe recruitment',
+            eyebrow: 'Global talent for Europe',
             // H1: titleStart + titleEmployers (gold) on line one, titleJoin + titleAccent (cyan) on line two (plan §15, D15).
             titleStart: 'Connecting ',
             titleEmployers: 'European Employers',
             titleJoin: 'with ',
-            titleAccent: 'Skilled Indian Talent.',
+            titleAccent: 'Skilled Global Talent.',
             lead: 'A transparent recruitment channel: employers explore eligible candidate profiles, shortlist the right people and request interviews. Our team coordinates everything that follows, from documents to work permits.',
             ctaFind: 'Find candidates',
             ctaCandidate: "I'm a candidate",
@@ -136,8 +136,8 @@ const en = {
         },
         context: {
             label: 'Why it matters',
-            title: 'Europe’s skills gap meets India’s talent.',
-            bridgeLabel: 'Europe and India, working together',
+            title: 'Europe’s skills gap meets global talent.',
+            bridgeLabel: 'Global talent, connected with Europe',
             challengeLabel: 'The challenge',
             challengeTitle: 'Europe needs skilled people.',
             challengeText: 'Across Germany and the rest of Europe, many employers struggle to fill skilled positions with local applicants alone. Open roles stay vacant, and existing teams carry the gap.',
@@ -147,8 +147,8 @@ const en = {
                 'Existing teams carry the extra workload',
             ],
             opportunityLabel: 'The opportunity',
-            opportunityTitle: 'India has the talent.',
-            opportunityText: 'India has a large pool of qualified and experienced professionals. Many are ready to build their careers in Europe and bring their skills to the companies that need them.',
+            opportunityTitle: 'The talent is out there.',
+            opportunityText: 'Around the world, there is a large pool of qualified and experienced professionals. Many are ready to build their careers in Europe and bring their skills to the companies that need them.',
             opportunityPoints: [
                 'Qualified and experienced professionals',
                 'Many already learning German',
@@ -173,13 +173,13 @@ const en = {
         employer: {
             eyebrow: 'For employers',
             title: 'Find the Right Talent. We’ll Handle the Journey.',
-            lead: 'Europe is facing growing workforce shortages. We connect European employers with eligible, skilled and experienced Indian professionals, helping you discover the right people without managing the complexity of international recruitment alone.',
+            lead: 'Europe is facing growing workforce shortages. We connect European employers with eligible, skilled and experienced international professionals, helping you discover the right people without managing the complexity of international recruitment alone.',
             railLabel: 'Employer journey',
             steps: [
                 {
                     title: 'Access a Pool of Talent',
                     short: 'Eligible professionals',
-                    text: 'Access profiles of eligible Indian professionals across different skills, qualifications and experience levels.',
+                    text: 'Access profiles of eligible international professionals across different skills, qualifications and experience levels.',
                 },
                 {
                     title: 'Explore Candidate Profiles',
@@ -249,7 +249,7 @@ const en = {
             cta: {
                 eyebrow: 'Ready when you are',
                 title: 'Your Next Employee Could Be One Click Away.',
-                text: 'Start exploring eligible Indian talent and discover the people who could strengthen your workforce.',
+                text: 'Start exploring a talented, job-ready workforce and discover the people who could strengthen your team.',
                 primary: 'Register as an Employer',
                 secondaryPrefix: 'Already registered?',
                 secondary: 'Login',
@@ -260,7 +260,7 @@ const en = {
         candidate: {
             eyebrow: 'For candidates',
             title: 'Your Skills Could Take You Further.',
-            lead: 'European employers are looking for skilled and qualified professionals. We help eligible Indian candidates get discovered by international employers and guide them through the recruitment journey.',
+            lead: 'European employers are looking for skilled and qualified professionals. We help eligible candidates get discovered by international employers and guide them through the recruitment journey.',
             railLabel: 'Candidate journey',
             steps: [
                 {
@@ -313,7 +313,7 @@ const en = {
             allGuides: 'All guides',
         },
         footer: {
-            tagline: 'Connecting eligible Indian professionals with European employers.',
+            tagline: 'Connecting skilled international professionals with European employers.',
             contact: 'Contact',
             legal: 'Legal',
             company: 'Company',
@@ -396,6 +396,7 @@ const en = {
         enquirySent: 'Enquiry sent',
         sendEnquiry: 'Send enquiry',
         acceptTermsToEnquire: 'Accept terms to enquire',
+        hideEnquiryForm: 'Hide form',
         lockedSignedIn: 'Full name, photo, intro video and past employers are shown to employer accounts only.',
         lockedGuestLink: 'Sign in',
         lockedGuestRest: ' as an employer to see the full name, photo, intro video and past employers, and to keep a wishlist.',

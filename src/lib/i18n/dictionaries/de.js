@@ -6,11 +6,11 @@ const de = {
         siteName: 'I2Go',
         defaultTitle: 'I2Go · Fachkräfte finden',
         description: 'Profile internationaler Fachkräfte ansehen und eine Anfrage senden. Das I2Go-Team bringt Sie mit den passenden Menschen zusammen.',
-        homeTitle: 'Fachkräfte aus Indien für Arbeitgeber in Europa',
-        homeDescription: 'I2Go verbindet Arbeitgeber in Europa mit Fachkräften aus Indien. Profile ansehen, vormerken, Gespräche anfragen: den Rest übernehmen wir.',
-        hubTitle: 'Fachkräfte aus Indien finden',
+        homeTitle: 'Internationale Fachkräfte für Arbeitgeber in Europa',
+        homeDescription: 'I2Go verbindet Arbeitgeber in Europa mit internationalen Fachkräften. Profile ansehen, vormerken, Gespräche anfragen: den Rest übernehmen wir.',
+        hubTitle: 'Internationale Fachkräfte finden',
         hubDescription: 'Profile internationaler Fachkräfte mit Kenntnissen, Berufserfahrung und Sprachen. Nach Beruf und Erfahrung filtern.',
-        hubPageTitle: 'Fachkräfte aus Indien, Seite {page}',
+        hubPageTitle: 'Internationale Fachkräfte, Seite {page}',
         categoryTitle: '{name}: Fachkräfte finden',
         categoryPageTitle: '{name}: Fachkräfte, Seite {page}',
         skillTitle: '{name} mit {skill}',
@@ -98,12 +98,12 @@ const de = {
             skipToContent: 'Zum Inhalt springen',
         },
         hero: {
-            eyebrow: 'Recruiting von Indien nach Europa',
+            eyebrow: 'Internationale Talente für Europa',
             // H1: titleStart + titleEmployers (gold) on line one, titleJoin + titleAccent (cyan) on line two (plan §15, D15).
             titleStart: 'Wir verbinden ',
             titleEmployers: 'Arbeitgeber in Europa',
             titleJoin: 'mit ',
-            titleAccent: 'qualifizierten Fachkräften aus Indien.',
+            titleAccent: 'qualifizierten internationalen Fachkräften.',
             lead: 'Ein transparenter Recruiting-Kanal: Arbeitgeber sehen sich Profile geeigneter Fachkräfte an, merken passende Kandidatinnen und Kandidaten vor und fragen Vorstellungsgespräche an. Alles Weitere koordiniert unser Team, von den Unterlagen bis zur Arbeitserlaubnis.',
             ctaFind: 'Fachkräfte finden',
             ctaCandidate: 'Ich bin Fachkraft',
@@ -135,8 +135,8 @@ const de = {
         },
         context: {
             label: 'Warum das wichtig ist',
-            title: 'Europas Fachkräftelücke trifft auf Indiens Talente.',
-            bridgeLabel: 'Europa und Indien arbeiten zusammen',
+            title: 'Europas Fachkräftelücke trifft auf internationale Talente.',
+            bridgeLabel: 'Internationale Talente, verbunden mit Europa',
             challengeLabel: 'Die Herausforderung',
             challengeTitle: 'Europa braucht Fachkräfte.',
             challengeText: 'In Deutschland und im übrigen Europa können viele Arbeitgeber qualifizierte Stellen nicht allein mit Bewerberinnen und Bewerbern aus dem Inland besetzen. Stellen bleiben offen, und die bestehenden Teams fangen die Lücke auf.',
@@ -146,8 +146,8 @@ const de = {
                 'Bestehende Teams tragen die Mehrbelastung',
             ],
             opportunityLabel: 'Die Chance',
-            opportunityTitle: 'Indien hat die Talente.',
-            opportunityText: 'In Indien gibt es viele qualifizierte und erfahrene Fachkräfte. Viele von ihnen möchten ihre berufliche Zukunft in Europa aufbauen und ihr Können in Unternehmen einbringen, die sie brauchen.',
+            opportunityTitle: 'Die Talente sind da.',
+            opportunityText: 'Weltweit gibt es viele qualifizierte und erfahrene Fachkräfte. Viele von ihnen möchten ihre berufliche Zukunft in Europa aufbauen und ihr Können in Unternehmen einbringen, die sie brauchen.',
             opportunityPoints: [
                 'Qualifizierte und erfahrene Fachkräfte',
                 'Viele lernen bereits Deutsch',
@@ -172,13 +172,13 @@ const de = {
         employer: {
             eyebrow: 'Für Arbeitgeber',
             title: 'Die richtigen Fachkräfte finden. Den Weg dorthin übernehmen wir.',
-            lead: 'In Europa fehlen zunehmend Arbeitskräfte. Wir bringen Arbeitgeber in Europa mit geeigneten, qualifizierten und erfahrenen Fachkräften aus Indien zusammen. So finden Sie die richtigen Menschen, ohne die Komplexität internationaler Personalgewinnung allein bewältigen zu müssen.',
+            lead: 'In Europa fehlen zunehmend Arbeitskräfte. Wir bringen Arbeitgeber in Europa mit geeigneten, qualifizierten und erfahrenen internationalen Fachkräften zusammen. So finden Sie die richtigen Menschen, ohne die Komplexität internationaler Personalgewinnung allein bewältigen zu müssen.',
             railLabel: 'Ihr Weg als Arbeitgeber',
             steps: [
                 {
                     title: 'Zugang zu qualifizierten Fachkräften',
                     short: 'Geeignete Fachkräfte',
-                    text: 'Sehen Sie Profile geeigneter Fachkräfte aus Indien mit unterschiedlichen Kenntnissen, Qualifikationen und Erfahrungsstufen.',
+                    text: 'Sehen Sie Profile geeigneter internationaler Fachkräfte mit unterschiedlichen Kenntnissen, Qualifikationen und Erfahrungsstufen.',
                 },
                 {
                     title: 'Profile im Detail ansehen',
@@ -248,7 +248,7 @@ const de = {
             cta: {
                 eyebrow: 'Bereit, wenn Sie es sind',
                 title: 'Ihre nächste Fachkraft ist nur einen Klick entfernt.',
-                text: 'Sehen Sie sich geeignete Fachkräfte aus Indien an und entdecken Sie die Menschen, die Ihr Team verstärken können.',
+                text: 'Sehen Sie sich geeignete internationale Fachkräfte an und entdecken Sie die Menschen, die Ihr Team verstärken können.',
                 primary: 'Als Arbeitgeber registrieren',
                 secondaryPrefix: 'Bereits registriert?',
                 secondary: 'Anmelden',
@@ -259,7 +259,7 @@ const de = {
         candidate: {
             eyebrow: 'Für Fachkräfte',
             title: 'Mit Ihren Fähigkeiten können Sie weiterkommen.',
-            lead: 'Arbeitgeber in Europa suchen qualifizierte Fachkräfte. Wir helfen geeigneten Kandidatinnen und Kandidaten aus Indien, von internationalen Arbeitgebern entdeckt zu werden, und begleiten sie durch den Recruiting-Prozess.',
+            lead: 'Arbeitgeber in Europa suchen qualifizierte Fachkräfte. Wir helfen geeigneten Kandidatinnen und Kandidaten, von internationalen Arbeitgebern entdeckt zu werden, und begleiten sie durch den Recruiting-Prozess.',
             railLabel: 'Ihr Weg als Fachkraft',
             steps: [
                 {
@@ -312,7 +312,7 @@ const de = {
             allGuides: 'Alle Ratgeber',
         },
         footer: {
-            tagline: 'Wir bringen geeignete Fachkräfte aus Indien mit Arbeitgebern in Europa zusammen.',
+            tagline: 'Wir bringen qualifizierte internationale Fachkräfte mit Arbeitgebern in Europa zusammen.',
             contact: 'Kontakt',
             legal: 'Rechtliches',
             company: 'Unternehmen',
@@ -395,6 +395,7 @@ const de = {
         enquirySent: 'Anfrage gesendet',
         sendEnquiry: 'Anfrage senden',
         acceptTermsToEnquire: 'Bedingungen akzeptieren',
+        hideEnquiryForm: 'Formular ausblenden',
         lockedSignedIn: 'Vollständiger Name, Foto, Vorstellungsvideo und frühere Arbeitgeber sind nur für Arbeitgeberkonten sichtbar.',
         lockedGuestLink: 'Melden Sie sich',
         lockedGuestRest: ' als Arbeitgeber an, um vollständigen Namen, Foto, Vorstellungsvideo und frühere Arbeitgeber zu sehen und eine Merkliste zu führen.',
