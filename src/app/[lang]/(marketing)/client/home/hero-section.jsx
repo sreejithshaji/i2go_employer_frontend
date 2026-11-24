@@ -13,9 +13,9 @@ import CategoryGrid from './category-grid';
 import CandidateTicker from './candidate-ticker';
 
 /**
- * Top of the homepage (plan §15, R3): a dark hero over the animated
+ * Top of the homepage (plan §15, R3): a light hero over the animated
  * background with the eyebrow pill, the page's only H1 (accent phrase in
- * cyan), lead, the candidate search and the animated stat cards, over a
+ * the brand blue), lead, the candidate search and the animated stat cards, over a
  * recruitment photo that fills the right side (HeroPhoto).
  * `total`: live profiles; `jobs`: live categories;
  * `filters`: { suggestions, professions, germanLevels, germanCertificate } (9A.5, 9A.9.2);
@@ -41,16 +41,15 @@ export default function HeroSection({ total = 0, jobs = [], categories = [], lat
     return (
         <Box component="section" aria-labelledby="hero-title">
             <Box
-                data-nav-tone="dark"
                 sx={{
-                    position: 'relative', overflow: 'hidden', isolation: 'isolate', color: b.onDark.text,
-                    '--focus-color': b.cyan,
+                    position: 'relative', overflow: 'hidden', isolation: 'isolate', color: b.ink,
+                    borderBottom: `1px solid ${b.line}`,
                     display: 'flex', flexDirection: 'column',
                     // The screen height minus whatever part of the nav sits above the hero.
                     minHeight: { md: `max(640px, calc(100svh - ${b.navHeight}px + var(--nav-overlap, 0px)))` },
                 }}
             >
-                <HeroBackground />
+                <HeroBackground tone="light" />
                 <HeroPhoto />
                 <Container
                     wide
@@ -75,7 +74,7 @@ export default function HeroSection({ total = 0, jobs = [], categories = [], lat
                             sx={{
                                 m: 0, mt: { xs: 2, md: 2.5 },
                                 fontSize: { xs: 32, md: 40, lg: 48 }, lineHeight: 1.08, fontWeight: 800,
-                                letterSpacing: { xs: '-0.9px', md: '-1.4px', lg: '-1.8px' }, color: b.onDark.text,
+                                letterSpacing: { xs: '-0.9px', md: '-1.4px', lg: '-1.8px' }, color: b.ink,
                                 textWrap: 'balance',
                                 // From 1280px (WIDE_HERO) each part is one line, which may run past the 680px
                                 // text column. Below that it wraps inside the column, so it stays off the
@@ -86,21 +85,21 @@ export default function HeroSection({ total = 0, jobs = [], categories = [], lat
                         >
                             <span>
                                 {h.titleStart}
-                                <Box component="span" sx={{ color: b.gold }}>{h.titleEmployers}</Box>
+                                <Box component="span" sx={{ color: b.goldText }}>{h.titleEmployers}</Box>
                             </span>
                             {' '}
                             <span>
                                 {h.titleJoin}
-                                <Box component="span" sx={{ color: b.cyan }}>{h.titleAccent}</Box>
+                                <Box component="span" sx={{ color: b.accentText }}>{h.titleAccent}</Box>
                             </span>
                         </Typography>
                         <Typography
                             component="p"
-                            sx={{ m: 0, mt: 2, maxWidth: 560, fontSize: { xs: 15, md: 15.5 }, lineHeight: 1.6, fontWeight: 500, color: b.onDark.body, ...hideWhenShort }}
+                            sx={{ m: 0, mt: 2, maxWidth: 560, fontSize: { xs: 15, md: 15.5 }, lineHeight: 1.6, fontWeight: 500, color: b.mutedOnTint, ...hideWhenShort }}
                         >
                             {h.lead}
                         </Typography>
-                        <HeroSearch jobs={jobs} suggestions={filters?.suggestions} tone="dark" />
+                        <HeroSearch jobs={jobs} suggestions={filters?.suggestions} />
                         <HeroStats stats={stats} />
                     </Box>
                 </Container>
@@ -110,7 +109,7 @@ export default function HeroSection({ total = 0, jobs = [], categories = [], lat
                     wide
                     sx={{ position: 'relative', flex: '1 1 auto', display: 'flex', flexDirection: 'column', justifyContent: 'center', py: 3 }}
                 >
-                    <CategoryGrid jobs={categories} tone="dark" singleRow sx={{ py: 0 }} />
+                    <CategoryGrid jobs={categories} singleRow sx={{ py: 0 }} />
                 </Container>
                 <Container wide sx={{ position: 'relative', pb: { xs: 4, md: 3 } }}>
                     <CandidateTicker candidates={latest} />
@@ -123,18 +122,18 @@ export default function HeroSection({ total = 0, jobs = [], categories = [], lat
 // Desktop screens too short to show the whole hero without scrolling.
 const hideWhenShort = { '@media (min-width: 900px) and (max-height: 760px)': { display: 'none' } };
 
-/** Rounded pill around the eyebrow, with a small cyan dot. */
+/** Rounded pill around the eyebrow, with a small accent dot. */
 function EyebrowPill({ children }) {
     return (
         <Box
             sx={{
                 display: 'inline-flex', alignItems: 'center', gap: 1, px: 1.5, py: 0.75, borderRadius: 999,
-                border: `1px solid ${b.darkPanelBorder}`, bgcolor: 'rgba(31,200,255,0.06)',
+                border: `1px solid ${b.accentLine}`, bgcolor: 'rgba(241,247,250,0.85)',
                 backdropFilter: 'blur(6px)',
             }}
         >
-            <Box aria-hidden sx={{ width: 6, height: 6, borderRadius: 999, bgcolor: b.cyan, boxShadow: `0 0 10px ${b.cyan}` }} />
-            <Eyebrow tone="dark">{children}</Eyebrow>
+            <Box aria-hidden sx={{ width: 6, height: 6, borderRadius: 999, bgcolor: b.accent, boxShadow: '0 0 0 3px rgba(15,143,199,0.16)' }} />
+            <Eyebrow>{children}</Eyebrow>
         </Box>
     );
 }

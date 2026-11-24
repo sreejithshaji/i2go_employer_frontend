@@ -20,9 +20,9 @@ const ID = 'employer-step';
 const RAIL_REACH = 220;
 
 /**
- * "For employers" (plan §4, §6 rows 5–6), the dark navy section: opening, then from 900px a sticky
+ * "For employers" (plan §4, §6 rows 5–6), the light section on a blue-grey tint: opening, then from 900px a sticky
  * rail beside the six step chapters; below 900px a sticky progress strip
- * instead of the rail. Ends with the dark CTA panel. No `overflow` on the
+ * instead of the rail. Ends with the light CTA panel. No `overflow` on the
  * section, so the rail and strip can stick. Anchor: #employers.
  * `total` and `jobs` feed step 01.
  */
@@ -48,22 +48,21 @@ export default function EmployerStory({ total = 0, jobs = [] }) {
             component="section"
             id="employers"
             aria-labelledby="employers-title"
-            data-nav-tone="dark"
             sx={{
                 position: 'relative', isolation: 'isolate',
                 scrollMarginTop: { xs: b.navHeightMobile, md: b.navHeight },
-                background: `linear-gradient(180deg, ${b.navy} 0%, ${b.navy2} 100%)`, color: b.onDark.text,
-                '--focus-color': b.cyan,
+                background: `linear-gradient(180deg, ${b.tint1} 0%, ${b.tint2} 100%)`, color: b.ink,
+                borderTop: `1px solid ${b.line}`, borderBottom: `1px solid ${b.line}`,
                 py: { xs: 7, md: 12 },
             }}
         >
             {/* The glow is clipped by its own layer: the section itself has no overflow, so the rail and strip can stick. */}
             <Box aria-hidden sx={{ position: 'absolute', inset: 0, zIndex: -1, overflow: 'hidden', pointerEvents: 'none' }}>
-                <DriftGlow color="rgba(31,200,255,0.07)" sx={{ top: { xs: -220, md: -300 }, left: { xs: -200, md: '4%' }, width: { xs: 520, md: 820 }, height: { xs: 420, md: 600 } }} />
+                <DriftGlow color="rgba(15,143,199,0.08)" sx={{ top: { xs: -220, md: -300 }, left: { xs: -200, md: '4%' }, width: { xs: 520, md: 820 }, height: { xs: 420, md: 600 } }} />
             </Box>
             <Container>
                 <Reveal>
-                    <Eyebrow tone="dark">{e.eyebrow}</Eyebrow>
+                    <Eyebrow>{e.eyebrow}</Eyebrow>
                 </Reveal>
                 <Reveal delay={STAGGER}>
                     <Typography
@@ -72,14 +71,14 @@ export default function EmployerStory({ total = 0, jobs = [] }) {
                         sx={{
                             m: 0, mt: 1.5, maxWidth: 820,
                             fontSize: { xs: 32, md: 48 }, lineHeight: 1.08, fontWeight: 800,
-                            letterSpacing: { xs: '-0.8px', md: '-1.8px' }, color: b.onDark.text,
+                            letterSpacing: { xs: '-0.8px', md: '-1.8px' }, color: b.ink,
                         }}
                     >
                         {e.title}
                     </Typography>
                 </Reveal>
                 <Reveal delay={2 * STAGGER}>
-                    <Typography component="p" sx={{ m: 0, mt: 2.25, maxWidth: 680, fontSize: 16.5, lineHeight: 1.65, fontWeight: 500, color: b.onDark.body }}>
+                    <Typography component="p" sx={{ m: 0, mt: 2.25, maxWidth: 680, fontSize: 16.5, lineHeight: 1.65, fontWeight: 500, color: b.mutedOnTint }}>
                         {e.lead}
                     </Typography>
                 </Reveal>
@@ -93,7 +92,7 @@ export default function EmployerStory({ total = 0, jobs = [] }) {
                     <Box sx={{ display: { xs: 'none', md: 'block' }, position: 'sticky', top: b.navHeight + 24 }}>
                         <StepRail steps={e.steps} active={active} idPrefix={ID} label={e.railLabel} />
                         {railCta.primary && (
-                            <Box sx={{ mt: 3, pt: 3, borderTop: `1px solid ${b.onDark.border}` }}>
+                            <Box sx={{ mt: 3, pt: 3, borderTop: `1px solid ${b.line2}` }}>
                                 <CtaButton href={railCta.primary.href} size="small">{railCta.primary.label}</CtaButton>
                             </Box>
                         )}
@@ -118,7 +117,7 @@ export default function EmployerStory({ total = 0, jobs = [] }) {
                     </Box>
                 </Box>
 
-                <EmployerCta />
+                <EmployerCta tone="light" />
             </Container>
         </Box>
     );

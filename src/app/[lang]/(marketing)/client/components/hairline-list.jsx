@@ -9,14 +9,15 @@ import Reveal, { STAGGER } from './reveal';
  * `.ggrid/.gitem`, plan §1.6). Each item: { key?, label, text?, icon?, href? }.
  * With `href` the whole row is a link with an arrow at the end. `columns`
  * applies from 900px; below that the list is one column. `reveal` gives each
- * row the entrance (plan §10), staggered by column.
+ * row the entrance (plan §10), staggered by column. `lineColor` and `textColor`
+ * override the hairline and secondary-text colours (e.g. on a tinted section).
  */
-export default function HairlineList({ items, columns = 1, tone = 'light', reveal = false, sx, ...props }) {
+export default function HairlineList({ items, columns = 1, tone = 'light', lineColor, textColor, reveal = false, sx, ...props }) {
     const dark = tone === 'dark';
     const colors = {
-        line: dark ? b.onDark.line : b.line,
+        line: lineColor ?? (dark ? b.onDark.line : b.line),
         label: dark ? b.onDark.text : b.ink2,
-        text: dark ? b.onDark.body : b.muted,
+        text: textColor ?? (dark ? b.onDark.body : b.muted),
         icon: dark ? b.onDark.subtle : b.faint,
         hover: dark ? b.cyan : b.accentText,
         focus: dark ? b.focusRingDark : b.focusRing,

@@ -24,20 +24,36 @@ export function useEmployerCta() {
     return { kind: 'guest', primary: { href: p.signup, label: c.primary } };
 }
 
-const secondaryLinkSx = {
+const secondaryLinkBase = {
     display: 'inline-flex', alignItems: 'center', minHeight: 44, px: 0.5, minWidth: 0,
-    fontSize: 15, fontWeight: 800, color: b.cyan, textDecoration: 'none', borderRadius: '6px',
+    fontSize: 15, fontWeight: 800, textDecoration: 'none', borderRadius: '6px',
     '&:hover': { bgcolor: 'transparent', textDecoration: 'underline' },
-    '&:focus-visible': b.focusRingDark,
+};
+
+/** Colours of the panel: 'dark' (navy, portal pages) or 'light' (white with a blue wash, homepage). */
+const TONES = {
+    dark: {
+        panel: { background: b.darkPanelBase, border: `1px solid ${b.darkPanelBorder}`, boxShadow: b.shadowDarkPanel },
+        glow: 'rgba(31,200,255,0.12)', title: b.onDark.text, body: b.onDark.body, border: b.onDark.border,
+        link: { ...secondaryLinkBase, color: b.cyan, '&:focus-visible': b.focusRingDark },
+    },
+    light: {
+        panel: { background: `linear-gradient(135deg, ${b.surface} 0%, ${b.accentSoft} 100%)`, border: `1px solid ${b.accentLine}`, boxShadow: b.shadow2 },
+        glow: 'rgba(15,143,199,0.10)', title: b.ink, body: b.muted, border: b.line,
+        link: { ...secondaryLinkBase, color: b.accentText, '&:focus-visible': b.focusRing },
+    },
 };
 
 /**
- * The employer story's closing panel: dark `.dhero` panel with a cyan glow,
- * the chapter-scale heading and the auth-aware actions. `headingLevel` is h3
+ * The employer story's closing panel: a `.dhero` panel with a soft glow,
+ * the chapter-scale heading and the auth-aware actions. `tone`: 'dark'
+ * (default, the portal pages) or 'light' (the homepage story). `headingLevel` is h3
  * inside the homepage story, h2 where it stands alone (portal pages, 14.11);
  * `sx` adjusts the outer spacing.
  */
-export default function EmployerCta({ headingLevel = 'h3', sx }) {
+export default function EmployerCta({ headingLevel = 'h3', tone = 'dark', sx }) {
+    const k = TONES[tone] ?? TONES.dark;
+    const secondaryLinkSx = k.link;
     const { t } = useI18n();
     const c = t.landing.employer.cta;
     const cta = useEmployerCta();
@@ -49,29 +65,29 @@ export default function EmployerCta({ headingLevel = 'h3', sx }) {
             sx={{
                 position: 'relative', overflow: 'hidden', isolation: 'isolate', mt: { xs: 6, md: 9 },
                 p: { xs: 3, md: 7 }, borderRadius: `${b.radiusPanel}px`,
-                background: b.darkPanelBase, border: `1px solid ${b.darkPanelBorder}`, boxShadow: b.shadowDarkPanel,
+                ...k.panel,
                 ...sx,
             }}
         >
-            <DriftGlow color="rgba(31,200,255,0.12)" sx={{ zIndex: -1, top: -200, right: { xs: -260, md: -120 }, width: { xs: 560, md: 760 }, height: 460 }} />
-            <Eyebrow tone="dark">{c.eyebrow}</Eyebrow>
+            <DriftGlow color={k.glow} sx={{ zIndex: -1, top: -200, right: { xs: -260, md: -120 }, width: { xs: 560, md: 760 }, height: 460 }} />
+            <Eyebrow tone={tone}>{c.eyebrow}</Eyebrow>
             <Typography
                 id="employer-cta-title"
                 component={headingLevel}
                 sx={{
                     m: 0, mt: 1.5, maxWidth: 720,
                     fontSize: { xs: 32, md: 48 }, lineHeight: 1.08, fontWeight: 800,
-                    letterSpacing: { xs: '-0.8px', md: '-1.8px' }, color: b.onDark.text,
+                    letterSpacing: { xs: '-0.8px', md: '-1.8px' }, color: k.title,
                 }}
             >
                 {c.title}
             </Typography>
-            <Typography component="p" sx={{ m: 0, mt: 2, maxWidth: 560, fontSize: 16.5, lineHeight: 1.65, fontWeight: 500, color: b.onDark.body }}>
+            <Typography component="p" sx={{ m: 0, mt: 2, maxWidth: 560, fontSize: 16.5, lineHeight: 1.65, fontWeight: 500, color: k.body }}>
                 {c.text}
             </Typography>
 
             {cta.kind === 'candidate' ? (
-                <Typography component="p" sx={{ m: 0, mt: 3.5, maxWidth: 560, pt: 2.5, borderTop: `1px solid ${b.onDark.border}`, fontSize: 14, lineHeight: 1.6, fontWeight: 600, color: b.onDark.body }}>
+                <Typography component="p" sx={{ m: 0, mt: 3.5, maxWidth: 560, pt: 2.5, borderTop: `1px solid ${k.border}`, fontSize: 14, lineHeight: 1.6, fontWeight: 600, color: k.body }}>
                     {t.shell.candidateAccount}
                 </Typography>
             ) : (
@@ -85,7 +101,7 @@ export default function EmployerCta({ headingLevel = 'h3', sx }) {
                         {cta.primary.label}
                     </CtaButton>
                     {cta.kind === 'guest' ? (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', columnGap: 0.75, fontSize: 15, fontWeight: 600, color: b.onDark.body }}>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', columnGap: 0.75, fontSize: 15, fontWeight: 600, color: k.body }}>
                             <span>{c.secondaryPrefix}</span>
                             <SignInButton variant="text" disableRipple sx={secondaryLinkSx}>{c.secondary}</SignInButton>
                         </Box>

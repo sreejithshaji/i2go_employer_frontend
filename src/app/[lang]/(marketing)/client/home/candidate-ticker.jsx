@@ -18,15 +18,15 @@ const SECONDS_PER_ITEM = 3;
 
 function Chip({ candidate }) {
     return (
-        <Box component="li" sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0, pl: 0.5, pr: 1.5, py: 0.5, borderRadius: 999, bgcolor: b.onDark.hover, border: `1px solid ${b.onDark.border}` }}>
+        <Box component="li" sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0, pl: 0.5, pr: 1.5, py: 0.5, borderRadius: 999, bgcolor: b.surface3, border: `1px solid ${b.line}` }}>
             <CandidateAvatar candidate={candidate} size={28} />
-            <Typography noWrap sx={{ fontSize: 12.5, fontWeight: 600, color: b.onDark.text }}>{candidate.name}</Typography>
+            <Typography noWrap sx={{ fontSize: 12.5, fontWeight: 600, color: b.ink2 }}>{candidate.name}</Typography>
         </Box>
     );
 }
 
 /**
- * Slim dark strip under the compact cards: a "Just joined" label, then
+ * Slim light strip under the compact cards: a "Just joined" label, then
  * candidate photos and names scrolling sideways on a loop. Pauses on hover
  * and stays still for reduced motion; the copy is aria-hidden. The whole
  * strip links to the candidate hub.
@@ -43,15 +43,15 @@ export default function CandidateTicker({ candidates = [] }) {
             href={paths(lang).hub}
             sx={{
                 display: 'flex', alignItems: 'center', minWidth: 0, overflow: 'hidden', height: 48,
-                borderRadius: 999, background: b.darkPanel, border: `1px solid ${b.darkPanelBorder}`,
+                borderRadius: 999, bgcolor: b.surface, border: `1px solid ${b.line}`, boxShadow: b.shadow1,
                 textDecoration: 'none', cursor: 'pointer', transition: 'border-color .2s',
-                '&:hover': { borderColor: b.cyan },
-                '&:focus-visible': b.focusRingDark,
+                '&:hover': { borderColor: b.accent },
+                '&:focus-visible': b.focusRing,
             }}
         >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0, pl: 2, pr: 1.5 }}>
-                <Box aria-hidden sx={{ width: 8, height: 8, borderRadius: 999, bgcolor: b.cyan, boxShadow: '0 0 0 4px rgba(31,200,255,0.15)' }} />
-                <Typography noWrap sx={{ fontSize: 13, fontWeight: 800, color: b.onDark.text }}>{t.landing.latest.tickerTitle}</Typography>
+                <Box aria-hidden sx={{ width: 8, height: 8, borderRadius: 999, bgcolor: b.ok, boxShadow: '0 0 0 4px rgba(18,153,107,0.15)' }} />
+                <Typography noWrap sx={{ fontSize: 13, fontWeight: 800, color: b.ink }}>{t.landing.latest.tickerTitle}</Typography>
             </Box>
             <Box
                 sx={{

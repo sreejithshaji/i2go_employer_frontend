@@ -30,8 +30,8 @@ const ping = keyframes`
 
 // Icon tile glow breathing in and out.
 const breathe = keyframes`
-  0%, 100% { box-shadow: 0 0 0 0 rgba(31,200,255,0.0), 0 0 14px rgba(31,200,255,0.18); }
-  50%      { box-shadow: 0 0 0 6px rgba(31,200,255,0.08), 0 0 22px rgba(31,200,255,0.35); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(15,143,199,0.0), 0 0 10px rgba(15,143,199,0.10); }
+  50%      { box-shadow: 0 0 0 5px rgba(15,143,199,0.08), 0 0 16px rgba(15,143,199,0.18); }
 `;
 
 // Light travelling along the accent bar.
@@ -48,7 +48,7 @@ const sheen = keyframes`
 `;
 
 /**
- * Stat cards inside the dark hero: glass cards that rise in one after the
+ * Stat cards inside the light hero: white cards that rise in one after the
  * other while their figure counts up from 0, then float gently; each has an
  * icon tile with a breathing glow (the live card adds a pinging dot) and an
  * accent bar with light flowing along it. `stats`: [{ key, count, forms,
@@ -87,20 +87,20 @@ function StatCard({ stat, index, delay }) {
             sx={{
                 position: 'relative', overflow: 'hidden', minWidth: 0, flex: 1, display: 'block',
                 textDecoration: 'none', color: 'inherit',
-                '&:focus-visible': b.focusRingDark,
+                '&:focus-visible': b.focusRing,
                 p: { xs: 2, md: 2.25 },
                 borderRadius: `${b.radiusMd}px`,
-                border: `1px solid ${b.darkPanelBorder}`,
-                bgcolor: 'rgba(255,255,255,0.035)',
+                border: `1px solid ${b.line}`,
+                bgcolor: 'rgba(255,255,255,0.86)',
                 backdropFilter: 'blur(8px)',
-                boxShadow: '0 12px 32px rgba(0,0,0,0.28)',
+                boxShadow: b.shadow2,
                 animation: `${rise} 700ms ${b.ease} ${delay}ms both`,
                 transition: `border-color 280ms ${b.ease}, transform 280ms ${b.ease}`,
-                '&:hover': { borderColor: 'rgba(31,200,255,0.32)', transform: 'translateY(-2px)' },
+                '&:hover': { borderColor: b.accentLine, boxShadow: b.shadow3, transform: 'translateY(-2px)' },
                 // One light sweep across the card after it lands.
                 '&::after': {
                     content: '""', position: 'absolute', inset: 0, width: '40%', pointerEvents: 'none',
-                    background: 'linear-gradient(100deg, transparent, rgba(31,200,255,0.10), transparent)',
+                    background: 'linear-gradient(100deg, transparent, rgba(15,143,199,0.08), transparent)',
                     transform: 'translateX(-120%)',
                     animation: `${sheen} 1200ms ${b.ease} ${delay + 600}ms 1 both`,
                 },
@@ -123,7 +123,7 @@ function StatCard({ stat, index, delay }) {
                     aria-hidden
                     sx={{
                         width: 36, height: 36, borderRadius: '10px', display: 'grid', placeItems: 'center',
-                        color: b.cyan, bgcolor: 'rgba(31,200,255,0.10)', border: `1px solid ${b.darkPanelBorder}`,
+                        color: b.accentText, bgcolor: b.accentSoft, border: `1px solid ${b.accentLine}`,
                         animation: `${breathe} 3.2s ease-in-out ${index * 600}ms infinite`,
                         '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
                     }}
@@ -131,12 +131,12 @@ function StatCard({ stat, index, delay }) {
                     <Icon size={18} />
                 </Box>
                 {live && stat.tag && (
-                    <Box aria-hidden sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: b.cyan }}>
+                    <Box aria-hidden sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, fontSize: 11, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: b.okText }}>
                         <Box sx={{ position: 'relative', width: 7, height: 7 }}>
-                            <Box sx={{ position: 'absolute', inset: 0, borderRadius: 999, bgcolor: b.cyan }} />
+                            <Box sx={{ position: 'absolute', inset: 0, borderRadius: 999, bgcolor: b.ok }} />
                             <Box
                                 sx={{
-                                    position: 'absolute', inset: 0, borderRadius: 999, bgcolor: b.cyan,
+                                    position: 'absolute', inset: 0, borderRadius: 999, bgcolor: b.ok,
                                     animation: `${ping} 1.6s ${b.ease} infinite`,
                                     '@media (prefers-reduced-motion: reduce)': { animation: 'none', opacity: 0 },
                                 }}
@@ -150,21 +150,20 @@ function StatCard({ stat, index, delay }) {
                 aria-hidden
                 sx={{
                     width: 40, height: 3, borderRadius: 999, mb: 1.25,
-                    background: `linear-gradient(90deg, rgba(31,200,255,0.35), ${b.cyan}, #ffffff, ${b.cyan}, rgba(31,200,255,0.35))`,
+                    background: `linear-gradient(90deg, rgba(15,143,199,0.35), ${b.accent}, #8FDDFA, ${b.accent}, rgba(15,143,199,0.35))`,
                     backgroundSize: '200% 100%',
-                    boxShadow: `0 0 12px ${b.cyan}`,
                     animation: `${flow} 2.8s linear infinite`,
                     '@media (prefers-reduced-motion: reduce)': { animation: 'none' },
                 }}
             />
             {/* The final figure for screen readers; the counting one is visual only. */}
-            <Typography component="p" sx={{ m: 0, fontSize: { xs: 20, md: 22 }, lineHeight: 1.2, fontWeight: 800, letterSpacing: '-0.6px', color: b.onDark.text }}>
+            <Typography component="p" sx={{ m: 0, fontSize: { xs: 20, md: 22 }, lineHeight: 1.2, fontWeight: 800, letterSpacing: '-0.6px', color: b.ink }}>
                 <Box component="span" aria-hidden sx={{ fontVariantNumeric: 'tabular-nums' }}>
                     {plural(stat.forms, value)}
                 </Box>
                 <Box component="span" sx={visuallyHidden}>{plural(stat.forms, stat.count)}</Box>
             </Typography>
-            <Typography component="p" sx={{ m: 0, mt: 0.5, fontSize: 12, lineHeight: 1.5, fontWeight: 600, color: b.onDark.body }}>
+            <Typography component="p" sx={{ m: 0, mt: 0.5, fontSize: 12, lineHeight: 1.5, fontWeight: 600, color: b.muted }}>
                 {stat.label}
             </Typography>
             </Box>
