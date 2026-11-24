@@ -220,7 +220,7 @@ export default function HeroSearch({ jobs = [], suggestions = [], tone = 'light'
 
             {popular.length > 0 && (
                 <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1 }}>
-                    <Typography component="span" sx={{ fontSize: 12.5, fontWeight: 700, color: dark ? b.onDark.body : b.muted, mr: 0.5 }}>
+                    <Typography component="span" sx={{ fontSize: 12.5, fontWeight: 700, color: dark ? b.onDark.body : b.mutedOnTint, mr: 0.5 }}>
                         {h.popular}
                     </Typography>
                     <Box component="ul" sx={{ display: 'contents', listStyle: 'none', m: 0, p: 0 }}>

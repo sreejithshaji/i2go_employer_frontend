@@ -124,7 +124,7 @@ const de = {
             suggestSkill: 'Fähigkeit',
         },
         latest: {
-            title: 'Neueste Fachkräfte',
+            title: 'Neu bei i2go',
             seeAll: { one: '{count} Profil ansehen', other: 'Alle {count} ansehen' },
             tickerTitle: 'Neu dabei',
         },

@@ -107,7 +107,7 @@ export default async function HomePage({ params }) {
     // `germanB1` counts live candidates with German B1 or higher (same rule as ?de=B1).
     const [{ latest, total }, allJobs, guides, heroFilters, germanB1] = await Promise.all([
         getCandidates({ page: 1 })
-            .then(({ candidates, total: count }) => ({ latest: showcase(candidates).slice(0, 6), total: count }))
+            .then(({ candidates, total: count }) => ({ latest: showcase(candidates).slice(0, 12), total: count }))
             .catch(() => ({ latest: [], total: 0 })),
         loadAllJobs(lang).catch(() => []),
         getGuides(lang).then((list) => list.slice(0, 3).map(({ slug, title, description }) => ({ slug, title, description }))).catch(() => []),

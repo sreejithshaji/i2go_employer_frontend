@@ -16,15 +16,10 @@ import { textLinkSx } from './section-heading';
 /*
  * The visuals of the six employer steps (plan §4.3, R1). Real data or a
  * picture of an existing feature only: no illustrations, no invented figures.
- * Drawn for the navy employer section.
+ * Drawn for the light employer section.
  */
 
-const darkLinkSx = {
-    ...textLinkSx,
-    color: b.cyan,
-    '&:hover': { color: b.onDark.text },
-    '&:focus-visible': b.focusRingDark,
-};
+const linkSx = textLinkSx;
 
 /** 01: "{total} profiles live now" across the live categories, linking up to the category grid (#jobs). */
 export function PoolVisual({ total, jobs }) {
@@ -35,16 +30,15 @@ export function PoolVisual({ total, jobs }) {
             {total > 0 && (
                 <StatBlock
                     bare
-                    tone="dark"
                     value={plural(pool.total, total)}
                     label={jobs.length > 0 ? plural(t.landing.hero.statCategories, jobs.length) : undefined}
-                    sx={{ borderTop: `1px solid ${b.onDark.border}`, borderBottom: `1px solid ${b.onDark.border}`, py: 2, maxWidth: 560 }}
+                    sx={{ borderTop: `1px solid ${b.line2}`, borderBottom: `1px solid ${b.line2}`, py: 2, maxWidth: 560, '& p + p': { color: b.mutedOnTint } }}
                 />
             )}
             <Box
                 component={jobs.length > 0 ? 'a' : NextLink}
                 href={jobs.length > 0 ? '#jobs' : p.hub}
-                sx={{ ...darkLinkSx, mt: 1 }}
+                sx={{ ...linkSx, mt: 1 }}
             >
                 {jobs.length > 0 ? pool.byJob : t.landing.employer.explore.browseAll}
                 <FiArrowRight size={16} aria-hidden />
@@ -62,12 +56,13 @@ export function ExploreVisual() {
     return (
         <Box>
             <HairlineList
-                tone="dark"
+                lineColor={b.line2}
+                textColor={b.mutedOnTint}
                 columns={2}
                 items={explore.items.map((item, i) => ({ key: item.label, label: item.label, text: item.text, icon: exploreIcons[i] }))}
                 sx={{ maxWidth: 680 }}
             />
-            <Box component={NextLink} href={p.hub} sx={{ ...darkLinkSx, mt: 1 }}>
+            <Box component={NextLink} href={p.hub} sx={{ ...linkSx, mt: 1 }}>
                 {explore.browseAll}
                 <FiArrowRight size={16} aria-hidden />
             </Box>
@@ -75,7 +70,7 @@ export function ExploreVisual() {
     );
 }
 
-/** 03: the reference's selected card (accent border, graphite tile with a cyan heart, round tick) showing a saved candidate. */
+/** 03: the reference's selected card (accent border, soft accent tile with a heart, round tick) showing a saved candidate. */
 export function ShortlistVisual() {
     const { t } = useI18n();
     const s = t.landing.employer.shortlist;
@@ -84,21 +79,21 @@ export function ShortlistVisual() {
             sx={{
                 position: 'relative', maxWidth: 560, display: 'flex', alignItems: 'flex-start', gap: 2,
                 p: { xs: 2.25, md: 2.5 }, pr: { xs: 6, md: 7 }, borderRadius: `${b.radiusMd}px`,
-                bgcolor: b.graphite, border: `1.5px solid ${b.cyan}`, boxShadow: '0 0 0 4px rgba(31,200,255,0.1)',
+                bgcolor: b.surface, border: `1.5px solid ${b.accent}`, boxShadow: '0 0 0 4px rgba(15,143,199,0.1)',
             }}
         >
-            <Box aria-hidden sx={{ width: 44, height: 44, flexShrink: 0, borderRadius: '12px', display: 'grid', placeItems: 'center', bgcolor: 'rgba(31,200,255,0.1)', color: b.cyan }}>
+            <Box aria-hidden sx={{ width: 44, height: 44, flexShrink: 0, borderRadius: '12px', display: 'grid', placeItems: 'center', bgcolor: b.accentSoft, color: b.accentText }}>
                 <FiHeart size={20} fill="currentColor" />
             </Box>
             <Box sx={{ minWidth: 0 }}>
-                <Typography component="p" sx={{ m: 0, fontSize: 15, lineHeight: 1.45, fontWeight: 800, color: b.onDark.text }}>{s.title}</Typography>
-                <Typography component="p" sx={{ m: 0, mt: 0.5, fontSize: 14, lineHeight: 1.6, fontWeight: 500, color: b.onDark.body }}>{s.text}</Typography>
+                <Typography component="p" sx={{ m: 0, fontSize: 15, lineHeight: 1.45, fontWeight: 800, color: b.ink }}>{s.title}</Typography>
+                <Typography component="p" sx={{ m: 0, mt: 0.5, fontSize: 14, lineHeight: 1.6, fontWeight: 500, color: b.muted }}>{s.text}</Typography>
             </Box>
             <Box
                 aria-hidden
                 sx={{
                     position: 'absolute', top: 16, right: 16, width: 24, height: 24, borderRadius: '50%',
-                    display: 'grid', placeItems: 'center', bgcolor: b.cyan, color: b.navy,
+                    display: 'grid', placeItems: 'center', bgcolor: b.accentText, color: '#fff',
                 }}
             >
                 <FiCheck size={14} strokeWidth={3} />
@@ -107,7 +102,7 @@ export function ShortlistVisual() {
     );
 }
 
-/** 04: the reference's three mini steps (graphite circle, cyan numeral): enquiry → interview → decision (D5). */
+/** 04: the reference's three mini steps (ringed circle, accent numeral): enquiry → interview → decision (D5). */
 export function MeetVisual() {
     const { t } = useI18n();
     const steps = t.landing.employer.meet;
@@ -119,21 +114,21 @@ export function MeetVisual() {
                     key={step.title}
                     sx={{
                         display: 'flex', flexDirection: { xs: 'row', md: 'column' }, alignItems: 'flex-start', gap: { xs: 1.75, md: 1.5 },
-                        p: 2.25, borderRadius: `${b.radiusMd}px`, bgcolor: 'rgba(255,255,255,0.03)', border: `1px solid ${b.onDark.border}`,
+                        p: 2.25, borderRadius: `${b.radiusMd}px`, bgcolor: b.surface, border: `1px solid ${b.line}`, boxShadow: b.shadow1,
                     }}
                 >
                     <Box
                         aria-hidden
                         sx={{
                             width: 32, height: 32, flexShrink: 0, borderRadius: '50%', display: 'grid', placeItems: 'center',
-                            bgcolor: b.graphite, border: `1.5px solid ${b.onDark.ring}`, boxSizing: 'border-box', color: b.cyan, fontSize: 13, fontWeight: 800,
+                            bgcolor: b.accentSoft, border: `1.5px solid ${b.accentLine}`, boxSizing: 'border-box', color: b.accentText, fontSize: 13, fontWeight: 800,
                         }}
                     >
                         {i + 1}
                     </Box>
                     <Box sx={{ minWidth: 0 }}>
-                        <Typography component="p" sx={{ m: 0, fontSize: 15, lineHeight: 1.45, fontWeight: 800, color: b.onDark.text }}>{step.title}</Typography>
-                        <Typography component="p" sx={{ m: 0, mt: 0.5, fontSize: 13.5, lineHeight: 1.55, fontWeight: 500, color: b.onDark.body }}>{step.text}</Typography>
+                        <Typography component="p" sx={{ m: 0, fontSize: 15, lineHeight: 1.45, fontWeight: 800, color: b.ink }}>{step.title}</Typography>
+                        <Typography component="p" sx={{ m: 0, mt: 0.5, fontSize: 13.5, lineHeight: 1.55, fontWeight: 500, color: b.muted }}>{step.text}</Typography>
                     </Box>
                 </Box>
             ))}
@@ -148,7 +143,8 @@ export function ManageVisual() {
     const { t } = useI18n();
     return (
         <HairlineList
-            tone="dark"
+            lineColor={b.line2}
+            textColor={b.mutedOnTint}
             columns={2}
             items={t.landing.employer.manage.map((label, i) => ({ key: label, label, icon: manageIcons[i] }))}
             sx={{ maxWidth: 680 }}
@@ -162,7 +158,7 @@ export function WelcomeVisual() {
     return (
         <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' } }}>
             {t.landing.employer.welcome.map((item) => (
-                <StatBlock key={item.value} tone="dark" value={item.value} label={item.caption} sx={{ '& p:first-of-type': { fontSize: 19, letterSpacing: '-0.5px' } }} />
+                <StatBlock key={item.value} value={item.value} label={item.caption} sx={{ '& p:first-of-type': { fontSize: 19, letterSpacing: '-0.5px' } }} />
             ))}
         </Box>
     );

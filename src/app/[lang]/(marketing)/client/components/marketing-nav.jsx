@@ -34,8 +34,8 @@ const linkSx = {
     '&:focus-visible': focusRing,
 };
 
-// Transparent state over the dark homepage hero (plan 9A.6): white text,
-// hairline borders, no surface.
+// Dark glass over sections marked `data-nav-tone="dark"` (readTone): white text,
+// hairline borders.
 const linkDarkSx = {
     ...linkSx,
     color: 'rgba(255,255,255,0.82)',
@@ -90,7 +90,7 @@ const readTone = () => {
 
 const glass = { backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' };
 const surfaces = {
-    clear: { bgcolor: 'transparent', borderBottom: '1px solid transparent', '--focus-color': b.cyan },
+    clear: { bgcolor: 'transparent', borderBottom: '1px solid transparent' },
     light: { ...glass, bgcolor: 'rgba(252,254,255,0.72)', borderBottom: '1px solid rgba(13,42,66,0.06)' },
     dark: { ...glass, bgcolor: 'rgba(6,13,21,0.72)', borderBottom: `1px solid ${b.onDark.line}`, '--focus-color': b.cyan },
 };
@@ -240,12 +240,12 @@ function MobileMenu({ open, onClose, fontClass }) {
  * below (the reference's footer bar used as a header). `fontClass` puts the
  * marketing font on the menu and drawer, which render outside the layout.
  *
- * `overlay` (useNavOverlay, homepage): the bar lies over the dark hero
- * (negative bottom margin) and is transparent with white text until the page
- * has scrolled 8px, then fades to the usual translucent bar in 200ms (plan 9A.6).
+ * `overlay` (useNavOverlay, homepage): the bar lies over the light hero
+ * (negative bottom margin) and is transparent with the usual dark text until
+ * the page has scrolled 8px, then fades to the translucent bar in 200ms (plan 9A.6).
  * In the server HTML it isn't sticky, so without JS it scrolls away with the
- * hero instead of putting white text over the light sections. After the hero,
- * the bar is dark glass over sections marked `data-nav-tone="dark"` (readTone).
+ * hero. The bar turns to dark glass over any section marked
+ * `data-nav-tone="dark"` (readTone).
  */
 export default function MarketingNav({ fontClass, overlay = false }) {
     const { user } = useAuth();
@@ -256,8 +256,8 @@ export default function MarketingNav({ fontClass, overlay = false }) {
     const tone = useSyncExternalStore(subscribeScroll, readTone, () => 'top');
 
     const clear = overlay && tone === 'top';
-    // White text and cyan focus rings: over the hero before scrolling, and over any dark section.
-    const dark = clear || tone === 'dark';
+    // White text and cyan focus rings only over a dark section; the hero is light.
+    const dark = tone === 'dark';
     const fade = `background-color 200ms ${b.ease}, border-color 200ms ${b.ease}, backdrop-filter 200ms ${b.ease}`;
 
     return (

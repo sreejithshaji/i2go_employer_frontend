@@ -125,7 +125,7 @@ const en = {
             suggestSkill: 'Skill',
         },
         latest: {
-            title: 'Latest candidates',
+            title: 'New on i2go',
             seeAll: { one: 'See {count} profile', other: 'See all {count}' },
             tickerTitle: 'Just joined',
         },

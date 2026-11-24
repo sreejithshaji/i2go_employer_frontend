@@ -8,7 +8,7 @@ export const PROGRESS_STRIP_HEIGHT = 56;
  * Phone version of the step rail (plan §6 row 5): 01 ─ 02 ─ … ─ 06 on a 3px
  * track whose fill reaches the active step. It sticks under the nav; put it
  * at the top of the column that holds the chapters, so it stays only while
- * the story is on screen. Drawn for the navy employer section. Hidden from 900px, where the rail takes over.
+ * the story is on screen. Drawn for the light employer section. Hidden from 900px, where the rail takes over.
  */
 export default function ProgressStrip({ count, active = 0, idPrefix, label }) {
     const fill = count > 1 ? active / (count - 1) : 1;
@@ -20,15 +20,15 @@ export default function ProgressStrip({ count, active = 0, idPrefix, label }) {
                 display: { xs: 'block', md: 'none' },
                 position: 'sticky', top: b.navHeightMobile, zIndex: 5,
                 mx: -2, px: 2, mb: 3, height: PROGRESS_STRIP_HEIGHT,
-                bgcolor: 'rgba(3,7,12,0.86)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-                borderBottom: `1px solid ${b.onDark.border}`,
+                bgcolor: 'rgba(220,229,236,0.92)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                borderBottom: `1px solid ${b.line2}`,
             }}
         >
             <Box sx={{ position: 'relative', height: '100%' }}>
-                <Box aria-hidden sx={{ position: 'absolute', left: 22, right: 22, top: '50%', height: 3, mt: '-1.5px', borderRadius: 3, bgcolor: b.onDark.border }}>
+                <Box aria-hidden sx={{ position: 'absolute', left: 22, right: 22, top: '50%', height: 3, mt: '-1.5px', borderRadius: 3, bgcolor: b.line2 }}>
                     <Box
                         sx={{
-                            height: '100%', borderRadius: 3, bgcolor: b.cyan, transformOrigin: 'left',
+                            height: '100%', borderRadius: 3, bgcolor: b.accent, transformOrigin: 'left',
                             transform: `scaleX(${fill})`, transition: `transform 250ms ${b.ease}`,
                         }}
                     />
@@ -46,9 +46,9 @@ export default function ProgressStrip({ count, active = 0, idPrefix, label }) {
                                     aria-current={current ? 'step' : undefined}
                                     sx={{
                                         width: 44, height: 44, display: 'grid', placeItems: 'center', textDecoration: 'none', borderRadius: '50%',
-                                        '&:hover .strip-pill': current ? {} : { borderColor: 'rgba(31,200,255,0.5)', color: b.onDark.text },
+                                        '&:hover .strip-pill': current ? {} : { borderColor: b.accent, color: b.ink },
                                         // Inset: the 44px targets touch, so an outer ring would overlap the neighbours.
-                                        '&:focus-visible': { outline: `2px solid ${b.cyan}`, outlineOffset: -2 },
+                                        '&:focus-visible': { outline: `2px solid ${b.accent}`, outlineOffset: -2 },
                                     }}
                                 >
                                     <Box
@@ -57,9 +57,9 @@ export default function ProgressStrip({ count, active = 0, idPrefix, label }) {
                                         sx={{
                                             minWidth: 30, height: 24, px: 0.75, borderRadius: 999, display: 'grid', placeItems: 'center',
                                             fontSize: 11, fontWeight: 800, letterSpacing: '0.08em',
-                                            bgcolor: current ? b.cyan : b.graphite,
-                                            color: current ? b.navy : reached ? b.cyan : b.onDark.subtle,
-                                            border: `1px solid ${current ? b.cyan : reached ? 'rgba(31,200,255,0.35)' : b.onDark.border}`,
+                                            bgcolor: current ? b.accentText : b.surface,
+                                            color: current ? '#fff' : reached ? b.accentText : b.mutedOnTint,
+                                            border: `1px solid ${current ? b.accentText : reached ? b.accentLine : b.line}`,
                                             transition: `background-color 250ms ${b.ease}, color 250ms ${b.ease}, border-color 250ms ${b.ease}`,
                                         }}
                                     >

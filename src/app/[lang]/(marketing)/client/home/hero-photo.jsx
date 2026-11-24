@@ -17,16 +17,17 @@ const photoMask = {
 };
 const widePhotoMask = 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.55) 22%, #000 48%)';
 
+// Ends at --photo-opacity, so the fill-mode doesn't override the dimmer phone opacity.
 const fadeIn = keyframes`
   from { opacity: 0; }
-  to   { opacity: 1; }
+  to   { opacity: var(--photo-opacity); }
 `;
 
 /**
- * Background photo of the dark hero: a recruiter's handshake with a
+ * Background photo of the light hero: a recruiter's handshake with a
  * professional man. On desktop it fills the right part and fades into the
- * dark scene towards the text; on phones it sits behind everything, dimmed,
- * so the text stays readable. Decorative (alt="", aria-hidden).
+ * light background towards the text; on phones it sits behind everything,
+ * faded, so the text stays readable. Decorative (alt="", aria-hidden).
  * Photo: Vitaly Gariev on Unsplash (Unsplash License),
  * https://unsplash.com/photos/jEpZNyFSQwQ
  */
@@ -40,8 +41,9 @@ export default function HeroPhoto() {
                 width: { xs: '100%', md: '62%' },
                 overflow: 'hidden',
                 pointerEvents: 'none',
-                opacity: { xs: 0.28, md: 1 },
-                // Fade the left edge into the dark hero (desktop) / bottom on phones.
+                '--photo-opacity': { xs: 0.12, md: 1 },
+                opacity: 'var(--photo-opacity)',
+                // Fade the left edge into the light hero (desktop) / bottom on phones.
                 // 900–1279px: the text column reaches further into the photo, so the fade starts later.
                 maskImage: photoMask,
                 WebkitMaskImage: photoMask,
@@ -67,19 +69,20 @@ export default function HeroPhoto() {
                     style={{ objectFit: 'cover', objectPosition: '70% 30%' }}
                 />
             </Box>
-            {/* Navy tint + bottom shade so the photo matches the dark theme */}
+            {/* Soft light wash + bottom fade so the photo sits in the light hero and the
+                category row and ticker below stay on a light ground */}
             <Box
                 sx={{
                     position: 'absolute', inset: 0,
-                    background: 'linear-gradient(180deg, rgba(3,7,12,0.15) 0%, rgba(3,7,12,0.05) 45%, rgba(3,7,12,0.7) 100%), linear-gradient(90deg, rgba(8,30,52,0.35), rgba(8,30,52,0.1))',
+                    background: 'linear-gradient(180deg, rgba(207,218,227,0.08) 0%, rgba(207,218,227,0) 40%, rgba(198,210,220,0.92) 100%)',
                 }}
             />
-            {/* Desktop: darken the left part, where the long (German) H1 runs onto the photo,
-                so the title keeps ≥ 3:1 over the bright window. The face on the right stays clear. */}
+            {/* Desktop: lighten the left part, where the long (German) H1 runs onto the photo,
+                so the dark title keeps its contrast there. The face on the right stays clear. */}
             <Box
                 sx={{
                     position: 'absolute', inset: 0, display: { xs: 'none', md: 'block' },
-                    background: 'linear-gradient(90deg, rgba(3,7,12,0.75) 0%, rgba(3,7,12,0.6) 45%, rgba(3,7,12,0) 72%)',
+                    background: 'linear-gradient(90deg, rgba(207,218,227,0.88) 0%, rgba(207,218,227,0.7) 45%, rgba(207,218,227,0) 72%)',
                 }}
             />
         </Box>

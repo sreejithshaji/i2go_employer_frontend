@@ -16,9 +16,10 @@ export { CandidateAvatar };
 /**
  * Candidate card for the homepage strip: photo, name, job category, current
  * role with experience, and the languages they speak (German first, with
- * level and a tick when certified). Links to the profile.
+ * level and a tick when certified). Links to the profile. `tabIndex` lets a
+ * hidden duplicate copy (the looping strip) stay out of the tab order.
  */
-export default function CompactCandidateCard({ candidate }) {
+export default function CompactCandidateCard({ candidate, tabIndex }) {
     const { lang, t } = useI18n();
     const category = candidate.categories?.[0];
     const role = (candidate.work_experience || []).find((w) => w.is_current)?.position || candidate.work_experience?.[0]?.position;
@@ -32,6 +33,7 @@ export default function CompactCandidateCard({ candidate }) {
         <Box
             component={NextLink}
             href={candidateHref(lang, candidate)}
+            tabIndex={tabIndex}
             sx={{
                 position: 'relative', display: 'flex', flexDirection: 'column', gap: 1.25, height: '100%', minWidth: 0,
                 p: 1.75, borderRadius: `${b.radiusMd}px`,

@@ -5,9 +5,9 @@ const NODE = 15;
 
 /**
  * Vertical step rail (the reference's left rail, plan §4.2), drawn on the
- * navy employer section: 15px ring nodes joined by a 1px line, a tracked number, the title and
+ * light employer section: 15px ring nodes joined by a 1px line, a tracked number, the title and
  * a short subtitle. Each step links to its chapter (`#${idPrefix}-${n}`).
- * Steps before `active` get a cyan ring and the line below them fills with cyan (scaleY);
+ * Steps before `active` get an accent ring and the line below them fills with the accent (scaleY);
  * the active node is solid. Without JS `active` stays 0.
  *
  * steps: [{ title, short }]
@@ -26,13 +26,13 @@ export default function StepRail({ steps, active = 0, idPrefix, label, sx }) {
                                     aria-hidden
                                     sx={{
                                         position: 'absolute', left: (NODE - 1) / 2, top: NODE + 10, bottom: 2, width: '1px',
-                                        bgcolor: b.onDark.border,
+                                        bgcolor: b.line2,
                                     }}
                                 >
                                     {/* The segment below a passed step fills top-down (plan §10, 250ms). */}
                                     <Box
                                         sx={{
-                                            height: '100%', bgcolor: b.cyan, transformOrigin: 'top',
+                                            height: '100%', bgcolor: b.accent, transformOrigin: 'top',
                                             transform: i < active ? 'none' : 'scaleY(0)',
                                             transition: `transform 250ms ${b.ease}`,
                                         }}
@@ -46,13 +46,13 @@ export default function StepRail({ steps, active = 0, idPrefix, label, sx }) {
                                 sx={{
                                     display: 'grid', gridTemplateColumns: `${NODE}px 1fr`, columnGap: 1.75, alignItems: 'start',
                                     textDecoration: 'none', borderRadius: '8px', pt: '4px',
-                                    '&:hover .rail-title': { color: b.onDark.text },
-                                    '&:focus-visible': b.focusRingDark,
+                                    '&:hover .rail-title': { color: b.ink },
+                                    '&:focus-visible': b.focusRing,
                                 }}
                             >
                                 <Node state={state} />
                                 <Box sx={{ minWidth: 0, mt: '-3px' }}>
-                                    <Typography component="span" sx={{ display: 'block', fontSize: 10.5, lineHeight: 1.4, fontWeight: 800, letterSpacing: '0.17em', color: state === 'todo' ? b.onDark.subtle : b.cyan }}>
+                                    <Typography component="span" sx={{ display: 'block', fontSize: 10.5, lineHeight: 1.4, fontWeight: 800, letterSpacing: '0.17em', color: state === 'todo' ? b.mutedOnTint : b.accentText }}>
                                         {String(i + 1).padStart(2, '0')}
                                     </Typography>
                                     <Typography
@@ -60,12 +60,12 @@ export default function StepRail({ steps, active = 0, idPrefix, label, sx }) {
                                         className="rail-title"
                                         sx={{
                                             display: 'block', mt: 0.25, fontSize: 14, lineHeight: 1.35, fontWeight: 700,
-                                            color: state === 'active' ? b.onDark.text : b.onDark.body, transition: `color 250ms ${b.ease}`,
+                                            color: state === 'active' ? b.ink : b.ink2, transition: `color 250ms ${b.ease}`,
                                         }}
                                     >
                                         {step.title}
                                     </Typography>
-                                    <Typography component="span" sx={{ display: 'block', mt: 0.25, fontSize: 12.5, lineHeight: 1.5, fontWeight: 500, color: b.onDark.subtle }}>
+                                    <Typography component="span" sx={{ display: 'block', mt: 0.25, fontSize: 12.5, lineHeight: 1.5, fontWeight: 500, color: b.mutedOnTint }}>
                                         {step.short}
                                     </Typography>
                                 </Box>
@@ -84,9 +84,9 @@ function Node({ state }) {
         <Box
             aria-hidden
             sx={{
-                width: NODE, height: NODE, borderRadius: '50%', boxSizing: 'border-box', bgcolor: filled ? b.cyan : b.graphite,
-                border: `1.5px solid ${state === 'todo' ? b.onDark.ring : b.cyan}`,
-                boxShadow: filled ? '0 0 0 4px rgba(31,200,255,0.14)' : 'none',
+                width: NODE, height: NODE, borderRadius: '50%', boxSizing: 'border-box', bgcolor: filled ? b.accent : b.surface,
+                border: `1.5px solid ${state === 'todo' ? b.line2 : b.accent}`,
+                boxShadow: filled ? '0 0 0 4px rgba(15,143,199,0.14)' : 'none',
                 transition: `background-color 250ms ${b.ease}, border-color 250ms ${b.ease}, box-shadow 250ms ${b.ease}`,
             }}
         />

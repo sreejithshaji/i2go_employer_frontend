@@ -19,6 +19,12 @@ export const brand = {
     surface: '#FFFFFF',
     surface2: '#FDFDFE',
     surface3: '#F3F5F7',
+    // Blue-grey tint for the light homepage hero and employer section: a step darker than bg1/bg2.
+    tint1: '#DCE5EC',
+    tint2: '#D2DCE5',
+    heroTint1: '#CFDAE3', // the homepage hero: one step darker than tint1/tint2
+    heroTint2: '#C6D2DC',
+    mutedOnTint: '#4A5560', // secondary text on tint1/tint2 (≥ 5.4:1; `muted` drops to 4.1:1 there)
 
     // Accent. `accent` (3.6:1 on white) is for borders, ticks, nodes and
     // large text; small text uses `accentText` (6.0:1, from the CTA gradient).
@@ -37,7 +43,8 @@ export const brand = {
     navy2: '#060D15',
     graphite: '#0B1420',
     cyan: '#1FC8FF',
-    gold: '#FFC94D', // EU-flag gold, softened; "European Employers" in the hero H1
+    gold: '#FFC94D', // EU-flag gold, softened; for dark surfaces
+    goldText: '#9A6700', // the same gold for light surfaces (5.3:1 on white); "European Employers" in the hero H1
     onDark: {
         text: '#FFFFFF',
         body: 'rgba(255,255,255,0.64)', // body text (≥ 4.5:1 on navy)
