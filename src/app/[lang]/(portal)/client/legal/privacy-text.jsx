@@ -233,6 +233,12 @@ export function PrivacyDe({ lang }) {
                     Wenn Sie uns kontaktieren, verarbeiten wir Ihre Angaben zur Bearbeitung der Anfrage (Art. 6 Abs. 1 lit. b oder f
                     DSGVO). Die Daten werden gelöscht, sobald die Anfrage erledigt ist und keine Aufbewahrungspflichten bestehen.
                 </p>
+                <p>
+                    Der Hilfe-Chat im Portal beantwortet Fragen aus festen Hilfetexten, ohne KI. Bewerten Sie eine Antwort mit „hilfreich“
+                    oder „nicht hilfreich“, speichern wir die Bewertung, die Antwort und die Sprache; findet der Chat keine Antwort,
+                    speichern wir Ihre Frage (höchstens 200 Zeichen), um fehlende Hilfetexte zu ergänzen. Dabei speichern wir weder Ihr
+                    Konto noch Ihre IP-Adresse (Art. 6 Abs. 1 lit. f DSGVO). Bitte geben Sie im Chat keine personenbezogenen Daten ein.
+                </p>
             </LegalSection>
 
             <LegalSection id="storage" title="12. Cookies und Speicher im Browser">
@@ -276,6 +282,7 @@ export function PrivacyDe({ lang }) {
                     <li>Anfragen von Arbeitgebern: 24 Monate nach der letzten Änderung. Nach Löschung eines Kandidatenkontos bleiben sie ohne Bezug zur Person erhalten.</li>
                     <li>Arbeitgeberkonto: 12 Monate nach der letzten Aktivität oder nach Kündigung.</li>
                     <li>Zugriffsprotokoll der Arbeitgeber: 30 Tage.</li>
+                    <li>Bewertungen und unbeantwortete Fragen aus dem Hilfe-Chat: 6 Monate.</li>
                     <li>Einwilligungsnachweise: 3 Jahre nach Ende der Einwilligung (§ 195 BGB).</li>
                     <li>Server-Logfiles: 7 Tage.</li>
                     <li>Rechnungs- und Vertragsunterlagen: [FRIST: Aufbewahrungsfrist nach dem Recht der VAE zu bestätigen].</li>
@@ -463,6 +470,12 @@ export function PrivacyEn({ lang }) {
                     If you contact us, we use your details to handle your request (Art. 6(1)(b) or (f) GDPR) and delete them once it is
                     dealt with, unless we must keep them by law.
                 </p>
+                <p>
+                    The help chat on the portal answers questions from a fixed set of help texts, without AI. If you rate an answer as
+                    helpful or not helpful, we store the rating, the answer and the language; if the chat finds no answer, we store your
+                    question (at most 200 characters) so we can add missing help texts. We store neither your account nor your IP address
+                    (Art. 6(1)(f) GDPR). Please don’t enter personal data in the chat.
+                </p>
             </LegalSection>
 
             <LegalSection id="storage" title="12. Cookies and browser storage">
@@ -505,6 +518,7 @@ export function PrivacyEn({ lang }) {
                     <li>Employer enquiries: 24 months after the last update. After a candidate account is deleted they are no longer linked to the person.</li>
                     <li>Employer account: 12 months after the last activity or after termination.</li>
                     <li>Employer access log: 30 days.</li>
+                    <li>Help chat ratings and unanswered questions: 6 months.</li>
                     <li>Consent records: 3 years after the consent ends (§ 195 BGB).</li>
                     <li>Server logs: 7 days.</li>
                     <li>Contracts and invoices: [PERIOD: retention period under UAE law to be confirmed].</li>

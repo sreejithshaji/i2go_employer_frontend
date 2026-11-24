@@ -422,6 +422,7 @@ export default function CandidateProfileView({ candidate, error }) {
             {/* Sticky action bar on phones (14.13): the phone top bar's light frosted
                 glass and hairline, with the homepage cta for the enquiry. */}
             <Box
+                data-bottom-bar // lifts the help button above this bar (features/help-bot)
                 sx={{
                     display: { xs: 'flex', sm: 'none' }, position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 10,
                     gap: 1, alignItems: 'center',

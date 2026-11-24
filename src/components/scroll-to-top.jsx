@@ -43,11 +43,11 @@ export default function ScrollToTop({ raised = false }) {
             sx={{
                 position: 'fixed', zIndex: 20,
                 right: { xs: 16, md: 28 },
+                // Stacked above the help button (48px + 12px gap, features/help-bot).
                 bottom: {
-                    xs: `calc(${raised ? 88 : 20}px + env(safe-area-inset-bottom, 0px))`,
-                    sm: 28,
-                },
-                width: 44, height: 44, borderRadius: '50%',
+                    xs: `calc(${raised ? 148 : 80}px + env(safe-area-inset-bottom, 0px))`,
+                    sm: 88,
+                },                width: 44, height: 44, borderRadius: '50%',
                 color: b.ink,
                 bgcolor: 'rgba(255,255,255,0.55)',
                 backdropFilter: 'blur(10px) saturate(160%)', WebkitBackdropFilter: 'blur(10px) saturate(160%)',
