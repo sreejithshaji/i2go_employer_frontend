@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v16-appRouter';
 import { getSlugMaps } from '@/app/modules/candidates/_1-domain/category_service';
 import JsonLd from '@/components/json-ld';
+import { HelpBot } from '@/features/help-bot';
 import { getGuideSlugMap } from '@/app/modules/guides/_1-domain/guide_service';
 import { LOCALES, isLocale } from '@/lib/i18n/config';
 import { getDictionary } from '@/lib/i18n/dictionaries';
@@ -62,7 +63,11 @@ export default async function RootLayout({ children, params }) {
                 <JsonLd data={[organizationLd(), websiteLd(lang, t.meta.description)]} />
                 {/* Collects MUI (Emotion) styles on the server and puts them in the HTML */}
                 <AppRouterCacheProvider>
-                    <Providers lang={lang} dictionary={t} slugMaps={slugMaps}>{children}</Providers>
+                    <Providers lang={lang} dictionary={t} slugMaps={slugMaps}>
+                        {children}
+                        {/* Help chat on every layout (help-bot-plan.md, H2) */}
+                        <HelpBot />
+                    </Providers>
                 </AppRouterCacheProvider>
             </body>
         </html>
