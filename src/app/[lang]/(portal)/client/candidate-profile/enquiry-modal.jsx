@@ -90,7 +90,7 @@ function FieldGroup({ number, title, children }) {
  * the function stores the version with the enquiry. The I2Go team reviews
  * each enquiry before anything reaches the candidate.
  */
-export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
+export default function EnquiryDialog({ open = true, onClose, candidate, onSent, inline = false }) {
     const { profile, user } = useAuth();
     const { t, p } = useI18n();
     const theme = useTheme();
@@ -189,11 +189,16 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
 
     const firstName = candidate?.name?.split(' ')[0] || t.enquiry.thisCandidate;
 
-    return (
-        <Dialog open={open} onClose={submitting ? undefined : onClose} fullWidth maxWidth="sm" fullScreen={fullScreen}>
+    // Inline (on the profile page body): the same form, without the dialog
+    // frame, title or Cancel button.
+    const Content = inline ? InlineContent : DialogContent;
+    const Actions = inline ? InlineActions : DialogActions;
+
+    const body = (
+        <>
             {sent ? (
                 <>
-                    <DialogContent sx={{ textAlign: 'center', py: 6 }}>
+                    <Content sx={{ textAlign: 'center', py: inline ? 3 : 6 }}>
                         <Box sx={{ width: 72, height: 72, mx: 'auto', mb: 2, borderRadius: '50%', display: 'grid', placeItems: 'center', bgcolor: b.okSoft, color: b.ok }}>
                             <FiCheckCircle size={36} aria-hidden />
                         </Box>
@@ -201,15 +206,17 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
                         <Typography color="text.secondary" sx={{ maxWidth: 400, mx: 'auto' }}>
                             {format(t.enquiry.sentText, { name: firstName, email: form.email.trim() })}
                         </Typography>
-                    </DialogContent>
-                    <DialogActions sx={{ justifyContent: 'center', pb: 4 }}>
-                        <Button variant="cta" onClick={onClose} sx={{ minWidth: 140 }}>{t.enquiry.done}</Button>
-                    </DialogActions>
+                    </Content>
+                    {!inline && (
+                        <DialogActions sx={{ justifyContent: 'center', pb: 4 }}>
+                            <Button variant="cta" onClick={onClose} sx={{ minWidth: 140 }}>{t.enquiry.done}</Button>
+                        </DialogActions>
+                    )}
                 </>
             ) : (
                 <Box component="form" noValidate onSubmit={handleSubmit}>
-                    <DialogTitle sx={{ pb: 0.5 }}>{format(t.enquiry.title, { name: candidate?.name })}</DialogTitle>
-                    <DialogContent>
+                    {!inline && <DialogTitle sx={{ pb: 0.5 }}>{format(t.enquiry.title, { name: candidate?.name })}</DialogTitle>}
+                    <Content>
                         <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
                             {guest && <>{t.enquiry.guestNote}{' '}</>}
                             {t.enquiry.intro}{' '}
@@ -278,9 +285,9 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
                             <Turnstile onToken={setToken} />
                             {submitError && <Alert severity={submitError.severity}>{submitError.message}</Alert>}
                         </Stack>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={onClose} disabled={submitting} variant="ghost">{t.enquiry.cancel}</Button>
+                    </Content>
+                    <Actions>
+                        {!inline && <Button onClick={onClose} disabled={submitting} variant="ghost">{t.enquiry.cancel}</Button>}
                         <Button
                             type="submit"
                             variant="cta"
@@ -289,9 +296,24 @@ export default function EnquiryDialog({ open, onClose, candidate, onSent }) {
                         >
                             {submitting ? t.enquiry.sending : t.enquiry.send}
                         </Button>
-                    </DialogActions>
+                    </Actions>
                 </Box>
             )}
+        </>
+    );
+
+    if (inline) return <Box sx={{ position: 'relative' }}>{body}</Box>;
+    return (
+        <Dialog open={open} onClose={submitting ? undefined : onClose} fullWidth maxWidth="sm" fullScreen={fullScreen}>
+            {body}
         </Dialog>
     );
+}
+
+function InlineContent({ sx, children }) {
+    return <Box sx={sx}>{children}</Box>;
+}
+
+function InlineActions({ children }) {
+    return <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 3 }}>{children}</Box>;
 }
